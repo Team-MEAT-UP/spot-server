@@ -16,12 +16,10 @@ public class ClovaClient {
         return clovaWebClient
                 .post()
                 .uri(clovaProperties.basePath())
-                .header("Authorization", "Bearer " + clovaProperties.studioApiKey())
-                .header("X-NCP-CLOVASTUDIO-REQUEST-ID", clovaProperties.requestId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(ClovaResponse.class)
-                .block();
+            .block();
     }
 }

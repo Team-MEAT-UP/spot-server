@@ -51,7 +51,7 @@ public class WebClientConfig {
     @Bean
     public WebClient clovaWebClient() {
         return WebClient.builder()
-                .defaultHeader("X-NCP-CLOVASTUDIO-API-KEY",clovaProperties.studioApiKey())
+                .defaultHeader("Authorization", "Bearer " + clovaProperties.studioApiKey())
                 .defaultHeader("X-NCP-CLOVASTUDIO-REQUEST-ID", clovaProperties.requestId())
                 .baseUrl(clovaProperties.baseUrl())
                 .build();

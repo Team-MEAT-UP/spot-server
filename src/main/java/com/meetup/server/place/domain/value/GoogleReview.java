@@ -32,7 +32,7 @@ public record GoogleReview(
                 .build();
     }
 
-    public GoogleReview updateContent(String translated) {
+    public GoogleReview withTranslateContent(String translated) {
         return new GoogleReview(rating, content, translated, author, authorProfileImage, publishTime);
     }
 }
