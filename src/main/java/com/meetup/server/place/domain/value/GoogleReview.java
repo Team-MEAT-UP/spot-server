@@ -12,6 +12,7 @@ import static com.meetup.server.global.util.TimeUtil.KST_ZONE_ID;
 public record GoogleReview(
         Integer rating,
         String content,
+        String translatedContent,
         String author,
         String authorProfileImage,
         LocalDateTime publishTime
@@ -24,9 +25,14 @@ public record GoogleReview(
         return GoogleReview.builder()
                 .rating(review.rating())
                 .content(review.originalText().text())
+                .translatedContent(null)
                 .author(review.authorAttribution().displayName())
                 .authorProfileImage(review.authorAttribution().photoUri())
                 .publishTime(publishTime)
                 .build();
+    }
+
+    public GoogleReview updateContent(String translated) {
+        return new GoogleReview(rating, content, translated, author, authorProfileImage, publishTime);
     }
 }

@@ -44,4 +44,8 @@ public class ReviewReader {
     public Map<UUID, Boolean> readReviewsWrittenByUser(List<EventHistory> projections, Long userId) {
         return reviewRepository.findReviewsWrittenByUser(projections, userId);
     }
+
+    public List<Review> readAll() {
+        return reviewRepository.findAll();
+    }
 }

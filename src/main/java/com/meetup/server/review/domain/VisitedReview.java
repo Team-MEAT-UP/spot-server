@@ -44,4 +44,8 @@ public class VisitedReview extends BaseEntity {
     public void assignTo(Review review) {
         this.review = review;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

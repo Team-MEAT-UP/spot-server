@@ -89,4 +89,11 @@ public class Place extends BaseEntity {
     public boolean isSamePlace(Place place) {
         return this.id.equals(place.getId());
     }
+
+    public void saveGoogleReviews(List<GoogleReview> googleReviews) {
+        if (googleReviews == null || googleReviews.isEmpty()) {
+            return;
+        }
+        this.googleReviews = googleReviews;
+    }
 }
