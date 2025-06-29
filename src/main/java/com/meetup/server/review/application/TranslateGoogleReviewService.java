@@ -5,7 +5,7 @@ import com.meetup.server.place.domain.value.GoogleReview;
 import com.meetup.server.place.implement.PlaceReader;
 import com.meetup.server.place.implement.PlaceWriter;
 import com.meetup.server.review.implement.ReviewTranslator;
-import com.meetup.server.review.util.TextUtils;
+import com.meetup.server.review.util.TranslationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class TranslateGoogleReviewService {
         return reviews.stream()
                 .map(review -> {
                     String content = review.content();
-                    if (!isTranslatable(content)) {
+                    if (TranslationUtils.isKorean(content)) {
                         return review;
                     }
 
@@ -54,10 +54,6 @@ public class TranslateGoogleReviewService {
                     return translated != null ? review.withTranslateContent(translated) : review;
                 })
                 .toList();
-    }
-
-    private boolean isTranslatable(String content) {
-        return content != null && !content.isBlank() && !TextUtils.isKorean(content);
     }
 
     private boolean hasTranslatedContent(List<GoogleReview> reviews) {

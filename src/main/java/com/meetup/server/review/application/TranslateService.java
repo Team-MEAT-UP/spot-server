@@ -4,6 +4,7 @@ import com.meetup.server.review.domain.Review;
 import com.meetup.server.review.domain.VisitedReview;
 import com.meetup.server.review.implement.ReviewReader;
 import com.meetup.server.review.implement.ReviewTranslator;
+import com.meetup.server.review.util.TranslationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,20 +28,12 @@ public class TranslateService {
             VisitedReview visitedReview = review.getVisitedReview();
             String content = visitedReview.getContent();
 
-            if (!isTranslatable(content)) continue;
+            if (TranslationUtils.isKorean(content)) continue;
 
             String translated = reviewTranslator.translate(content);
             if (translated != null) {
                 visitedReview.updateContent(translated);
             }
         }
-    }
-
-    private boolean isTranslatable(String content) {
-        return content != null && !content.isBlank() && !isKorean(content);
-    }
-
-    private boolean isKorean(String text) {
-        return text.matches(".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*");
     }
 }

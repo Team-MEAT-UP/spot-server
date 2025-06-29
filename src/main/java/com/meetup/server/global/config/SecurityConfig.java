@@ -1,14 +1,12 @@
 package com.meetup.server.global.config;
 
 import com.meetup.server.auth.application.CustomOAuth2UserService;
-import com.meetup.server.auth.presentation.filter.JwtAccessDeniedHandler;
-import com.meetup.server.auth.presentation.filter.JwtAuthenticationEntryPoint;
-import com.meetup.server.auth.presentation.filter.JwtAuthenticationFilter;
-import com.meetup.server.auth.presentation.filter.ResponseContextFilter;
+import com.meetup.server.auth.presentation.filter.*;
 import com.meetup.server.auth.support.handler.OAuth2LoginFailureHandler;
 import com.meetup.server.auth.support.handler.OAuth2LoginSuccessHandler;
 import com.meetup.server.auth.support.resolver.CustomAuthorizationRequestResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -23,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@ConditionalOnBean(SwaggerAuthFilter.class)
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -32,6 +31,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final ResponseContextFilter responseContextFilter;
+    private final SwaggerAuthFilter swaggerAuthFilter;
 
     private final String[] BLACK_LIST = {
             "/historys/**",
@@ -70,6 +70,7 @@ public class SecurityConfig {
                                 .successHandler(oAuth2LoginSuccessHandler)
                                 .failureHandler(oAuth2LoginFailureHandler)
                 )
+                .addFilterBefore(swaggerAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(responseContextFilter, JwtAuthenticationFilter.class);
 
