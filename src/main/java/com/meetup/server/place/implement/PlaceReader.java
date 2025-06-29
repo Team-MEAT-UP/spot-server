@@ -30,4 +30,8 @@ public class PlaceReader {
     public List<PlaceWithDistance> readAllWithinRadius(Point point, double radius) {
         return placeRepository.findAllWithinRadius(point, radius);
     }
+
+    public List<Place> readAll() {
+        return placeRepository.findAll();
+    }
 }
