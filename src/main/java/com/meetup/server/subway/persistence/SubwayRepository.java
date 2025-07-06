@@ -13,9 +13,7 @@ import java.util.Optional;
 @Repository
 public interface SubwayRepository extends JpaRepository<Subway, Integer> {
 
-    Optional<Subway> findByNameAndLine(String name, Integer line);
-
-    Optional<Subway> findByCode(Integer code);
+    Optional<Subway> findByCode(String code);
 
     @Query(value = """
                 SELECT s.*
