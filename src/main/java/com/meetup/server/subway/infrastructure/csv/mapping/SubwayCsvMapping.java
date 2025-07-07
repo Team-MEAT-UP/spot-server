@@ -7,17 +7,32 @@ import lombok.Getter;
 public class SubwayCsvMapping {
 
     @CsvBindByName(column = "호선")
-    private int line;
+    private String line;
 
-    @CsvBindByName(column = "고유역번호(외부역코드)")
-    private int code;
+    @CsvBindByName(column = "출발역 ID")
+    private String fromCode;
 
-    @CsvBindByName(column = "역명")
-    private String name;
+    @CsvBindByName(column = "출발역")
+    private String fromName;
 
-    @CsvBindByName(column = "경도")
-    private double longitude;
+    @CsvBindByName(column = "출발역 경도")
+    private double fromLongitude;
 
-    @CsvBindByName(column = "위도")
-    private double latitude;
+    @CsvBindByName(column = "출발역 위도")
+    private double fromLatitude;
+
+    @CsvBindByName(column = "도착역 ID")
+    private String toCode;
+
+    @CsvBindByName(column = "도착역")
+    private String toName;
+
+    @CsvBindByName(column = "도착역 경도")
+    private double toLongitude;
+
+    @CsvBindByName(column = "도착역 위도")
+    private double toLatitude;
+
+    @CsvBindByName(column = "소요시간")
+    private int sectionTime;
 }

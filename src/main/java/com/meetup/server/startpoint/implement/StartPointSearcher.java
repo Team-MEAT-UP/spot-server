@@ -10,12 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class StartPointSearcher {
 
-    private static final String SEOUL = "서울";
+    private static final Set<String> SUPPORTED_REGIONS = Set.of("서울", "경기", "인천");
 
     private final KakaoLocalKeywordClient kakaoLocalKeywordClient;
 
@@ -30,13 +31,14 @@ public class StartPointSearcher {
         }
 
         List<KakaoSearchResponse> filteredSeoulResponse = response.getKakaoSearchResponses().stream()
-                .filter(this::isSeoulAddress)
+                .filter(this::isSupportedRegion)
                 .toList();
+
         response.updateKakaoSearchResponse(filteredSeoulResponse);
         return response;
     }
 
-    private boolean isSeoulAddress(KakaoSearchResponse response) {
+    private boolean isSupportedRegion(KakaoSearchResponse response) {
         String address = response.getAddressName();
         if (address == null || address.isBlank()) {
             return false;
@@ -44,7 +46,8 @@ public class StartPointSearcher {
 
         int spaceIdx = address.indexOf(' ');
         String firstWord = (spaceIdx == -1) ? address : address.substring(0, spaceIdx);
-        return SEOUL.equals(firstWord);
+
+        return SUPPORTED_REGIONS.contains(firstWord);
     }
 
 }

@@ -6,7 +6,6 @@ import com.meetup.server.startpoint.domain.type.Location;
 import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.domain.SubwayConnection;
 import com.meetup.server.subway.domain.TransferInfo;
-import com.meetup.server.subway.infrastructure.csv.mapping.SectionTimeCsvMapping;
 import com.meetup.server.subway.infrastructure.csv.mapping.SubwayCsvMapping;
 import com.meetup.server.subway.infrastructure.csv.mapping.TransferInfoMapping;
 import com.meetup.server.subway.persistence.SubwayConnectionRepository;
@@ -26,9 +25,12 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,10 +56,10 @@ public class SubwayCsvLoader implements ApplicationRunner {
         }
     }
 
-    private List<Subway> parseSubwayCsv() throws IOException {
-        ClassPathResource resource = new ClassPathResource("csv/서울교통공사_1_8호선 역사 좌표(위경도) 정보_20241031.csv");
+    private Set<Subway> parseSubwayCsv() throws IOException {
+        ClassPathResource resource = new ClassPathResource("csv/SPOT_지하철역_정보.csv");
 
-        try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), Charset.forName("EUC-KR"))) {
+        try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), StandardCharsets.UTF_8)) {
             HeaderColumnNameMappingStrategy<SubwayCsvMapping> strategy = new HeaderColumnNameMappingStrategy<>();
             strategy.setType(SubwayCsvMapping.class);
 
@@ -67,73 +69,78 @@ public class SubwayCsvLoader implements ApplicationRunner {
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
-            return csvToBean.parse()
-                    .stream()
-                    .map(csvLine -> Subway.builder()
-                            .name(csvLine.getName())
-                            .code(csvLine.getCode())
-                            .line(csvLine.getLine())
-                            .location(Location.of(csvLine.getLongitude(), csvLine.getLatitude()))
-                            .point(CoordinateUtil.createPoint(csvLine.getLongitude(), csvLine.getLatitude()))
-                            .build()
-                    ).toList();
+            Set<Subway> subways = new HashSet<>();
+
+            for (SubwayCsvMapping csvLine : csvToBean.parse()) {
+                String line = csvLine.getLine();
+
+                Subway fromSubway = Subway.builder()
+                        .name(csvLine.getFromName())
+                        .code(csvLine.getFromCode())
+                        .line(line)
+                        .location(Location.of(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
+                        .point(CoordinateUtil.createPoint(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
+                        .build();
+
+                Subway toSubway = Subway.builder()
+                        .name(csvLine.getToName())
+                        .code(csvLine.getToCode())
+                        .line(line)
+                        .location(Location.of(csvLine.getToLongitude(), csvLine.getToLatitude()))
+                        .point(CoordinateUtil.createPoint(csvLine.getToLongitude(), csvLine.getToLatitude()))
+                        .build();
+
+                subways.add(fromSubway);
+                subways.add(toSubway);
+            }
+
+            return subways;
         }
     }
 
     private List<SubwayConnection> parseSectionTimeCsv() throws IOException {
-        ClassPathResource resource = new ClassPathResource("csv/서울교통공사 역간거리 및 소요시간_240810.csv");
+        ClassPathResource resource = new ClassPathResource("csv/SPOT_지하철역_정보.csv");
 
-        try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), Charset.forName("EUC-KR"))) {
-            HeaderColumnNameMappingStrategy<SectionTimeCsvMapping> strategy = new HeaderColumnNameMappingStrategy<>();
-            strategy.setType(SectionTimeCsvMapping.class);
+        try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), StandardCharsets.UTF_8)) {
+            HeaderColumnNameMappingStrategy<SubwayCsvMapping> strategy = new HeaderColumnNameMappingStrategy<>();
+            strategy.setType(SubwayCsvMapping.class);
 
-            CsvToBean<SectionTimeCsvMapping> csvToBean = new CsvToBeanBuilder<SectionTimeCsvMapping>(reader)
+            CsvToBean<SubwayCsvMapping> csvToBean = new CsvToBeanBuilder<SubwayCsvMapping>(reader)
                     .withMappingStrategy(strategy)
                     .withIgnoreEmptyLine(true)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
-            List<SectionTimeCsvMapping> records = csvToBean.parse();
-
-            Map<Integer, List<SectionTimeCsvMapping>> groupedByLine = records.stream()
-                    .collect(Collectors.groupingBy(SectionTimeCsvMapping::getLine, LinkedHashMap::new, Collectors.toList()));
-
+            List<SubwayCsvMapping> records = csvToBean.parse();
             List<SubwayConnection> connections = new ArrayList<>();
 
-            for (Map.Entry<Integer, List<SectionTimeCsvMapping>> entry : groupedByLine.entrySet()) {
-                int line = entry.getKey();
-                List<SectionTimeCsvMapping> stations = entry.getValue();
+            for (SubwayCsvMapping record : records) {
+                Subway fromSubway = subwayRepository.findByCode(record.getFromCode()).orElse(null);
+                Subway toSubway = subwayRepository.findByCode(record.getToCode()).orElse(null);
 
-                for (int i = 0; i < stations.size() - 1; i++) {
-                    SectionTimeCsvMapping from = stations.get(i);
-                    SectionTimeCsvMapping to = stations.get(i + 1);
-
-                    Subway fromSubway = subwayRepository.findByNameAndLine(from.getName(), line).orElse(null);
-                    Subway toSubway = subwayRepository.findByNameAndLine(to.getName(), line).orElse(null);
-
-                    if (fromSubway == null || toSubway == null) {
-                        log.warn("지하철 정보 없음 - from: {} / to: {} / line: {}", from.getName(), to.getName(), line);
-                        continue;
-                    }
-
-                    int sectionTimeSec = parseTimeToSeconds(to.getSectionTime());
-
-                    SubwayConnection connectionAB = SubwayConnection.builder()
-                            .fromSubway(fromSubway)
-                            .toSubway(toSubway)
-                            .line(line)
-                            .sectionTimeSec(sectionTimeSec)
-                            .build();
-                    connections.add(connectionAB);
-
-                    SubwayConnection connectionBA = SubwayConnection.builder()
-                            .fromSubway(toSubway)
-                            .toSubway(fromSubway)
-                            .line(line)
-                            .sectionTimeSec(sectionTimeSec)
-                            .build();
-                    connections.add(connectionBA);
+                if (fromSubway == null || toSubway == null) {
+                    log.warn("지하철 정보 없음 - from: {} (code: {}) / to: {} (code: {})",
+                            record.getFromName(), record.getFromCode(), record.getToName(), record.getToCode());
+                    continue;
                 }
+
+                int sectionTimeSec = record.getSectionTime() * 60;
+
+                SubwayConnection connectionAB = SubwayConnection.builder()
+                        .fromSubway(fromSubway)
+                        .toSubway(toSubway)
+                        .line(record.getLine())
+                        .sectionTimeSec(sectionTimeSec)
+                        .build();
+                connections.add(connectionAB);
+
+                SubwayConnection connectionBA = SubwayConnection.builder()
+                        .fromSubway(toSubway)
+                        .toSubway(fromSubway)
+                        .line(record.getLine())
+                        .sectionTimeSec(sectionTimeSec)
+                        .build();
+                connections.add(connectionBA);
             }
 
             return connections;
@@ -159,17 +166,8 @@ public class SubwayCsvLoader implements ApplicationRunner {
             List<TransferInfo> transferInfos = new ArrayList<>();
 
             for (TransferInfoMapping mapping : transferInfoMappings) {
-                int fromCode, toCode;
-                try {
-                    fromCode = Integer.parseInt(mapping.getFromCode());
-                    toCode = Integer.parseInt(mapping.getToCode());
-                } catch (NumberFormatException e) {
-                    log.warn("숫자 변환 실패 - 무시된 행: {}", mapping);
-                    continue;
-                }
-
-                Subway fromSubway = subwayRepository.findByCode(fromCode).orElse(null);
-                Subway toSubway = subwayRepository.findByCode(toCode).orElse(null);
+                Subway fromSubway = subwayRepository.findByCode(mapping.getFromCode()).orElse(null);
+                Subway toSubway = subwayRepository.findByCode(mapping.getToCode()).orElse(null);
 
                 if (fromSubway == null || toSubway == null) {
                     log.warn("지하철 정보 없음 - from: {} (code: {}, line: {}) / to: {} (code: {}, line: {})",
@@ -196,14 +194,5 @@ public class SubwayCsvLoader implements ApplicationRunner {
 
             return transferInfos;
         }
-    }
-
-    private int parseTimeToSeconds(String timeStr) {
-        if (timeStr == null || timeStr.isBlank()) return 0;
-
-        String[] parts = timeStr.split(":");
-        int minutes = Integer.parseInt(parts[0]);
-        int seconds = Integer.parseInt(parts[1]);
-        return minutes * 60 + seconds;
     }
 }
