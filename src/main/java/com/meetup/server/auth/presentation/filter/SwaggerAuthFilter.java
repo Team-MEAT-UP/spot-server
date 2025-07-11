@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.util.Base64;
 
 @Component
-@Profile("!local")
 public class SwaggerAuthFilter extends OncePerRequestFilter {
 
     @Value("${swagger.id}")
@@ -55,6 +53,10 @@ public class SwaggerAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidBasicAuth(String header) {
+        if (isLocalAuthBypass()) {
+            return true;
+        }
+
         if (header == null || !header.startsWith("Basic ")) {
             return false;
         }
@@ -75,5 +77,9 @@ public class SwaggerAuthFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    private boolean isLocalAuthBypass() {
+        return ADMIN_ID.isEmpty() && ADMIN_PW.isEmpty();
     }
 }
