@@ -32,4 +32,6 @@ public interface SubwayRepository extends JpaRepository<Subway, Integer> {
                 WHERE CAST(st_dwithin(s.point, :centerPoint, :radius, true) AS boolean) = true
             """)
     List<Subway> findAllWithinRadius(@Param("centerPoint") Point centerPoint, @Param("radius") double radius);
+
+    List<Subway> findBySubwayIdIn(List<Integer> subwayIds);
 }

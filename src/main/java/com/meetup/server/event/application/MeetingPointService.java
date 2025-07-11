@@ -1,7 +1,7 @@
 package com.meetup.server.event.application;
 
 import com.meetup.server.event.domain.Event;
-import com.meetup.server.event.dto.response.MiddlePointResultResponse;
+import com.meetup.server.event.dto.response.MeetingPointResult;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.implement.EventReader;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MiddlePointService {
+public class MeetingPointService {
 
     private final EventReader eventReader;
     private final StartPointReader startPointReader;
@@ -35,7 +35,7 @@ public class MiddlePointService {
     private final EventValidator eventValidator;
 
     @Transactional
-    public MiddlePointResultResponse getMiddlePoint(UUID eventId) {
+    public List<MeetingPointResult> getMeetingPoints(UUID eventId) {
         Event event = eventReader.read(eventId);
         List<StartPoint> startPoints = startPointReader.readAll(event);
         eventValidator.validateMinimumStartPoints(startPoints);
@@ -49,18 +49,13 @@ public class MiddlePointService {
 
         Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPathsMap = subwayProcessor.mapStartPointsToDestinationSubways(startPoints, startPointToSubwayMap, nearbySubways);
 
-        subwayProcessor.findMostFairSubway(startPointToSubwayPathsMap).ifPresentOrElse(subwayId -> {
-            Subway subway = subwayReader.read(subwayId);
-            saveMiddlePoint(event, subway);
-            log.info("중간지점 Subway: {} ({})", subway.getName(), subway.getSubwayId());
-        }, () -> {
+        List<Integer> topFairSubwayIds = subwayProcessor.findTopFairSubways(startPointToSubwayPathsMap);
+        if (topFairSubwayIds.isEmpty()) {
             throw new EventException(EventErrorType.PATH_CALCULATION_FAILED);
-        });
+        }
 
-        return MiddlePointResultResponse.of(event, startPoints);
-    }
-
-    private void saveMiddlePoint(Event event, Subway subway) {
-        event.updateSubway(subway);
+        return subwayReader.readByIdIn(topFairSubwayIds).stream()
+                .map(subway -> MeetingPointResult.of(event, startPoints, subway))
+                .toList();
     }
 }
