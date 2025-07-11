@@ -5,6 +5,8 @@ import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
 import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.implement.MeetingPointCalculator;
+import com.meetup.server.event.implement.RouteAssembler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
@@ -20,16 +22,16 @@ import java.util.UUID;
 @Slf4j
 public class EventCacheService {
 
-    private final MeetingPointService meetingPointService;
-    private final RouteService routeService;
+    private final MeetingPointCalculator meetingPointCalculator;
+    private final RouteAssembler routeAssembler;
     private final EventReader eventReader;
     private final EventProcessor eventProcessor;
 
     @Cacheable(value = "routeDetails", key = "#eventId", unless = "#result == null")
     public MeetingPointRoutesResponse getCachedMeetingPointRoutes(UUID eventId) {
-        List<MeetingPointResult> resultResponses = meetingPointService.getMeetingPoints(eventId);
+        List<MeetingPointResult> resultResponses = meetingPointCalculator.calculate(eventId);
         List<MeetingPointRouteGroup> meetingPointRouteGroups = resultResponses.stream()
-                .map(resultResponse -> routeService.getAllRouteDetails(resultResponse.event(), resultResponse.startPoints(), resultResponse.subway()))
+                .map(resultResponse -> routeAssembler.assemble(resultResponse.event(), resultResponse.startPoints(), resultResponse.subway()))
                 .toList();
         return new MeetingPointRoutesResponse(meetingPointRouteGroups);
     }

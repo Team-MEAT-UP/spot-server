@@ -1,31 +1,30 @@
-package com.meetup.server.event.application;
+package com.meetup.server.event.implement;
 
 import com.meetup.server.event.dto.response.DrivingInfoResponse;
 import com.meetup.server.event.dto.response.RouteResponse;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
-import com.meetup.server.startpoint.application.RouteFacadeService;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.exception.StartPointErrorType;
 import com.meetup.server.startpoint.exception.StartPointException;
 import com.meetup.server.startpoint.util.RouteExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class RouteDetailService {
+public class RouteDetailFetcher {
 
-    private final RouteFacadeService routeFacadeService;
+    private final RouteFacade routeFacade;
 
-    public RouteResponse fetchPerRouteDetails(
+    public RouteResponse fetch(
             StartPoint startPoint,
             String startX, String startY, String endX, String endY
     ) {
-        OdsayTransitRouteSearchResponse transitRoute = routeFacadeService.getTransitRoute(startX, startY, endX, endY);
-        KakaoMobilityResponse drivingRoute = routeFacadeService.getDrivingRoute(startX, startY, endX, endY);
+        OdsayTransitRouteSearchResponse transitRoute = routeFacade.getTransitRoute(startX, startY, endX, endY);
+        KakaoMobilityResponse drivingRoute = routeFacade.getDrivingRoute(startX, startY, endX, endY);
 
         if (transitRoute == null) {
             throw new StartPointException(StartPointErrorType.ODSAY_ERROR);
