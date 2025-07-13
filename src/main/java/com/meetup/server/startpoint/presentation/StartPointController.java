@@ -29,14 +29,25 @@ public class StartPointController {
         return ApiResponse.success(response);
     }
 
-    @Operation(summary = "출발지 생성 API", description = "모임 참여자의 출발지를 생성합니다")
+    @Operation(summary = "출발지 생성 및 수정 API", description = "startPointId가 없으면 생성, 있으면 수정합니다")
     @PostMapping("/events/{eventId}/start-points")
-    public ApiResponse<EventStartPointResponse> createStartPoint(
+    public ApiResponse<EventStartPointResponse> upsertStartPoint(
             @PathVariable UUID eventId,
             @Valid @RequestBody StartPointRequest startPointRequest,
             @AuthenticationPrincipal Long userId,
-            @RequestParam(required = false) UUID guestId
+            @RequestParam(required = false) UUID guestId,
+            @RequestParam(required = false) UUID startPointId
     ) {
-        return ApiResponse.success(startPointService.createStartPoint(eventId, userId, guestId, startPointRequest));
+        return ApiResponse.success(startPointService.upsertStartPoint(eventId, userId, guestId, startPointId, startPointRequest));
+    }
+
+    @Operation(summary = "출발지 삭제 API", description = "출발지를 삭제합니다")
+    @DeleteMapping("/events/{eventId}/start-points/{startPointId}")
+    public ApiResponse<?> deleteStartPoint(
+            @PathVariable UUID eventId,
+            @PathVariable UUID startPointId
+    ) {
+        startPointService.deleteStartPoint(eventId, startPointId);
+        return ApiResponse.success();
     }
 }

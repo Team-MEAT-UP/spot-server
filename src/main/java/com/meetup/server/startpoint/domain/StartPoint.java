@@ -86,4 +86,12 @@ public class StartPoint extends BaseEntity {
     public void updateIsTransit(boolean isTransit) {
         this.isTransit = isTransit;
     }
+
+    public void updateStartPoint(String name, Address address, Location location, String nonUserName, Point point) {
+        this.name = name;
+        this.address = address;
+        this.location = location;
+        this.nonUserName = nonUserName;
+        this.point = point;
+    }
 }

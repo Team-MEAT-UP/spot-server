@@ -68,4 +68,18 @@ public class StartPointProcessor {
     public void updateTransit(StartPoint startPoint, boolean isTransit) {
         startPoint.updateIsTransit(isTransit);
     }
+
+    public void update(StartPoint startPoint, StartPointRequest startPointRequest) {
+        startPoint.updateStartPoint(
+                startPointRequest.startPoint(),
+                Address.of(startPointRequest.address(), startPointRequest.roadAddress()),
+                Location.of(startPointRequest.longitude(), startPointRequest.latitude()),
+                startPointRequest.username(),
+                CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude())
+        );
+    }
+
+    public void delete(StartPoint startPoint) {
+        startPointRepository.delete(startPoint);
+    }
 }
