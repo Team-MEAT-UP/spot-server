@@ -6,8 +6,8 @@ import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.global.clients.kakao.local.KakaoLocalResponse;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
-import com.meetup.server.startpoint.exception.InvalidStartPointException;
 import com.meetup.server.startpoint.exception.StartPointErrorType;
+import com.meetup.server.startpoint.exception.StartPointException;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.implement.StartPointSearcher;
@@ -32,13 +32,34 @@ public class StartPointService {
 
     @Transactional
     @CacheEvict(value = "routeDetails", key = "#eventId")
-    public EventStartPointResponse upsertStartPoint(UUID eventId, Long userId, UUID guestId, UUID startPointId, StartPointRequest startPointRequest) {
+    public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
         Event event = eventReader.read(eventId);
+        List<StartPoint> startPointList = startPointReader.readAll(event);
 
-        if (startPointId != null) {
-            return updateStartPoint(startPointId, startPointRequest);
+        if (userId != null && validateAlreadyHasStartPoint(userId, startPointList)) {
+            StartPoint startPoint = startPointProcessor.saveByGuest(
+                    event,
+                    null,
+                    startPointRequest
+            );
+            return EventStartPointResponse.of(event, startPoint);
         }
-        return createStartPoint(event, userId, guestId, startPointRequest);
+
+        StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
+        return EventStartPointResponse.of(event, startPoint);
+    }
+
+    @Transactional
+    @CacheEvict(value = "routeDetails", key = "#eventId")
+    public EventStartPointResponse updateStartPoint(UUID eventId, UUID startPointId, StartPointRequest startPointRequest) {
+        StartPoint startPoint = startPointReader.read(startPointId);
+
+        if (!startPoint.getEvent().getEventId().equals(eventId)) {
+            throw new StartPointException(StartPointErrorType.INVALID_START_POINT);
+        }
+
+        startPointProcessor.update(startPoint, startPointRequest);
+        return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
     }
 
     @Transactional
@@ -47,7 +68,7 @@ public class StartPointService {
         StartPoint startPoint = startPointReader.read(startPointId);
 
         if (!startPoint.getEvent().getEventId().equals(eventId)) {
-            throw new InvalidStartPointException(StartPointErrorType.INVALID_START_POINT);
+            throw new StartPointException(StartPointErrorType.INVALID_START_POINT);
         }
 
         startPointProcessor.delete(startPoint);
@@ -55,29 +76,6 @@ public class StartPointService {
 
     public KakaoLocalResponse searchStartPoint(String textQuery) {
         return startPointSearcher.search(textQuery);
-    }
-
-    private EventStartPointResponse updateStartPoint(UUID startPointId, StartPointRequest startPointRequest) {
-        StartPoint startPoint = startPointReader.read(startPointId);
-        startPointProcessor.update(startPoint, startPointRequest);
-        return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
-    }
-
-    private EventStartPointResponse createStartPoint(Event event, Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        List<StartPoint> startPointList = startPointReader.readAll(event);
-        boolean alreadyHas = userId != null && validateAlreadyHasStartPoint(userId, startPointList);
-        StartPoint startPoint;
-
-        if (alreadyHas) {
-            startPoint = startPointProcessor.saveByGuest(
-                    event,
-                    null,
-                    startPointRequest
-            );
-        } else {
-            startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
-        }
-        return EventStartPointResponse.of(event, startPoint);
     }
 
     private boolean validateAlreadyHasStartPoint(Long userId, List<StartPoint> startPointList) {
