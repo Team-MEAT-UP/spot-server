@@ -31,7 +31,7 @@ public class StartPointController {
 
     @Operation(summary = "출발지 생성 API", description = "출발지를 생성합니다")
     @PostMapping("/events/{eventId}/start-points")
-    public ApiResponse<EventStartPointResponse> upsertStartPoint(
+    public ApiResponse<EventStartPointResponse> createStartPoint(
             @PathVariable UUID eventId,
             @Valid @RequestBody StartPointRequest startPointRequest,
             @AuthenticationPrincipal Long userId,
