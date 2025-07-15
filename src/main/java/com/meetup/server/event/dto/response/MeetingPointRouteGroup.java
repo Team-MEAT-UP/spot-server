@@ -32,7 +32,7 @@ public class MeetingPointRouteGroup {
                 .eventMaker(UsernameExtractor.extractDisplayName(startPoint))
                 .averageTime(calculateAverageTime(routeResponse))
                 .peopleCount(routeResponse.size())
-                .meetingPoint(MeetingPoint.of(subway))
+                .meetingPoint(MeetingPoint.from(subway))
                 .routeResponse(routeResponse)
                 .parkingLot(ParkingLotResponse.from(closestParkingLot))
                 .build();

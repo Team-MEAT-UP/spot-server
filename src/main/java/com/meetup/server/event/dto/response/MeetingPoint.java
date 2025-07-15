@@ -7,7 +7,7 @@ public record MeetingPoint(
         double endLongitude, //경도(:longitude)
         double endLatitude //위도(:latitude)
 ) {
-    public static MeetingPoint of(Subway subway) {
+    public static MeetingPoint from(Subway subway) {
         return new MeetingPoint(subway.getName(), subway.getLocation().getRoadLongitude(), subway.getLocation().getRoadLatitude());
     }
 }
