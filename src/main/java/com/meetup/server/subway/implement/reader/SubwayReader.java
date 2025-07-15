@@ -23,8 +23,8 @@ public class SubwayReader {
         return subwayRepository.findById(subwayId).orElseThrow();
     }
 
-    public List<Subway> readByIdIn(List<Integer> subwayIds) {
-        return subwayRepository.findBySubwayIdIn(subwayIds);
+    public List<Subway> readAllByIdIn(List<Integer> subwayIds) {
+        return subwayRepository.findAllBySubwayIdIn(subwayIds);
     }
 
     public Subway readClosestSubway(Point startPoint) {
