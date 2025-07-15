@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RouteFacade {
+public class RouteApiCaller {
 
     private final OdsayTransitRouteSearchClient odsayTransitRouteSearchClient;
     private final KakaoMobilityClient kakaoMobilityClient;

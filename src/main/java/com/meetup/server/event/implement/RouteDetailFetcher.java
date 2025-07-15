@@ -17,14 +17,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RouteDetailFetcher {
 
-    private final RouteFacade routeFacade;
+    private final RouteApiCaller routeApiCaller;
 
     public RouteResponse fetch(
             StartPoint startPoint,
             String startX, String startY, String endX, String endY
     ) {
-        OdsayTransitRouteSearchResponse transitRoute = routeFacade.getTransitRoute(startX, startY, endX, endY);
-        KakaoMobilityResponse drivingRoute = routeFacade.getDrivingRoute(startX, startY, endX, endY);
+        OdsayTransitRouteSearchResponse transitRoute = routeApiCaller.getTransitRoute(startX, startY, endX, endY);
+        KakaoMobilityResponse drivingRoute = routeApiCaller.getDrivingRoute(startX, startY, endX, endY);
 
         if (transitRoute == null) {
             throw new StartPointException(StartPointErrorType.ODSAY_ERROR);
