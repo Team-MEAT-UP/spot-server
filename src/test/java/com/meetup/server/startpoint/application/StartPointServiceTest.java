@@ -54,7 +54,8 @@ class StartPointServiceTest extends IntegrationTestContainer {
         EventStartPointResponse eventStartPointResponse = startPointService.createStartPoint(
                 event.getEventId(),
                 null,
-                guestId, startPointRequest
+                guestId,
+                startPointRequest
         );
 
         assertThat(event.getEventId()).isEqualTo(eventStartPointResponse.eventId());
@@ -72,7 +73,8 @@ class StartPointServiceTest extends IntegrationTestContainer {
         EventStartPointResponse eventStartPointResponse = startPointService.createStartPoint(
                 event.getEventId(),
                 user.getUserId(),
-                null, startPointRequest
+                null,
+                startPointRequest
         );
 
         assertThat(event.getEventId()).isEqualTo(eventStartPointResponse.eventId());

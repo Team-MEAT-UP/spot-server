@@ -9,6 +9,7 @@ import com.meetup.server.startpoint.dto.request.StartPointRequest;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.implement.StartPointSearcher;
+import com.meetup.server.startpoint.implement.StartPointValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,17 +28,14 @@ public class StartPointService {
     private final StartPointProcessor startPointProcessor;
     private final StartPointSearcher startPointSearcher;
     private final EventReader eventReader;
-
-    public KakaoLocalResponse searchStartPoint(String textQuery) {
-        return startPointSearcher.search(textQuery);
-    }
+    private final StartPointValidator startPointValidator;
 
     @Transactional
     @CacheEvict(value = "routeDetails", key = "#eventId")
     public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
         Event event = eventReader.read(eventId);
-
         List<StartPoint> startPointList = startPointReader.readAll(event);
+
         if (userId != null && validateAlreadyHasStartPoint(userId, startPointList)) {
             StartPoint startPoint = startPointProcessor.saveByGuest(
                     event,
@@ -49,6 +47,29 @@ public class StartPointService {
 
         StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
         return EventStartPointResponse.of(event, startPoint);
+    }
+
+    @Transactional
+    @CacheEvict(value = "routeDetails", key = "#eventId")
+    public EventStartPointResponse updateStartPoint(UUID eventId, UUID startPointId, StartPointRequest startPointRequest) {
+        StartPoint startPoint = startPointReader.read(startPointId);
+        startPointValidator.validateBelongsToEvent(eventId, startPoint);
+
+        startPointProcessor.update(startPoint, startPointRequest);
+        return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
+    }
+
+    @Transactional
+    @CacheEvict(value = "routeDetails", key = "#eventId")
+    public void deleteStartPoint(UUID eventId, UUID startPointId) {
+        StartPoint startPoint = startPointReader.read(startPointId);
+        startPointValidator.validateBelongsToEvent(eventId, startPoint);
+
+        startPointProcessor.delete(startPoint);
+    }
+
+    public KakaoLocalResponse searchStartPoint(String textQuery) {
+        return startPointSearcher.search(textQuery);
     }
 
     private boolean validateAlreadyHasStartPoint(Long userId, List<StartPoint> startPointList) {

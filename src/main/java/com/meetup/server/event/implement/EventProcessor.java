@@ -35,7 +35,7 @@ public class EventProcessor {
                 .findFirst()
                 .ifPresent(route -> {
                     route.updateIsTransit(isTransit);
-                    StartPoint startPoint = startPointReader.readById(startPointId);
+                    StartPoint startPoint = startPointReader.read(startPointId);
                     startPointProcessor.updateTransit(startPoint, isTransit);
                 });
 
