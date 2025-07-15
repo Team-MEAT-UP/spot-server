@@ -45,12 +45,10 @@ public class MeetingPointRouteGroup {
     }
 
     public void updateIsTransitForStartPoint(UUID startPointId, boolean isTransit) {
-        for (RouteResponse route : routeResponse) {
-            if (startPointId.equals(route.getId())) {
-                route.updateIsTransit(isTransit);
-                break;
-            }
-        }
+        this.routeResponse.stream()
+                .filter(route -> startPointId.equals(route.getId()))
+                .findFirst()
+                .ifPresent(route -> route.updateIsTransit(isTransit));
         this.averageTime = calculateAverageTime(this.routeResponse);
     }
 }
