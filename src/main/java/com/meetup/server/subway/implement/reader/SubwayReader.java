@@ -1,6 +1,8 @@
 package com.meetup.server.subway.implement.reader;
 
 import com.meetup.server.subway.domain.Subway;
+import com.meetup.server.subway.exception.SubwayErrorType;
+import com.meetup.server.subway.exception.SubwayException;
 import com.meetup.server.subway.persistence.SubwayRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
@@ -20,7 +22,7 @@ public class SubwayReader {
     private final SubwayRepository subwayRepository;
 
     public Subway read(int subwayId) {
-        return subwayRepository.findById(subwayId).orElseThrow();
+        return subwayRepository.findById(subwayId).orElseThrow(() -> new SubwayException(SubwayErrorType.SUBWAY_NOT_FOUND));
     }
 
     public List<Subway> readAllByIdIn(List<Integer> subwayIds) {
