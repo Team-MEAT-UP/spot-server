@@ -24,7 +24,7 @@ public class StartPointReader {
         return startPointRepository.findAllByEvent(event);
     }
 
-    public StartPoint readById(UUID startPointId) {
+    public StartPoint read(UUID startPointId) {
         return startPointRepository.findById(startPointId)
                 .orElseThrow(() -> new StartPointException(StartPointErrorType.PLACE_NOT_FOUND));
     }
