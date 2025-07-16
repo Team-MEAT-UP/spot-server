@@ -57,7 +57,7 @@ public record TransitRouteResponse(
 
                     return TransitRouteResponse.builder()
                             .trafficType(TrafficType.fromCode(subPath.trafficType()))
-                            .distance(Optional.of(subPath.distance()).orElse(0.0))
+                            .distance(subPath.distance())
                             .laneName(laneName)
                             .startBoardName(subPath.startName())
                             .endBoardName(subPath.endName())
@@ -65,7 +65,7 @@ public record TransitRouteResponse(
                             .passStopList(subPath.trafficType() == 3 ? null : new PassStopList(passStopList))
                             .startExitNo(subPath.startExitNo())
                             .endExitNo(subPath.endExitNo())
-                            .sectionTime(Optional.of(subPath.sectionTime()).orElse(0))
+                            .sectionTime(subPath.sectionTime())
                             .build();
                 })
                 .toList();
