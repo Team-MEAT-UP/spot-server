@@ -1,6 +1,7 @@
 package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.response.RouteResponse;
 import com.meetup.server.event.dto.response.RouteResponseList;
 import com.meetup.server.event.persistence.EventRepository;
@@ -22,8 +23,11 @@ public class EventProcessor {
     private final StartPointReader startPointReader;
     private final StartPointProcessor startPointProcessor;
 
-    public Event save() {
-        Event event = Event.builder().build();
+    public Event save(EventRequest eventRequest) {
+        Event event = Event.builder()
+                .eventName(eventRequest.eventName())
+                .eventDateTime(eventRequest.toDateTime())
+                .build();
         return eventRepository.save(event);
     }
 

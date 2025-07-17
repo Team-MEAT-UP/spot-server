@@ -1,8 +1,11 @@
 package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.persistence.EventRepository;
+import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.support.IntegrationTestContainer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,10 +19,16 @@ class EventProcessorTest extends IntegrationTestContainer {
     @Autowired
     private EventRepository eventRepository;
 
-    @Test
-    void 사용자가_이벤트를_저장한다() {
-        Event event = eventProcessor.save();
-        assertThat(eventRepository.findById(event.getEventId())).isPresent();
+    private EventRequest eventRequest;
+
+    @BeforeEach
+    void setUp() {
+        eventRequest = EventFixture.getEventRequest();
     }
 
+    @Test
+    void 사용자가_이벤트를_저장한다() {
+        Event event = eventProcessor.save(eventRequest);
+        assertThat(eventRepository.findById(event.getEventId())).isPresent();
+    }
 }

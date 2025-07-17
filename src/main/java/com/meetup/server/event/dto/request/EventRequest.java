@@ -1,13 +1,31 @@
-package com.meetup.server.startpoint.dto.request;
+package com.meetup.server.event.dto.request;
 
+import com.meetup.server.startpoint.dto.request.StartPointRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
-public record StartPointRequest(
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+public record EventRequest(
+
+        @NotBlank
+        @Size(min = 1, max = 15)
+        @Schema(description = "모임명", example = "입력핑")
+        String eventName,
+
+        @NotNull
+        @Schema(description = "모임 날짜", example = "2026-01-01")
+        LocalDate eventDate,
+
+        @NotNull
+        @Schema(description = "모임 시간", example = "15:30")
+        LocalTime eventTime,
 
         @NotBlank
         @Size(min = 1, max = 5)
-        @Schema(description = "사용자명", example = "안연아바보")
+        @Schema(description = "사용자명", example = "김아무개")
         String username,
 
         @NotBlank(message = "출발지명은 필수 값입니다.")
@@ -32,4 +50,18 @@ public record StartPointRequest(
         @Schema(description = "위도", example = "37.510297")
         double latitude
 ) {
+    public LocalDateTime toDateTime() {
+        return LocalDateTime.of(eventDate, eventTime);
+    }
+
+    public StartPointRequest toStartPointRequest() {
+        return new StartPointRequest(
+                username,
+                startPoint,
+                address,
+                roadAddress,
+                longitude,
+                latitude
+        );
+    }
 }
