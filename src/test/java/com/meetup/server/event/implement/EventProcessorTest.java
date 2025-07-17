@@ -21,5 +21,4 @@ class EventProcessorTest extends IntegrationTestContainer {
         Event event = eventProcessor.save();
         assertThat(eventRepository.findById(event.getEventId())).isPresent();
     }
-
 }

@@ -1,6 +1,7 @@
 package com.meetup.server.event.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.RouteResponseList;
 import com.meetup.server.event.implement.EventProcessor;
@@ -24,9 +25,9 @@ public class EventService {
     private final EventCacheService eventCacheService;
 
     @Transactional
-    public EventStartPointResponse createEvent(Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        Event event = eventProcessor.save();
-        StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
+    public EventStartPointResponse createEvent(Long userId, UUID guestId, EventRequest eventRequest) {
+        Event event = eventProcessor.save(eventRequest);
+        StartPoint startPoint = startPointProcessor.save(event, userId, guestId, eventRequest.toStartPointRequest());
         return EventStartPointResponse.of(event, startPoint);
     }
 
