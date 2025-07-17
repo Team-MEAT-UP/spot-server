@@ -27,6 +27,17 @@ public record TransitRouteResponse(
         int sectionTime //이동 소요 시간
 ) {
     public static List<TransitRouteResponse> from(OdsayTransitRouteSearchResponse response) {
+
+        if (response == null || response.data() == null || response.data().path() == null || response.data().path().isEmpty()) {
+            log.warn("[ODSAY] ROUTE IS EMPTY: {}", response);
+            return null;
+        }
+
+        if (response.data().path().getFirst() == null || response.data().path().getFirst().subPath() == null) {
+            log.warn("[ODSAY] ROUTE IS EMPTY : {}", response);
+            return null;
+        }
+
         return response.data().path().getFirst().subPath().stream()
                 .map(subPath -> {
                     String laneName = Optional.ofNullable(subPath.lane())
