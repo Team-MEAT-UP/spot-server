@@ -43,6 +43,7 @@ public class StartPointProcessor {
                 .location(Location.of(startPointRequest.longitude(), startPointRequest.latitude()))
                 .point(CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude()))
                 .isUser(true)
+                .isTransit(startPointRequest.isTransit())
                 .build();
 
         return startPointRepository.save(startPoint);
@@ -60,6 +61,7 @@ public class StartPointProcessor {
                 .isUser(false)
                 .nonUserName(startPointRequest.username())
                 .guestId(guestId)
+                .isTransit(startPointRequest.isTransit())
                 .build();
 
         return startPointRepository.save(startPoint);

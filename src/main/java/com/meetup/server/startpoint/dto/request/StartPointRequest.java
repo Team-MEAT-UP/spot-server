@@ -30,6 +30,10 @@ public record StartPointRequest(
         @DecimalMin(value = "-90.0", message = "위도는 -90.0보다 크거나 같아야 합니다.")
         @DecimalMax(value = "90.0", message = "위도는 90.0보다 작거나 같아야 합니다.")
         @Schema(description = "위도", example = "37.510297")
-        double latitude
+        double latitude,
+
+        @NotNull(message = "대중교통/자가용 선택 여부는 필수 값입니다.")
+        @Schema(description = "대중교통/자가용 선택 여부", example = "true", defaultValue = "true")
+        boolean isTransit
 ) {
 }
