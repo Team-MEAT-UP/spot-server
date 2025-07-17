@@ -22,7 +22,7 @@ public record EventStartPointResponse(
         @Schema(description = "사용자명", example = "땡수팟")
         String username,
 
-        @Schema(description = "대중교통 여부", example = "true")
+        @Schema(description = "대중교통 여부")
         boolean isTransit
 ) {
     public static EventStartPointResponse of(Event event, StartPoint startPoint) {

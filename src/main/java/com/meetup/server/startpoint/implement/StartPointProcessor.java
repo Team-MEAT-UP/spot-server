@@ -77,7 +77,8 @@ public class StartPointProcessor {
                 Address.of(startPointRequest.address(), startPointRequest.roadAddress()),
                 Location.of(startPointRequest.longitude(), startPointRequest.latitude()),
                 startPointRequest.username(),
-                CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude())
+                CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude()),
+                startPointRequest.isTransit()
         );
     }
 

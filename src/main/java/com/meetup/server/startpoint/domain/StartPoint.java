@@ -87,11 +87,12 @@ public class StartPoint extends BaseEntity {
         this.isTransit = isTransit;
     }
 
-    public void updateStartPoint(String name, Address address, Location location, String nonUserName, Point point) {
+    public void updateStartPoint(String name, Address address, Location location, String nonUserName, Point point, boolean isTransit) {
         this.name = name;
         this.address = address;
         this.location = location;
         this.nonUserName = nonUserName;
         this.point = point;
+        this.isTransit = isTransit;
     }
 }
