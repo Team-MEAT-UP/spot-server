@@ -2,10 +2,10 @@ package com.meetup.server.event.presentation;
 
 import com.meetup.server.event.application.EventCacheService;
 import com.meetup.server.event.application.EventService;
+import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.RouteResponseList;
 import com.meetup.server.global.support.response.ApiResponse;
-import com.meetup.server.startpoint.dto.request.StartPointRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,10 +27,10 @@ public class EventController {
     @Operation(summary = "모임 생성 API", description = "모임 생성자의 출발지를 입력받아 모임을 생성합니다")
     @PostMapping
     public ApiResponse<EventStartPointResponse> createEvent(
-            @Valid @RequestBody StartPointRequest startPointRequest,
+            @Valid @RequestBody EventRequest eventRequest,
             @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) UUID guestId) {
-        return ApiResponse.success(eventService.createEvent(userId, guestId, startPointRequest));
+        return ApiResponse.success(eventService.createEvent(userId, guestId, eventRequest));
     }
 
     @Operation(summary = "지도 조회 API", description = "모임의 중간 지점 계산 및 모임 참여자의 경로 조회를 진행합니다")
