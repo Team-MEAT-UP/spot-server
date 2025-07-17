@@ -30,7 +30,6 @@ public class RouteFacadeService {
                         .ey(endY)
                         .build()
         );
-        log.info("response: {}", response.data().path().getFirst());
         return response;
     }
 
