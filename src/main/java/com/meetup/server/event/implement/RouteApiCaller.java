@@ -1,4 +1,4 @@
-package com.meetup.server.startpoint.application;
+package com.meetup.server.event.implement;
 
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityClient;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityRequest;
@@ -9,14 +9,14 @@ import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.startpoint.domain.type.KakaoMobilityResultCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class RouteFacadeService {
+public class RouteApiCaller {
 
     private final OdsayTransitRouteSearchClient odsayTransitRouteSearchClient;
     private final KakaoMobilityClient kakaoMobilityClient;

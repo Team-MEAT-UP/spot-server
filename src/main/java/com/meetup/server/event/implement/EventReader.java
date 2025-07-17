@@ -1,7 +1,7 @@
 package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
-import com.meetup.server.event.dto.response.RouteResponseList;
+import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.persistence.EventRepository;
@@ -25,11 +25,11 @@ public class EventReader {
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
     }
 
-    public RouteResponseList readEventCache(UUID eventId) {
+    public MeetingPointRoutesResponse readEventCache(UUID eventId) {
         Cache cache = cacheManager.getCache("routeDetails");
         Cache.ValueWrapper wrapper = cache.get(eventId);
 
         eventValidator.validateEventCacheExist(wrapper);
-        return (RouteResponseList) wrapper.get();
+        return (MeetingPointRoutesResponse) wrapper.get();
     }
 }
