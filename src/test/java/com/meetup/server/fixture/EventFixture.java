@@ -12,7 +12,7 @@ public class EventFixture {
     public static Event getEvent() {
         return Event.builder()
                 .eventName("모임핑")
-                .dateTime(LocalDateTime.parse("2025-10-01T10:00:00"))
+                .eventDateTime(LocalDateTime.parse("2025-10-01T10:00:00"))
                 .build();
     }
 

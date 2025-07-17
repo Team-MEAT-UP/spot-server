@@ -26,7 +26,7 @@ public class EventProcessor {
     public Event save(EventRequest eventRequest) {
         Event event = Event.builder()
                 .eventName(eventRequest.eventName())
-                .dateTime(eventRequest.toDateTime())
+                .eventDateTime(eventRequest.toDateTime())
                 .build();
         return eventRepository.save(event);
     }

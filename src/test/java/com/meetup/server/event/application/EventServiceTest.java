@@ -86,7 +86,7 @@ class EventServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getLocation().getRoadLatitude()).isEqualTo(eventRequest.latitude());
         assertThat(optionalStartPoint.get().getGuestId()).isNull();
         assertThat(optionalEvent.get().getEventName()).isEqualTo(eventRequest.eventName());
-        assertThat(optionalEvent.get().getDateTime()).isEqualTo(eventRequest.toDateTime());
+        assertThat(optionalEvent.get().getEventDateTime()).isEqualTo(eventRequest.toDateTime());
     }
 
 }

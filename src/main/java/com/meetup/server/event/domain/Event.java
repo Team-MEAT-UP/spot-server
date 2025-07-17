@@ -26,7 +26,7 @@ public class Event extends BaseEntity {
     private String eventName;
 
     @Column(name = "event_date_time", nullable = false)
-    private LocalDateTime dateTime;
+    private LocalDateTime eventDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subway_id", nullable = true)
@@ -42,11 +42,11 @@ public class Event extends BaseEntity {
     }
 
     @Builder
-    public Event(Subway subway, Place place, String eventName, LocalDateTime dateTime) {
+    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime) {
         this.subway = subway;
         this.place = place;
         this.eventName = eventName;
-        this.dateTime = dateTime;
+        this.eventDateTime = eventDateTime;
     }
 
     public void updateSubway(Subway subway) {
