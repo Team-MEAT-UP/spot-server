@@ -3,7 +3,8 @@ package com.meetup.server.event.application;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.dto.response.RouteResponseList;
+import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
+import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
@@ -32,9 +33,11 @@ public class EventService {
     }
 
     @Transactional
-    public RouteResponseList getEventMap(UUID eventId, Long userId, UUID guestId) {
-        RouteResponseList eventMap = eventCacheService.getEventMap(eventId);
-        eventProcessor.prioritizeMyRoute(userId, guestId, eventMap.getRouteResponse());
-        return eventMap;
+    public MeetingPointRoutesResponse getMeetingPointRoutes(UUID eventId, Long userId, UUID guestId) {
+        MeetingPointRoutesResponse meetingPointRoutesResponse = eventCacheService.getCachedMeetingPointRoutes(eventId);
+        for (MeetingPointRouteGroup event : meetingPointRoutesResponse.meetingPointRouteGroups()) {
+            eventProcessor.prioritizeMyRoute(userId, guestId, event.getRouteResponse());
+        }
+        return meetingPointRoutesResponse;
     }
 }
