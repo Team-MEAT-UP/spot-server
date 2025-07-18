@@ -4,7 +4,7 @@ import com.meetup.server.event.application.EventCacheService;
 import com.meetup.server.event.application.EventService;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.dto.response.RouteResponseList;
+import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.global.support.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,11 +35,11 @@ public class EventController {
 
     @Operation(summary = "지도 조회 API", description = "모임의 중간 지점 계산 및 모임 참여자의 경로 조회를 진행합니다")
     @GetMapping("/{eventId}")
-    public ApiResponse<RouteResponseList> getEventMap(
+    public ApiResponse<MeetingPointRoutesResponse> getMeetingPointRoutes(
             @PathVariable UUID eventId,
             @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) UUID guestId) {
-        return ApiResponse.success(eventService.getEventMap(eventId, userId, guestId));
+        return ApiResponse.success(eventService.getMeetingPointRoutes(eventId, userId, guestId));
     }
 
     @Operation(summary = "대중교통 선택 API", description = "본인의 대중교통, 자가용 선택 여부를 설정합니다")
