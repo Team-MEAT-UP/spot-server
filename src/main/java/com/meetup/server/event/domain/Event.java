@@ -49,6 +49,10 @@ public class Event extends BaseEntity {
         this.eventDateTime = eventDateTime;
     }
 
+    public void updateSubway(Subway subway) {
+        this.subway = subway;
+    }
+
     public void updateMeetingPlace(Place place, Subway subway) {
         this.place = place;
         this.subway = subway;
