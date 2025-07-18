@@ -6,6 +6,8 @@ import java.util.UUID;
 public record EventHistory(
         UUID eventId,
         UUID placeId,
+        String eventName,
+        LocalDateTime eventDateTime,
         String subwayName,
         String placeName,
         LocalDateTime createdAt
