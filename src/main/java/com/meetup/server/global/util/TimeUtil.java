@@ -13,7 +13,7 @@ public class TimeUtil {
 
     public static final ZoneId KST_ZONE_ID = ZoneId.of("Asia/Seoul");
 
-    private static final DateTimeFormatter MM_DD_DOT_FORMATTER = DateTimeFormatter.ofPattern("MM.dd");
+    private static final DateTimeFormatter YYYY_MM_DD_DOT_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     private static final DateTimeFormatter HH_MM_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -26,7 +26,7 @@ public class TimeUtil {
     }
 
     public static String formatAsDate(LocalDateTime dateTime) {
-        return dateTime.format(MM_DD_DOT_FORMATTER);
+        return dateTime.format(YYYY_MM_DD_DOT_FORMATTER);
     }
 
     public static String formatAsTime(LocalDateTime dateTime) {
