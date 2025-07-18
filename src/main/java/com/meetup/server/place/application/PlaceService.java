@@ -61,7 +61,7 @@ public class PlaceService {
         List<PlaceWithDistance> nearbyPlaces = placeReader.readAllWithinRadius(subway.getPoint(), RADIUS);
         List<PlaceResponse> recommendedPlaces = placeProcessor.getRecommendedPlaces(confirmedPlace, nearbyPlaces);
 
-        return PlaceResponseList.of(subway, confirmedPlaceResponse, recommendedPlaces);
+        return PlaceResponseList.of(event, subway, confirmedPlaceResponse, recommendedPlaces);
     }
 
     public PlaceDetailResponse getPlace(UUID eventId, UUID placeId, int subwayId) {
@@ -97,6 +97,6 @@ public class PlaceService {
 
         PlaceWithDistance placeWithDistance = placeReader.readWithDistance(place, subway.getPoint());
         PlaceWithRating placeWithRating = reviewReader.readPlaceRatingsAsMap(List.of(place.getId())).get(place);
-        return PlaceResponseList.of(subway, PlaceResponse.of(placeWithDistance, placeWithRating), null);
+        return PlaceResponseList.of(event, subway, PlaceResponse.of(placeWithDistance, placeWithRating), null);
     }
 }
