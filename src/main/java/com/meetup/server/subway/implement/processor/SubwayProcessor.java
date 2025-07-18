@@ -15,11 +15,12 @@ import java.util.stream.Collectors;
 public class SubwayProcessor {
 
     private static final int MINIMUM_PEOPLE_REQUIRED = 2;
+    private static final int MAX_SUBWAY_COUNT = 3;
 
     private final SubwayReader subwayReader;
     private final SubwayPathProcessor subwayPathProcessor;
 
-    public Optional<Integer> findMostFairSubway(Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPaths) {
+    public List<Integer> findTopFairSubways(Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPaths) {
         Map<Integer, List<Integer>> destinationSubwayTimeMap = new HashMap<>();
 
         startPointToSubwayPaths.forEach((startPoint, subwayPaths) ->
@@ -33,8 +34,10 @@ public class SubwayProcessor {
 
         return destinationSubwayTimeMap.entrySet().stream()
                 .filter(entry -> entry.getValue().size() >= MINIMUM_PEOPLE_REQUIRED)
-                .min(Comparator.comparingDouble(entry -> calculateStandardDeviation(entry.getValue())))
-                .map(Map.Entry::getKey);
+                .sorted(Comparator.comparingDouble(entry -> calculateStandardDeviation(entry.getValue())))
+                .limit(MAX_SUBWAY_COUNT)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     private double calculateStandardDeviation(List<Integer> times) {
