@@ -34,7 +34,10 @@ public class PlaceController {
 
     @Operation(summary = "장소 추천 리스트 조회 API", description = "역 주변의 장소 추천 리스트를 조회합니다")
     @GetMapping
-    public ApiResponse<PlaceResponseList> getAllPlaces(@RequestParam UUID eventId, @RequestParam int subwayId) {
+    public ApiResponse<PlaceResponseList> getAllPlaces(
+            @RequestParam UUID eventId,
+            @RequestParam int subwayId
+    ) {
         return ApiResponse.success(placeService.getAllPlaces(eventId, subwayId));
     }
 
