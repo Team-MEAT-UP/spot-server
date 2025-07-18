@@ -52,7 +52,12 @@ public class MeetingPointCalculator {
             throw new EventException(EventErrorType.PATH_CALCULATION_FAILED);
         }
 
-        return subwayReader.readAllByIdIn(topFairSubwayIds).stream()
+        List<Subway> topFairSubways = subwayReader.readAllByIdIn(topFairSubwayIds);
+
+        Subway firstSubway = topFairSubways.getFirst();
+        event.updateSubway(firstSubway);
+
+        return topFairSubways.stream()
                 .map(subway -> MeetingPointResult.of(event, startPoints, subway))
                 .toList();
     }

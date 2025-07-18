@@ -1,13 +1,7 @@
 package com.meetup.server.event.implement;
 
-import com.meetup.server.event.dto.response.DrivingInfoResponse;
-import com.meetup.server.event.dto.response.RouteResponse;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
-import com.meetup.server.startpoint.domain.StartPoint;
-import com.meetup.server.startpoint.exception.StartPointErrorType;
-import com.meetup.server.startpoint.exception.StartPointException;
-import com.meetup.server.startpoint.util.RouteExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,23 +13,21 @@ public class RouteDetailFetcher {
 
     private final RouteApiCaller routeApiCaller;
 
-    public RouteResponse fetch(
-            StartPoint startPoint,
-            String startX, String startY, String endX, String endY
-    ) {
-        OdsayTransitRouteSearchResponse transitRoute = routeApiCaller.getTransitRoute(startX, startY, endX, endY);
-        KakaoMobilityResponse drivingRoute = routeApiCaller.getDrivingRoute(startX, startY, endX, endY);
-
-        if (transitRoute == null) {
-            throw new StartPointException(StartPointErrorType.ODSAY_ERROR);
+    public OdsayTransitRouteSearchResponse fetchTransitRoute(String startX, String startY, String endX, String endY) {
+        try {
+            return routeApiCaller.getTransitRoute(startX, startY, endX, endY);
+        } catch (Exception e) {
+            log.warn("대중교통 경로 조회 실패: startX={}, startY={}, endX={}, endY={}", startX, startY, endX, endY, e);
+            return null;
         }
-        if (drivingRoute == null) {
-            throw new StartPointException(StartPointErrorType.KAKAO_ERROR);
+    }
+
+    public KakaoMobilityResponse fetchDrivingRoute(String startX, String startY, String endX, String endY) {
+        try {
+            return routeApiCaller.getDrivingRoute(startX, startY, endX, endY);
+        } catch (Exception e) {
+            log.warn("자동차 경로 조회 실패: startX={}, startY={}, endX={}, endY={}", startX, startY, endX, endY, e);
+            return null;
         }
-
-        int transitTotalTime = RouteExtractor.extractValidTransitTotalTime(transitRoute);
-        int drivingTotalTime = RouteExtractor.extractValidDrivingTotalTime(DrivingInfoResponse.from(drivingRoute));
-
-        return RouteResponse.of(startPoint, startPoint.getUser(), transitRoute, drivingRoute, transitTotalTime, drivingTotalTime);
     }
 }
