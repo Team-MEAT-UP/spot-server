@@ -19,7 +19,7 @@ public record MeetingPointRoutesResponse(
 ) {
 
     public static MeetingPointRoutesResponse of(List<MeetingPointResult> meetingPointResults, List<MeetingPointRouteGroup> meetingPointRouteGroups) {
-        MeetingPointResult meetingPointResult = meetingPointResults.get(0);
+        MeetingPointResult meetingPointResult = meetingPointResults.getFirst();
 
         Event event = meetingPointResult.event();
         LocalDateTime eventDateTime = event.getEventDateTime();
@@ -27,8 +27,7 @@ public record MeetingPointRoutesResponse(
         List<StartPoint> startPoints = meetingPointResult.startPoints();
 
         String eventMaker = startPoints.stream()
-                .sorted(Comparator.comparing(StartPoint::getCreatedAt))
-                .findFirst()
+                .min(Comparator.comparing(StartPoint::getCreatedAt))
                 .map(UsernameExtractor::extractDisplayName)
                 .orElse(null);
 

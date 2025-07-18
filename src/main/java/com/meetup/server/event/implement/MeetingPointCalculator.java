@@ -54,7 +54,7 @@ public class MeetingPointCalculator {
 
         List<Subway> topFairSubways = subwayReader.readAllByIdIn(topFairSubwayIds);
 
-        Subway firstSubway = topFairSubways.get(0);
+        Subway firstSubway = topFairSubways.getFirst();
         event.updateSubway(firstSubway);
 
         return topFairSubways.stream()
