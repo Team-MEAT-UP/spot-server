@@ -20,10 +20,7 @@ public record EventStartPointResponse(
         UUID guestId,
 
         @Schema(description = "사용자명", example = "땡수팟")
-        String username,
-
-        @Schema(description = "대중교통 여부")
-        boolean isTransit
+        String username
 ) {
     public static EventStartPointResponse of(Event event, StartPoint startPoint) {
         return EventStartPointResponse.builder()
@@ -31,7 +28,6 @@ public record EventStartPointResponse(
                 .startPointId(startPoint.getStartPointId())
                 .guestId(startPoint.getGuestId())
                 .username(UsernameExtractor.extractDisplayName(startPoint))
-                .isTransit(startPoint.isTransit())
                 .build();
     }
 }
