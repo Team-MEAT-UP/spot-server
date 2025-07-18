@@ -29,10 +29,6 @@ public class StartPointReader {
                 .orElseThrow(() -> new StartPointException(StartPointErrorType.PLACE_NOT_FOUND));
     }
 
-    public StartPoint readEarliestByEventId(UUID eventId) {
-        return startPointRepository.findTopByEventIdOrderByCreatedAtAsc(eventId);
-    }
-
     public List<EventHistory> readEventHistories(Long userId, UUID lastViewedEventId, int size) {
         return startPointRepository.findEventHistories(userId, lastViewedEventId, size);
     }
