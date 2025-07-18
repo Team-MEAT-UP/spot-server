@@ -15,6 +15,10 @@ public class TimeUtil {
 
     private static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    private static final DateTimeFormatter YYYY_MM_DD_DOT_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+    private static final DateTimeFormatter HH_MM_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     public static int calculateDaysAgo(LocalDateTime createdAt) {
         return (int) ChronoUnit.DAYS.between(createdAt, LocalDateTime.now(KST_ZONE_ID));
     }
@@ -25,5 +29,13 @@ public class TimeUtil {
 
     public static String formatAsDateTime(LocalDateTime dateTime) {
         return dateTime.format(YYYY_MM_DD_HH_MM_SS_FORMATTER);
+    }
+
+    public static String formatAsDate(LocalDateTime dateTime) {
+        return dateTime.format(YYYY_MM_DD_DOT_FORMATTER);
+    }
+
+    public static String formatAsTime(LocalDateTime dateTime) {
+        return dateTime.format(HH_MM_FORMATTER);
     }
 }

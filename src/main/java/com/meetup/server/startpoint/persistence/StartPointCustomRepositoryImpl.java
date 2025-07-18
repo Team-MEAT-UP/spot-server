@@ -31,6 +31,8 @@ public class StartPointCustomRepositoryImpl implements StartPointCustomRepositor
                         EventHistory.class,
                         event.eventId,
                         event.place.id,
+                        event.eventName,
+                        event.eventDateTime,
                         event.subway.name,
                         event.place.name,
                         event.createdAt
