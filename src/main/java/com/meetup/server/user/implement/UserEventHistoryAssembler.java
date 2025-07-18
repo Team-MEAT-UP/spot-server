@@ -1,11 +1,10 @@
 package com.meetup.server.user.implement;
 
-import com.meetup.server.global.util.TimeUtil;
 import com.meetup.server.review.implement.ReviewReader;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.persistence.projection.EventHistory;
-import com.meetup.server.startpoint.persistence.projection.ParticipantCount;
 import com.meetup.server.startpoint.persistence.projection.Participant;
+import com.meetup.server.startpoint.persistence.projection.ParticipantCount;
 import com.meetup.server.user.dto.response.UserEventHistoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,19 +31,12 @@ public class UserEventHistoryAssembler {
         Map<UUID, Boolean> isReviewedMap = reviewReader.readReviewsWrittenByUser(eventHistories, userId);
 
         return eventHistories.stream()
-                .map(event -> {
-                    List<String> imageUrls = imageUrlMap.getOrDefault(event.eventId(), List.of());
+                .map(eventHistory -> {
+                    int participatedPeopleCount = participantsMap.getOrDefault(eventHistory.eventId(), 0);
+                    List<String> imageUrls = imageUrlMap.getOrDefault(eventHistory.eventId(), List.of());
+                    boolean isReviewed = isReviewedMap.getOrDefault(eventHistory.eventId(), false);
 
-                    return UserEventHistoryResponse.builder()
-                            .eventId(event.eventId())
-                            .middlePointName(event.subwayName())
-                            .placeName(event.placeName())
-                            .participatedPeopleCount(participantsMap.getOrDefault(event.eventId(), 0))
-                            .userProfileImageUrls(imageUrls)
-                            .eventMadeAgo(TimeUtil.calculateDaysAgo(event.createdAt()))
-                            .eventHourAgo(TimeUtil.calculateHoursAgo(event.createdAt()))
-                            .isReviewed(isReviewedMap.getOrDefault(event.eventId(), false))
-                            .build();
+                    return UserEventHistoryResponse.of(eventHistory, participatedPeopleCount, imageUrls, isReviewed);
                 }).toList();
     }
 
