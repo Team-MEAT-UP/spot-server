@@ -12,8 +12,8 @@ public record DrivingRouteResponse(
         List<Coordinate> coordinates
 ) {
     public static List<DrivingRouteResponse> from(KakaoMobilityResponse kakaoMobilityResponse) {
-        if (kakaoMobilityResponse.routes() == null || kakaoMobilityResponse.routes().isEmpty()) {
-            return List.of();
+        if (kakaoMobilityResponse == null || kakaoMobilityResponse.routes() == null || kakaoMobilityResponse.routes().isEmpty()) {
+            return null;
         }
 
         Route route = kakaoMobilityResponse.routes().getFirst();

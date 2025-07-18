@@ -4,7 +4,6 @@ import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.util.UsernameExtractor;
-import com.meetup.server.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,11 +36,8 @@ public class RouteResponse {
     private DrivingInfoResponse drivingInfo;
     private List<DrivingRouteResponse> drivingRoute;
     private int totalTime;
-    private int transitTime;
-    private int driveTime;
 
     public static RouteResponse of(StartPoint startPoint,
-                                   User user,
                                    OdsayTransitRouteSearchResponse transitResponse,
                                    KakaoMobilityResponse drivingResponse,
                                    int transitTime,
@@ -50,10 +46,10 @@ public class RouteResponse {
                 .isTransit(startPoint.isTransit())
                 .isMe(false)
                 .id(startPoint.getStartPointId())
-                .userId(startPoint.getIsUser() ? user.getUserId() : null)
+                .userId(startPoint.getIsUser() ? startPoint.getUser().getUserId() : null)
                 .guestId(startPoint.getGuestId())
                 .nickname(UsernameExtractor.extractDisplayName(startPoint))
-                .profileImage(startPoint.getIsUser() ? user.getProfileImage() : null)
+                .profileImage(startPoint.getIsUser() ? startPoint.getUser().getProfileImage() : null)
                 .startName(convertStartPointName(startPoint.getAddress().getAddress()))
                 .startLongitude(startPoint.getLocation().getRoadLongitude())
                 .startLatitude(startPoint.getLocation().getRoadLatitude())
@@ -61,8 +57,6 @@ public class RouteResponse {
                 .drivingInfo(DrivingInfoResponse.from(drivingResponse))
                 .drivingRoute(DrivingRouteResponse.from(drivingResponse))
                 .totalTime(startPoint.isTransit() ? transitTime : driveTime)
-                .transitTime(transitTime)
-                .driveTime(driveTime)
                 .build();
     }
 
@@ -74,15 +68,6 @@ public class RouteResponse {
             return matcher.group(1) + " " + matcher.group(3);
         }
         return "";
-    }
-
-    public void updateIsTransit(boolean isTransit) {
-        if (isTransit) {
-            this.totalTime = transitTime;
-        } else {
-            this.totalTime = driveTime;
-        }
-        this.isTransit = isTransit;
     }
 
     public void updateIsMe(boolean isMe) {
