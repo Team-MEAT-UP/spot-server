@@ -74,7 +74,7 @@ jobs:
 
       - name: Substitute image tag in deployment.yaml
         run: |
-          sed -i "s|__IMAGE__|${IMAGE}|g" deploy/prod/prod-deployment.yaml
+          sed -i "s|__IMAGE__|${IMAGE}|g" deploy/prod/spot-backend-deployment.yaml
 
       - name: Copy deployment.yaml to server
         uses: appleboy/scp-action@master
@@ -82,7 +82,7 @@ jobs:
           host: ${{ secrets.NCP_HOST }}
           username: ${{ secrets.NCP_USERNAME }}
           password: ${{ secrets.NCP_PASSWORD }}
-          source: deploy/prod/prod-deployment.yaml
+          source: deploy/prod/
           target: /home/ubuntu/deploy/prod
           strip_components: 2
 
@@ -95,4 +95,4 @@ jobs:
           port: ${{ secrets.NCP_PORT }}
           script: |
             export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl apply -f /home/ubuntu/deploy/prod/prod-deployment.yaml
+            kubectl apply -f /home/ubuntu/deploy/prod/

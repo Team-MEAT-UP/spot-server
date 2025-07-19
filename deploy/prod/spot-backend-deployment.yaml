@@ -1,47 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
-  namespace: prod
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redis
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-        - name: redis
-          image: redis:7.4
-          ports:
-            - containerPort: 6379
-          volumeMounts:
-            - mountPath: /data
-              name: redis-storage
-      volumes:
-        - name: redis-storage
-          emptyDir: { }
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis
-  namespace: prod
-spec:
-  type: NodePort
-  selector:
-    app: redis
-  ports:
-    - port: 6379
-      targetPort: 6379
-      nodePort: 30079
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: spot-backend
   namespace: prod
 spec:
@@ -78,16 +37,3 @@ spec:
             periodSeconds: 5
       imagePullSecrets:
         - name: ncp-registry-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: spot-backend
-  namespace: prod
-spec:
-  selector:
-    app: spot-backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
