@@ -64,6 +64,18 @@ spec:
               value: prod
             - name: TZ
               value: Asia/Seoul
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
       imagePullSecrets:
         - name: ncp-registry-secret
 ---
