@@ -4,7 +4,6 @@ import com.meetup.server.global.util.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Profile({"prod", "stg"})
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,6 +25,11 @@ public class DiscordAlarmSender {
     private final Environment environment;
 
     public void sendErrorAlert(Exception exception) {
+        String env = getEnvironment();
+        if (!List.of("PROD", "STG").contains(env)) {
+            return;
+        }
+
         String content = ":rotating_light: [" + getEnvironment() + "] 서버 예외 발생";
         List<DiscordRequest.Embed> embeds = List.of(
                 DiscordRequest.Embed.of("Exception", exception.getClass().getSimpleName()),
