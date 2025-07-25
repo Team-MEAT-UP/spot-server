@@ -3,7 +3,7 @@ package com.meetup.server.global.util;
 import com.meetup.server.global.support.error.GlobalErrorType;
 import com.meetup.server.global.support.error.GlobalException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -14,7 +14,7 @@ import java.net.URI;
 import java.net.URL;
 
 @Slf4j
-@Configuration
+@Component
 public class ImageConverter {
 
     private static final String IMAGE_FORMAT = "png";
