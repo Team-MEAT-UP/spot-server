@@ -6,15 +6,9 @@
 
 # 💻 Development
 
-## 🗒️ API 명세서
-
-> 🔗 [API 명세서](https://valley-tenor-1ca.notion.site/API-1c7f3199866980d388f4f9da3aa78fb0)
-
-> 🔗 [Swagger](https://api.pickspot.co.kr/swagger-ui/index.html)
-
 ## 🏛️ System Architecture
 
-![system](https://github.com/user-attachments/assets/c5dcde53-06eb-49df-9134-00cbad2e144a)
+<img width="1391" height="892" alt="Frame 3" src="https://github.com/user-attachments/assets/431655a6-87c2-480f-9833-dfcff609707a" />
 
 ## 📊 ERD
 
