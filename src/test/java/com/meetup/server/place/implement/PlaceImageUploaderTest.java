@@ -66,7 +66,7 @@ class PlaceImageUploaderTest extends IntegrationTestContainer {
             throw new PlaceException(PlaceErrorType.PLACE_IMAGE_UPLOAD_FAILED);
         }
 
-        return placeImageUploader.uploadImage(photoResponse.photoUri(), place.getId().toString());
+        return placeImageUploader.uploadImage(photoResponse.photoUri(), place.getId());
     }
 
     //@Disabled("API 호출 시, 과금 가능성으로 인한 테스트 비활성화")

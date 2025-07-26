@@ -7,12 +7,12 @@ import com.meetup.server.global.support.error.GlobalErrorType;
 import com.meetup.server.global.support.error.GlobalException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 
 @Slf4j
-@Configuration
+@Component
 @RequiredArgsConstructor
 public class SimpleStorageUploader {
 
