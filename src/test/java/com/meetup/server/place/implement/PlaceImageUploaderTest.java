@@ -13,6 +13,7 @@ import com.meetup.server.place.exception.PlaceException;
 import com.meetup.server.place.persistence.PlaceRepository;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,7 +70,7 @@ class PlaceImageUploaderTest extends IntegrationTestContainer {
         return placeImageUploader.uploadImage(photoResponse.photoUri(), place.getId());
     }
 
-    //@Disabled("API 호출 시, 과금 가능성으로 인한 테스트 비활성화")
+    @Disabled("API 호출 시, 과금 가능성으로 인한 테스트 비활성화")
     @Test
     void 구글_장소_이름으로_이미지를_S3에_업로드한다() {
         Place place = placeRepository.findAll().getFirst();
