@@ -79,7 +79,9 @@ class PlaceImageUploaderTest extends IntegrationTestContainer {
 
         String imageUrl = uploadImageByPlaceName(place, maxHeightPx, maxWidthPx);
 
-        assert imageUrl != null : "이미지 업로드에 실패했습니다.";System.out.println("업로드된 이미지 URL: " + imageUrl);
+        assert imageUrl != null : "이미지 업로드에 실패했습니다.";
+
+        System.out.println("업로드된 이미지 URL: " + imageUrl);
         assertThat(imageUrl).isNotNull().isNotBlank();
     }
 }
