@@ -3,7 +3,6 @@ package com.meetup.server.global.util;
 import com.meetup.server.global.support.error.GlobalErrorType;
 import com.meetup.server.global.support.error.GlobalException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -14,12 +13,11 @@ import java.net.URI;
 import java.net.URL;
 
 @Slf4j
-@Component
 public class ImageConverter {
 
     private static final String IMAGE_FORMAT = "png";
 
-    public byte[] downloadImage(String url) {
+    public static byte[] downloadImage(String url) {
         try {
             URL imageUrl = URI.create(url).toURL();
             return convertUrlToBytes(imageUrl, url);
@@ -30,7 +28,7 @@ public class ImageConverter {
         }
     }
 
-    private byte[] convertUrlToBytes(URL imageUrl, String originalUrl) throws IOException {
+    private static byte[] convertUrlToBytes(URL imageUrl, String originalUrl) throws IOException {
         try (InputStream inputStream = imageUrl.openStream();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
