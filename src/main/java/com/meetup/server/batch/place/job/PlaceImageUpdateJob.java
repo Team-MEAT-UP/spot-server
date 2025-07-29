@@ -76,7 +76,7 @@ public class PlaceImageUpdateJob {
         return new StepBuilder("updatePlaceImageStep", jobRepository)
                 .<Place, Place>chunk(5, platformTransactionManager)
                 .reader(placeReader())
-                .processor(updatePlaceImage())
+                .processor(updatePlaceImageProcessor())
                 .writer(updatePlaceImageWriter())
                 .build();
     }
@@ -90,10 +90,14 @@ public class PlaceImageUpdateJob {
                 .build();
     }
 
-    private ItemProcessor<Place, Place> updatePlaceImage() {
+    private ItemProcessor<Place, Place> updatePlaceImageProcessor() {
         return place -> {
-            String imageUrl = uploadImageByPlace(place);
-            place.updateImage(imageUrl);
+            try {
+                String imageUrl = uploadImageByPlace(place);
+                place.updateImage(imageUrl);
+            } catch (Exception e) {
+                log.warn("[PlaceImageUpdateJob] 장소 이미지 업데이트 실패 {}: {}", place.getId(), e.getMessage());
+            }
             return place;
         };
     }
