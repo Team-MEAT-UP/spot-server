@@ -21,6 +21,8 @@ import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.place.domain.value.GoogleReview;
 import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.place.domain.value.OpeningHour;
+import com.meetup.server.place.exception.PlaceErrorType;
+import com.meetup.server.place.exception.PlaceException;
 import com.meetup.server.place.implement.PlaceImageUploader;
 import com.meetup.server.place.persistence.PlaceRepository;
 import com.meetup.server.startpoint.domain.type.Location;
@@ -150,19 +152,43 @@ public class PlaceSaveJob {
     }
 
     private Place createPlace(KakaoSearchResponse kakaoSearchResponse) throws JsonProcessingException {
-        GoogleSearchTextResponse googleSearchTextResponse =
-                googleSearchTextClient.sendRequest(GoogleSearchTextRequest.from(kakaoSearchResponse.getPlaceName()), GoogleFieldMask.ALL);
-
-        GoogleSearchTextResponse.Place googlePlace = googleSearchTextResponse.places().getFirst();
-
-        String photoName = googlePlace.photos().getFirst().name();
-        GooglePhotoResponse googlePhotoResponse = fetchGooglePhoto(photoName);
         UUID placeId = UuidCreator.getTimeOrderedEpoch();
-        String photoUri = placeImageUploader.uploadImage(googlePhotoResponse.photoUri(), placeId);
+
+        GoogleSearchTextResponse.Place googlePlace = fetchGooglePlace(kakaoSearchResponse.getPlaceName());
+        String photoUri = uploadPlaceImage(googlePlace, placeId);
 
         double longitude = Double.parseDouble(kakaoSearchResponse.getX());
         double latitude = Double.parseDouble(kakaoSearchResponse.getY());
 
+        return buildPlace(placeId, kakaoSearchResponse, googlePlace, photoUri, longitude, latitude);
+    }
+
+    private GoogleSearchTextResponse.Place fetchGooglePlace(String placeName) {
+        GoogleSearchTextResponse googleSearchTextResponse = googleSearchTextClient.sendRequest(
+                GoogleSearchTextRequest.from(placeName),
+                GoogleFieldMask.ALL
+        );
+
+        return googleSearchTextResponse.places().getFirst();
+    }
+
+    private String uploadPlaceImage(GoogleSearchTextResponse.Place googlePlace, UUID placeId) {
+        String photoName = googlePlace.photos().getFirst().name();
+
+        GooglePhotoResponse googlePhotoResponse = fetchGooglePhoto(photoName);
+        if (googlePhotoResponse == null || googlePhotoResponse.photoUri() == null) {
+            throw new PlaceException(PlaceErrorType.PLACE_IMAGE_UPLOAD_FAILED);
+        }
+
+        return placeImageUploader.uploadImage(googlePhotoResponse.photoUri(), placeId);
+    }
+
+    private Place buildPlace(UUID placeId,
+                             KakaoSearchResponse kakaoSearchResponse,
+                             GoogleSearchTextResponse.Place googlePlace,
+                             String photoUri,
+                             double longitude,
+                             double latitude) throws JsonProcessingException {
         return Place.builder()
                 .id(placeId)
                 .kakaoPlaceId(kakaoSearchResponse.getId())
@@ -173,21 +199,17 @@ public class PlaceSaveJob {
                 .images(List.of(Image.from(photoUri)))
                 .openingHours(
                         Optional.ofNullable(googlePlace.regularOpeningHours())
-                                .map(openingHours -> openingHours.periods().stream()
-                                        .map(OpeningHour::from)
-                                        .toList())
+                                .map(openingHours -> openingHours.periods().stream().map(OpeningHour::from).toList())
                                 .orElseGet(List::of)
                 )
                 .googleReviews(
                         Optional.ofNullable(googlePlace.reviews())
-                                .map(reviews -> reviews.stream()
-                                        .map(GoogleReview::from)
-                                        .toList())
+                                .map(reviews -> reviews.stream().map(GoogleReview::from).toList())
                                 .orElseGet(List::of)
                 )
                 .location(Location.of(longitude, latitude))
                 .point(CoordinateUtil.createPoint(longitude, latitude))
-                .rawJson(objectMapper.writeValueAsString(googleSearchTextResponse))
+                .rawJson(objectMapper.writeValueAsString(googlePlace))
                 .build();
     }
 
