@@ -2,6 +2,8 @@ package com.meetup.server.batch.place.job;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.f4b6a3.uuid.UuidCreator;
+import com.meetup.server.global.clients.google.place.GoogleFieldMask;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoClient;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoRequest;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoResponse;
@@ -19,6 +21,7 @@ import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.place.domain.value.GoogleReview;
 import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.place.domain.value.OpeningHour;
+import com.meetup.server.place.implement.PlaceImageUploader;
 import com.meetup.server.place.persistence.PlaceRepository;
 import com.meetup.server.startpoint.domain.type.Location;
 import com.meetup.server.subway.domain.Subway;
@@ -43,10 +46,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Configuration
 @RequiredArgsConstructor
@@ -64,6 +64,7 @@ public class PlaceSaveJob {
     private final GoogleSearchTextClient googleSearchTextClient;
     private final GooglePhotoClient googlePhotoClient;
     private final ObjectMapper objectMapper;
+    private final PlaceImageUploader placeImageUploader;
 
     //    @Scheduled(cron = "0 0 3 1 * ?")
     public void savePlaceJobScheduler(int page) {
@@ -150,23 +151,26 @@ public class PlaceSaveJob {
 
     private Place createPlace(KakaoSearchResponse kakaoSearchResponse) throws JsonProcessingException {
         GoogleSearchTextResponse googleSearchTextResponse =
-                googleSearchTextClient.sendRequest(GoogleSearchTextRequest.from(kakaoSearchResponse.getPlaceName()));
+                googleSearchTextClient.sendRequest(GoogleSearchTextRequest.from(kakaoSearchResponse.getPlaceName()), GoogleFieldMask.ALL);
 
         GoogleSearchTextResponse.Place googlePlace = googleSearchTextResponse.places().getFirst();
 
         String photoName = googlePlace.photos().getFirst().name();
         GooglePhotoResponse googlePhotoResponse = fetchGooglePhoto(photoName);
+        UUID placeId = UuidCreator.getTimeOrderedEpoch();
+        String photoUri = placeImageUploader.uploadImage(googlePhotoResponse.photoUri(), placeId);
 
         double longitude = Double.parseDouble(kakaoSearchResponse.getX());
         double latitude = Double.parseDouble(kakaoSearchResponse.getY());
 
         return Place.builder()
+                .id(placeId)
                 .kakaoPlaceId(kakaoSearchResponse.getId())
                 .googlePlaceId(googlePlace.id())
                 .category(PlaceCategory.CAFE)
                 .name(kakaoSearchResponse.getPlaceName())
                 .googleRating(googlePlace.rating())
-                .images(List.of(Image.from(googlePhotoResponse)))
+                .images(List.of(Image.from(photoUri)))
                 .openingHours(
                         Optional.ofNullable(googlePlace.regularOpeningHours())
                                 .map(openingHours -> openingHours.periods().stream()
