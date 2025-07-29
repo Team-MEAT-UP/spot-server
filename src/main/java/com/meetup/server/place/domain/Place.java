@@ -68,7 +68,9 @@ public class Place extends BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.id = UuidCreator.getTimeOrderedEpoch();
+        if (this.id == null) {
+            this.id = UuidCreator.getTimeOrderedEpoch();
+        }
     }
 
     @Builder
@@ -95,5 +97,10 @@ public class Place extends BaseEntity {
             return;
         }
         this.googleReviews = googleReviews;
+    }
+
+    public void updateImage(String imageUri) {
+        Image image = Image.from(imageUri);
+        this.images = List.of(image);
     }
 }
