@@ -25,7 +25,7 @@ class GooglePlaceClientTest extends IntegrationTestContainer {
     @Test
     void 구글_텍스트_검색_요청에_성공하고_장소_사진_조회에_성공한다() {
         GoogleSearchTextRequest request = GoogleSearchTextRequest.from("스타벅스 방배점");
-        GoogleSearchTextResponse response = googleSearchTextClient.sendRequest(request);
+        GoogleSearchTextResponse response = googleSearchTextClient.sendRequest(request, GoogleFieldMask.ALL);
 
         assertNotNull(response);
         assertNotNull(response.places().getFirst().id());

@@ -1,5 +1,6 @@
 package com.meetup.server.batch.presentation;
 
+import com.meetup.server.batch.place.job.PlaceImageUpdateJob;
 import com.meetup.server.batch.place.job.PlaceSaveJob;
 import com.meetup.server.global.support.error.GlobalErrorType;
 import com.meetup.server.global.support.response.ApiResponse;
@@ -17,6 +18,7 @@ public class BatchJobController {
     private String batchSecretKey;
 
     private final PlaceSaveJob placeSaveJob;
+    private final PlaceImageUpdateJob placeImageUpdateJob;
 
     @Hidden
     @PostMapping("/place")
@@ -26,6 +28,17 @@ public class BatchJobController {
         }
 
         placeSaveJob.savePlaceJobScheduler(page);
+        return ApiResponse.success();
+    }
+
+    @Hidden
+    @PostMapping("/place/image")
+    public ApiResponse<?> runPlaceImageUpdateJob(@RequestHeader String secretKey) {
+        if (!batchSecretKey.equals(secretKey)) {
+            return ApiResponse.error(GlobalErrorType.UNAUTHORIZED);
+        }
+
+        placeImageUpdateJob.updatePlaceImageJobScheduler();
         return ApiResponse.success();
     }
 }

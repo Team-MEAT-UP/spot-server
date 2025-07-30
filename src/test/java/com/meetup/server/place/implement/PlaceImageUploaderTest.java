@@ -1,6 +1,7 @@
 package com.meetup.server.place.implement;
 
 import com.meetup.server.fixture.PlaceFixture;
+import com.meetup.server.global.clients.google.place.GoogleFieldMask;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoClient;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoRequest;
 import com.meetup.server.global.clients.google.place.photo.GooglePhotoResponse;
@@ -41,7 +42,7 @@ class PlaceImageUploaderTest extends IntegrationTestContainer {
 
     public String uploadImageByPlaceName(Place place, Integer maxHeightPx, Integer maxWidthPx) {
         GoogleSearchTextRequest searchRequest = GoogleSearchTextRequest.from(place.getName());
-        GoogleSearchTextResponse searchResponse = googleSearchTextClient.sendRequest(searchRequest);
+        GoogleSearchTextResponse searchResponse = googleSearchTextClient.sendRequest(searchRequest, GoogleFieldMask.PHOTOS);
 
         if (searchResponse.places().isEmpty()) {
             throw new PlaceException(PlaceErrorType.PLACE_NOT_FOUND);
