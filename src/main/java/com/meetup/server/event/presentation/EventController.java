@@ -39,6 +39,13 @@ public class EventController {
         return ApiResponse.success();
     }
 
+    @Operation(summary = "모임 삭제 API", description = "모임을 삭제합니다")
+    @DeleteMapping("/{eventId}")
+    public ApiResponse<?> deleteEvent(@PathVariable UUID eventId) {
+        eventService.deleteEvent(eventId);
+        return ApiResponse.success();
+    }
+
     @Operation(summary = "지도 조회 API", description = "모임의 중간 지점 계산 및 모임 참여자의 경로 조회를 진행합니다")
     @GetMapping("/{eventId}")
     public ApiResponse<MeetingPointRoutesResponse> getMeetingPointRoutes(
