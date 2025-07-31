@@ -2,6 +2,7 @@ package com.meetup.server.event.presentation;
 
 import com.meetup.server.event.application.EventService;
 import com.meetup.server.event.dto.request.EventRequest;
+import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.global.support.response.ApiResponse;
@@ -29,6 +30,13 @@ public class EventController {
             @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) UUID guestId) {
         return ApiResponse.success(eventService.createEvent(userId, guestId, eventRequest));
+    }
+
+    @Operation(summary = "모임 수정 API", description = "모임명과 시간을 입력받아 모임을 수정합니다")
+    @PatchMapping("/{eventId}")
+    public ApiResponse<?> updateEvent(@PathVariable UUID eventId, @Valid @RequestBody UpdateEventRequest updateEventRequest) {
+        eventService.updateEvent(eventId, updateEventRequest);
+        return ApiResponse.success();
     }
 
     @Operation(summary = "지도 조회 API", description = "모임의 중간 지점 계산 및 모임 참여자의 경로 조회를 진행합니다")

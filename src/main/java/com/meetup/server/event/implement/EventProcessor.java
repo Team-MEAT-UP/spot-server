@@ -2,6 +2,7 @@ package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
+import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.RouteResponse;
 import com.meetup.server.event.persistence.EventRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,9 @@ public class EventProcessor {
                     routeList.remove(route);
                     routeList.addFirst(route);
                 });
+    }
+
+    public void update(Event event, UpdateEventRequest updateEventRequest) {
+        event.update(updateEventRequest.eventName(), updateEventRequest.toDateTime());
     }
 }
