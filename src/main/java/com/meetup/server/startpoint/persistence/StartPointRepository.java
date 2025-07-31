@@ -3,6 +3,7 @@ package com.meetup.server.startpoint.persistence;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.startpoint.domain.StartPoint;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +14,10 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
 
     int countByEvent(Event event);
 
-    @Query("SELECT DISTINCT s FROM StartPoint s JOIN FETCH s.event WHERE s.event = :event")
+    @Query("SELECT DISTINCT sp FROM StartPoint sp JOIN FETCH sp.event WHERE sp.event = :event")
     List<StartPoint> findAllByEvent(@Param("event") Event event);
+
+    @Modifying
+    @Query("DELETE FROM StartPoint sp WHERE sp.event = :event")
+    void deleteAllByEvent(@Param("event") Event event);
 }
