@@ -25,7 +25,7 @@ public class Review extends BaseEntity {
     private Place place;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id", nullable = true)
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
