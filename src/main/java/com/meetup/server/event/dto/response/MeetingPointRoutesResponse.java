@@ -14,6 +14,7 @@ public record MeetingPointRoutesResponse(
         String eventDate,
         String eventTime,
         String eventMaker,
+        String placeName,
         int peopleCount,
         List<MeetingPointRouteGroup> meetingPointRouteGroups
 ) {
@@ -38,6 +39,7 @@ public record MeetingPointRoutesResponse(
                 TimeUtil.formatAsDate(eventDateTime),
                 TimeUtil.formatAsTime(eventDateTime),
                 eventMaker,
+                event.getPlace().getName(),
                 peopleCount,
                 meetingPointRouteGroups
         );

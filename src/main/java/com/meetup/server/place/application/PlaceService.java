@@ -16,6 +16,7 @@ import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.implement.reader.SubwayReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class PlaceService {
     private final SubwayReader subwayReader;
 
     @Transactional
+    @CacheEvict(value = "routeDetails", key = "#eventId")
     public void confirmPlace(UUID eventId, UUID placeId, int subwayId) {
         Event event = eventReader.read(eventId);
         Place place = placeReader.read(placeId);
