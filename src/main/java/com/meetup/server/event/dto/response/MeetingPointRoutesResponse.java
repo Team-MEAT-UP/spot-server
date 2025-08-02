@@ -6,7 +6,6 @@ import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.util.UsernameExtractor;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -35,27 +34,27 @@ public record MeetingPointRoutesResponse(
 
     public static MeetingPointRoutesResponse of(List<MeetingPointResult> meetingPointResults, List<MeetingPointRouteGroup> meetingPointRouteGroups) {
         MeetingPointResult meetingPointResult = meetingPointResults.getFirst();
-
         Event event = meetingPointResult.event();
-        LocalDateTime eventDateTime = event.getEventDateTime();
-
-        List<StartPoint> startPoints = meetingPointResult.startPoints();
-
-        String eventMaker = startPoints.stream()
-                .min(Comparator.comparing(StartPoint::getCreatedAt))
-                .map(UsernameExtractor::extractDisplayName)
-                .orElse(null);
-
-        int peopleCount = startPoints.size();
 
         return new MeetingPointRoutesResponse(
                 event.getEventName(),
-                TimeUtil.formatAsDate(eventDateTime),
-                TimeUtil.formatAsTime(eventDateTime),
-                eventMaker,
-                event.getPlace().getName(),
-                peopleCount,
+                TimeUtil.formatAsDate(event.getEventDateTime()),
+                TimeUtil.formatAsTime(event.getEventDateTime()),
+                extractEventMaker(meetingPointResult.startPoints()),
+                extractPlaceName(event),
+                meetingPointResult.startPoints().size(),
                 meetingPointRouteGroups
         );
+    }
+
+    private static String extractPlaceName(Event event) {
+        return event.getPlace() != null ? event.getPlace().getName() : null;
+    }
+
+    private static String extractEventMaker(List<StartPoint> startPoints) {
+        return startPoints.stream()
+                .min(Comparator.comparing(StartPoint::getCreatedAt))
+                .map(UsernameExtractor::extractDisplayName)
+                .orElse(null);
     }
 }
