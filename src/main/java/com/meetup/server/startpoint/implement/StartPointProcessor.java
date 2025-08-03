@@ -81,4 +81,8 @@ public class StartPointProcessor {
     public void delete(StartPoint startPoint) {
         startPointRepository.delete(startPoint);
     }
+
+    public void deleteAllByEvent(Event event) {
+        startPointRepository.deleteAllByEvent(event);
+    }
 }

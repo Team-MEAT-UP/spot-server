@@ -75,4 +75,8 @@ public class ReviewWriter {
                 .isVisited(isVisited)
                 .build();
     }
+
+    public void unlinkFromEvent(Event event) {
+        reviewRepository.updateEventToNull(event);
+    }
 }
