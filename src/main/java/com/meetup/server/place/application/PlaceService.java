@@ -46,9 +46,7 @@ public class PlaceService {
         Subway subway = subwayReader.read(subwayId);
 
         event.updateMeetingPlace(place, subway);
-
         eventCacheService.updateCachedPlaceName(eventId, place.getName());
-
     }
 
     public PlaceResponseList getAllPlaces(UUID eventId, int subwayId) {
