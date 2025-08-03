@@ -17,7 +17,6 @@ import java.util.UUID;
 public class EventReader {
 
     private final EventRepository eventRepository;
-    private final EventValidator eventValidator;
     private final CacheManager cacheManager;
 
     public Event read(UUID eventId) {
@@ -27,23 +26,20 @@ public class EventReader {
 
     public MeetingPointRoutesResponse readEventCache(UUID eventId) {
         Cache cache = cacheManager.getCache("routeDetails");
-        Cache.ValueWrapper wrapper = cache.get(eventId);
-
-        eventValidator.validateEventCacheExist(wrapper);
-
-        return (MeetingPointRoutesResponse) wrapper.get();
-    }
-
-    public boolean isEventCacheExists(UUID eventId) {
-        Cache cache = cacheManager.getCache("routeDetails");
         if (cache == null) {
-            return false;
+            return null;
         }
-        Cache.ValueWrapper wrapper = cache.get(eventId);
 
+        Cache.ValueWrapper wrapper = cache.get(eventId);
         if (wrapper == null) {
-            return false;
+            return null;
         }
-        return wrapper.get() instanceof MeetingPointRoutesResponse;
+
+        Object cachedValue = wrapper.get();
+        if (!(cachedValue instanceof MeetingPointRoutesResponse)) {
+            return null;
+        }
+
+        return (MeetingPointRoutesResponse) cachedValue;
     }
 }

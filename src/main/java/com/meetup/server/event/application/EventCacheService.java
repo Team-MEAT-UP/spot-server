@@ -38,18 +38,12 @@ public class EventCacheService {
     }
 
     public void updateCachedPlaceName(UUID eventId, String placeName) {
-        Cache cache = cacheManager.getCache("routeDetails");
-        if (!eventReader.isEventCacheExists(eventId)) {
-            return;
-        }
-        Cache.ValueWrapper valueWrapper = cache.get(eventId);
-        if (valueWrapper == null) {
+        MeetingPointRoutesResponse cachedData = eventReader.readEventCache(eventId);
+        if (cachedData == null) {
             return;
         }
 
-        MeetingPointRoutesResponse cachedData = (MeetingPointRoutesResponse) valueWrapper.get();
-        if (cachedData != null) {
-            cache.put(eventId, cachedData.withPlaceName(placeName));
-        }
+        Cache cache = cacheManager.getCache("routeDetails");
+        cache.put(eventId, cachedData.withPlaceName(placeName));
     }
 }
