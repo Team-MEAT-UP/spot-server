@@ -1,5 +1,6 @@
 package com.meetup.server.place.application;
 
+import com.meetup.server.event.application.EventCacheService;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.place.domain.Place;
@@ -36,6 +37,7 @@ public class PlaceService {
     private final ReviewReader reviewReader;
     private final PlaceSorter placeSorter;
     private final SubwayReader subwayReader;
+    private final EventCacheService eventCacheService;
 
     @Transactional
     public void confirmPlace(UUID eventId, UUID placeId, int subwayId) {
@@ -44,6 +46,7 @@ public class PlaceService {
         Subway subway = subwayReader.read(subwayId);
 
         event.updateMeetingPlace(place, subway);
+        eventCacheService.updateCachedPlaceName(eventId, place.getName());
     }
 
     public PlaceResponseList getAllPlaces(UUID eventId, int subwayId) {
