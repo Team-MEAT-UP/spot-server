@@ -2,12 +2,14 @@ package com.meetup.server.event.dto.response;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.global.util.TimeUtil;
+import com.meetup.server.place.domain.Place;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.util.UsernameExtractor;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public record MeetingPointRoutesResponse(
         @Schema(description = "모임명", example = "SPOT 정기회의")
@@ -48,7 +50,9 @@ public record MeetingPointRoutesResponse(
     }
 
     private static String extractPlaceName(Event event) {
-        return event.getPlace() != null ? event.getPlace().getName() : null;
+        return Optional.ofNullable(event.getPlace())
+                .map(Place::getName)
+                .orElse(null);
     }
 
     private static String extractEventMaker(List<StartPoint> startPoints) {
