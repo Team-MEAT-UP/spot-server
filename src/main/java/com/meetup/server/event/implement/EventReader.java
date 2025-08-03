@@ -25,9 +25,6 @@ public class EventReader {
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
     }
 
-    /**
-     *  캐시 데이터 가져올 때 사용하는 메서드 (#139)
-     */
     public MeetingPointRoutesResponse readEventCache(UUID eventId) {
         Cache cache = cacheManager.getCache("routeDetails");
         Cache.ValueWrapper wrapper = cache.get(eventId);

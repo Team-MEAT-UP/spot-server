@@ -7,6 +7,7 @@ import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.util.UsernameExtractor;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -77,9 +78,10 @@ public record MeetingPointRoutesResponse(
     public MeetingPointRoutesResponse withEvent(String eventName, LocalDateTime eventDateTime) {
         return new MeetingPointRoutesResponse(
                 eventName,
-                TimeUtil.formatAsDate(eventDateTime),
+                TimeUtil.formatAsDashDate(eventDateTime),
                 TimeUtil.formatAsTime(eventDateTime),
                 this.eventMaker(),
+                this.placeName(),
                 this.peopleCount(),
                 this.meetingPointRouteGroups()
         );
