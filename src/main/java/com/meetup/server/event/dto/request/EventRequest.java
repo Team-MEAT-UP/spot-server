@@ -11,7 +11,7 @@ import java.time.LocalTime;
 public record EventRequest(
 
         @NotBlank
-        @Size(min = 1, max = 15)
+        @Size(min = 1, max = 50)
         @Schema(description = "모임명", example = "입력핑")
         String eventName,
 

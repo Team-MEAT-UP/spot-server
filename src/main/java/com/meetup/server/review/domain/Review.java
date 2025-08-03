@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
 @Table(name = "review")
@@ -25,7 +26,7 @@ public class Review extends BaseEntity {
     private Place place;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id", nullable = true)
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +43,7 @@ public class Review extends BaseEntity {
     private NonVisitedReview nonVisitedReview;
 
     @Builder
-    public Review(Place place, User user, boolean isVisited, VisitedReview visitedReview, NonVisitedReview nonVisitedReview, Event event) {
+    public Review(Place place, User user, boolean isVisited, VisitedReview visitedReview, NonVisitedReview nonVisitedReview, @NonNull Event event) {
         this.place = place;
         this.user = user;
         this.isVisited = isVisited;

@@ -73,4 +73,15 @@ public record MeetingPointRoutesResponse(
                 this.meetingPointRouteGroups
         );
     }
+
+    public MeetingPointRoutesResponse withEvent(String eventName, LocalDateTime eventDateTime) {
+        return new MeetingPointRoutesResponse(
+                eventName,
+                TimeUtil.formatAsDate(eventDateTime),
+                TimeUtil.formatAsTime(eventDateTime),
+                this.eventMaker(),
+                this.peopleCount(),
+                this.meetingPointRouteGroups()
+        );
+    }
 }
