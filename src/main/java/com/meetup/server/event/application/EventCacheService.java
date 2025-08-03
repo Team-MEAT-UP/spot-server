@@ -42,8 +42,14 @@ public class EventCacheService {
         if (!eventReader.isEventCacheExists(eventId)) {
             return;
         }
+        Cache.ValueWrapper valueWrapper = cache.get(eventId);
+        if (valueWrapper == null) {
+            return;
+        }
 
-        MeetingPointRoutesResponse cachedData = (MeetingPointRoutesResponse) cache.get(eventId).get();
-        cache.put(eventId, cachedData.withPlaceName(placeName));
+        MeetingPointRoutesResponse cachedData = (MeetingPointRoutesResponse) valueWrapper.get();
+        if (cachedData != null) {
+            cache.put(eventId, cachedData.withPlaceName(placeName));
+        }
     }
 }
