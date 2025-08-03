@@ -25,7 +25,7 @@ public record UserEventHistoryResponse(
         return UserEventHistoryResponse.builder()
                 .eventId(eventHistory.eventId())
                 .eventName(eventHistory.eventName())
-                .eventDate(TimeUtil.formatAsDate(eventHistory.eventDateTime()))
+                .eventDate(TimeUtil.formatAsDashDate(eventHistory.eventDateTime()))
                 .eventTime(TimeUtil.formatAsTime(eventHistory.eventDateTime()))
                 .middlePointName(eventHistory.subwayName())
                 .placeName(eventHistory.placeName())
