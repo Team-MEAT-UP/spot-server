@@ -1,5 +1,6 @@
 package com.meetup.server.place.application;
 
+import com.meetup.server.event.application.EventCacheService;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.place.domain.Place;
@@ -16,7 +17,6 @@ import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.implement.reader.SubwayReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,15 +37,18 @@ public class PlaceService {
     private final ReviewReader reviewReader;
     private final PlaceSorter placeSorter;
     private final SubwayReader subwayReader;
+    private final EventCacheService eventCacheService;
 
     @Transactional
-    @CacheEvict(value = "routeDetails", key = "#eventId")
     public void confirmPlace(UUID eventId, UUID placeId, int subwayId) {
         Event event = eventReader.read(eventId);
         Place place = placeReader.read(placeId);
         Subway subway = subwayReader.read(subwayId);
 
         event.updateMeetingPlace(place, subway);
+
+        eventCacheService.updateCachedPlaceName(eventId, place.getName());
+
     }
 
     public PlaceResponseList getAllPlaces(UUID eventId, int subwayId) {

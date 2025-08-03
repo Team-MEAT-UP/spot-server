@@ -26,13 +26,27 @@ public class EventReader {
     }
 
     /**
-     * #139 캐시 데이터 가져올 때 사용하는 메서드
+     *  캐시 데이터 가져올 때 사용하는 메서드 (#139)
      */
     public MeetingPointRoutesResponse readEventCache(UUID eventId) {
         Cache cache = cacheManager.getCache("routeDetails");
         Cache.ValueWrapper wrapper = cache.get(eventId);
 
         eventValidator.validateEventCacheExist(wrapper);
+
         return (MeetingPointRoutesResponse) wrapper.get();
+    }
+
+    public boolean isEventCacheExists(UUID eventId) {
+        Cache cache = cacheManager.getCache("routeDetails");
+        if (cache == null) {
+            return false;
+        }
+        Cache.ValueWrapper wrapper = cache.get(eventId);
+
+        if (wrapper == null) {
+            return false;
+        }
+        return wrapper.get() instanceof MeetingPointRoutesResponse;
     }
 }

@@ -3,10 +3,13 @@ package com.meetup.server.event.application;
 import com.meetup.server.event.dto.response.MeetingPointResult;
 import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
 import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
+import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.implement.MeetingPointCalculator;
 import com.meetup.server.event.implement.RouteAssembler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +21,12 @@ import java.util.UUID;
 @Slf4j
 public class EventCacheService {
 
+    private final CacheManager cacheManager;
+
     private final MeetingPointCalculator meetingPointCalculator;
     private final RouteAssembler routeAssembler;
+    private final EventReader eventReader;
+
 
     @Cacheable(value = "routeDetails", key = "#eventId", unless = "#result == null")
     public MeetingPointRoutesResponse getCachedMeetingPointRoutes(UUID eventId) {
@@ -28,5 +35,15 @@ public class EventCacheService {
                 .map(resultResponse -> routeAssembler.assemble(resultResponse.startPoints(), resultResponse.subway()))
                 .toList();
         return MeetingPointRoutesResponse.of(meetingPointResults, meetingPointRouteGroups);
+    }
+
+    public void updateCachedPlaceName(UUID eventId, String placeName) {
+        Cache cache = cacheManager.getCache("routeDetails");
+        if (!eventReader.isEventCacheExists(eventId)) {
+            return;
+        }
+
+        MeetingPointRoutesResponse cachedData = (MeetingPointRoutesResponse) cache.get(eventId).get();
+        cache.put(eventId, cachedData.withPlaceName(placeName));
     }
 }

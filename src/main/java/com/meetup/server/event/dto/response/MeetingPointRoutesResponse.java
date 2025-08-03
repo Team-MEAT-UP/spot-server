@@ -57,4 +57,16 @@ public record MeetingPointRoutesResponse(
                 .map(UsernameExtractor::extractDisplayName)
                 .orElse(null);
     }
+
+    public MeetingPointRoutesResponse withPlaceName(String confirmedPlaceName) {
+        return new MeetingPointRoutesResponse(
+                this.eventName,
+                this.eventDate,
+                this.eventTime,
+                this.eventMaker,
+                confirmedPlaceName,
+                this.peopleCount,
+                this.meetingPointRouteGroups
+        );
+    }
 }
