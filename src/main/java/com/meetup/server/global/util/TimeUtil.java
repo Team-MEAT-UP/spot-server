@@ -17,6 +17,8 @@ public class TimeUtil {
 
     private static final DateTimeFormatter YYYY_MM_DD_DOT_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
+    private static final DateTimeFormatter YYYY_MM_DD_DASH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     private static final DateTimeFormatter HH_MM_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public static int calculateDaysAgo(LocalDateTime createdAt) {
@@ -31,8 +33,12 @@ public class TimeUtil {
         return dateTime.format(YYYY_MM_DD_HH_MM_SS_FORMATTER);
     }
 
-    public static String formatAsDate(LocalDateTime dateTime) {
+    public static String formatAsDotDate(LocalDateTime dateTime) {
         return dateTime.format(YYYY_MM_DD_DOT_FORMATTER);
+    }
+
+    public static String formatAsDashDate(LocalDateTime dateTime) {
+        return dateTime.format(YYYY_MM_DD_DASH_FORMATTER);
     }
 
     public static String formatAsTime(LocalDateTime dateTime) {

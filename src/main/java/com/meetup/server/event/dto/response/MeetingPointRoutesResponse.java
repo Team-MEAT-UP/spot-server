@@ -38,7 +38,7 @@ public record MeetingPointRoutesResponse(
 
         return new MeetingPointRoutesResponse(
                 event.getEventName(),
-                TimeUtil.formatAsDate(event.getEventDateTime()),
+                TimeUtil.formatAsDashDate(event.getEventDateTime()),
                 TimeUtil.formatAsTime(event.getEventDateTime()),
                 extractEventMaker(meetingPointResult.startPoints()),
                 extractPlaceName(event),
