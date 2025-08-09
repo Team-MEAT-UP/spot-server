@@ -20,7 +20,6 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
-    private final UserService userService;
     private final UserReader userReader;
 
     public void logout(HttpServletResponse response) {
