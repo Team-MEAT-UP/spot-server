@@ -7,8 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_users_deleted_at", columnList = "deleted_at")
+        }
+)
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class User extends BaseEntity {
@@ -40,8 +46,11 @@ public class User extends BaseEntity {
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
 
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
+
     @Builder
-    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement) {
+    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt) {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.email = email;
@@ -49,6 +58,7 @@ public class User extends BaseEntity {
         this.role = role;
         this.personalInfoAgreement = personalInfoAgreement;
         this.marketingAgreement = marketingAgreement;
+        this.deletedAt = deletedAt;
     }
 
     public void updateAgreement(boolean personalInfoAgreement, boolean marketingAgreement) {
@@ -58,5 +68,25 @@ public class User extends BaseEntity {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateToWithdraw() {
+        this.profileImage = null;
+        this.email = "";
+        this.personalInfoAgreement = false;
+        this.marketingAgreement = false;
+        this.nickname = WITHDRAWN_NICKNAME;
+        this.role = Role.WITHDRAWN;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    private static final String WITHDRAWN_NICKNAME = "탈퇴한 사용자";
+
+    public void updateUser(User user) {
+        this.nickname = user.nickname;
+        this.profileImage = user.profileImage;
+        this.email = user.email;
+        this.role = Role.USER;
+        this.deletedAt = null;
     }
 }

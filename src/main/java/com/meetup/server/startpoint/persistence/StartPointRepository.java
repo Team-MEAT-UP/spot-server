@@ -2,7 +2,9 @@ package com.meetup.server.startpoint.persistence;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.startpoint.domain.StartPoint;
+import com.meetup.server.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,22 +15,14 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
 
     int countByEvent(Event event);
 
-    @Query("SELECT DISTINCT s FROM StartPoint s JOIN FETCH s.event WHERE s.event = :event")
+    @Query("SELECT DISTINCT sp FROM StartPoint sp JOIN FETCH sp.event WHERE sp.event = :event")
     List<StartPoint> findAllByEvent(@Param("event") Event event);
 
-    @Query("""
-                SELECT s
-                FROM StartPoint s
-                WHERE s.event.eventId = :eventId
-                ORDER BY s.createdAt ASC
-                LIMIT 1
-            """)
-    StartPoint findTopByEventIdOrderByCreatedAtAsc(@Param("eventId") UUID eventId);
+    @Modifying
+    @Query("DELETE FROM StartPoint sp WHERE sp.event = :event")
+    void deleteAllByEvent(@Param("event") Event event);
 
-    @Query("""
-            SELECT sp
-            FROM StartPoint sp
-            JOIN FETCH sp.user
-            WHERE sp.user.userId = :userId""")
-    List<StartPoint> findAllByUserId(@Param("userId") Long userId);
+    @Modifying
+    @Query("DELETE FROM StartPoint sp WHERE sp.user = :user")
+    void deleteAllByUser(@Param("user") User user);
 }

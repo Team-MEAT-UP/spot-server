@@ -11,7 +11,7 @@ public class UserWriter {
 
     private final UserRepository userRepository;
 
-    public void delete(User user) {
-        userRepository.deleteUser(user);
+    public User save(User user) {
+        return userRepository.save(user);
     }
 }

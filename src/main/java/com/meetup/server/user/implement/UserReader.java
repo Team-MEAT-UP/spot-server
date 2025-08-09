@@ -17,11 +17,21 @@ public class UserReader {
 
     public Optional<User> readUserIfExists(Long userId) {
         if (userId == null) return Optional.empty();
-        return userRepository.findById(userId);
+        return userRepository.findByUserIdAndDeletedAtIsNull(userId);
     }
 
     public User read(Long userId) {
-        return readUserIfExists(userId)
+        User user = readUserIfExists(userId)
                 .orElseThrow(() -> new UserException(UserErrorType.USER_NOT_FOUND));
+
+        if (!isActiveUser(user)) {
+            throw new UserException(UserErrorType.DELETED_USER);
+        }
+
+        return user;
+    }
+
+    private boolean isActiveUser(User user) {
+        return user != null && user.getDeletedAt() == null;
     }
 }

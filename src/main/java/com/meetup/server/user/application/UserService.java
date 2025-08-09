@@ -1,5 +1,6 @@
 package com.meetup.server.user.application;
 
+import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.persistence.projection.EventHistory;
 import com.meetup.server.user.domain.User;
@@ -9,7 +10,6 @@ import com.meetup.server.user.dto.response.UserProfileInfoResponse;
 import com.meetup.server.user.implement.AgreementValidator;
 import com.meetup.server.user.implement.UserEventHistoryAssembler;
 import com.meetup.server.user.implement.UserReader;
-import com.meetup.server.user.implement.UserWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class UserService {
     private final AgreementValidator agreementValidator;
     private final UserReader userReader;
     private final UserEventHistoryAssembler userEventHistoryAssembler;
-    private final UserWriter userWriter;
+    private final StartPointProcessor startPointProcessor;
 
     public UserProfileInfoResponse getUserProfileInfo(Long userId) {
         return UserProfileInfoResponse.from(userReader.read(userId));
@@ -61,8 +61,9 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
+    public void withdrawUser(Long userId) {
         User user = userReader.read(userId);
-        userWriter.delete(user);
+        startPointProcessor.delete(user);
+        user.updateToWithdraw();
     }
 }

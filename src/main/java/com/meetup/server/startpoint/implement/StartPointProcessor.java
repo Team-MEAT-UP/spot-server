@@ -43,6 +43,7 @@ public class StartPointProcessor {
                 .location(Location.of(startPointRequest.longitude(), startPointRequest.latitude()))
                 .point(CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude()))
                 .isUser(true)
+                .isTransit(startPointRequest.isTransit())
                 .build();
 
         return startPointRepository.save(startPoint);
@@ -60,13 +61,10 @@ public class StartPointProcessor {
                 .isUser(false)
                 .nonUserName(startPointRequest.username())
                 .guestId(guestId)
+                .isTransit(startPointRequest.isTransit())
                 .build();
 
         return startPointRepository.save(startPoint);
-    }
-
-    public void updateTransit(StartPoint startPoint, boolean isTransit) {
-        startPoint.updateIsTransit(isTransit);
     }
 
     public void update(StartPoint startPoint, StartPointRequest startPointRequest) {
@@ -75,11 +73,20 @@ public class StartPointProcessor {
                 Address.of(startPointRequest.address(), startPointRequest.roadAddress()),
                 Location.of(startPointRequest.longitude(), startPointRequest.latitude()),
                 startPointRequest.username(),
-                CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude())
+                CoordinateUtil.createPoint(startPointRequest.longitude(), startPointRequest.latitude()),
+                startPointRequest.isTransit()
         );
     }
 
     public void delete(StartPoint startPoint) {
         startPointRepository.delete(startPoint);
+    }
+
+    public void deleteAllByEvent(Event event) {
+        startPointRepository.deleteAllByEvent(event);
+    }
+
+    public void delete(User user) {
+        startPointRepository.deleteAllByUser(user);
     }
 }
