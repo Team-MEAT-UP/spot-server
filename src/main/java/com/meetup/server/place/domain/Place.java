@@ -68,11 +68,14 @@ public class Place extends BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.id = UuidCreator.getTimeOrderedEpoch();
+        if (this.id == null) {
+            this.id = UuidCreator.getTimeOrderedEpoch();
+        }
     }
 
     @Builder
-    public Place(String kakaoPlaceId, String googlePlaceId, PlaceCategory category, String name, Double googleRating, List<Image> images, List<OpeningHour> openingHours, List<GoogleReview> googleReviews, Location location, Point point, String rawJson) {
+    public Place(UUID id, String kakaoPlaceId, String googlePlaceId, PlaceCategory category, String name, Double googleRating, List<Image> images, List<OpeningHour> openingHours, List<GoogleReview> googleReviews, Location location, Point point, String rawJson) {
+        this.id = id;
         this.kakaoPlaceId = kakaoPlaceId;
         this.googlePlaceId = googlePlaceId;
         this.category = category;
@@ -95,5 +98,10 @@ public class Place extends BaseEntity {
             return;
         }
         this.googleReviews = googleReviews;
+    }
+
+    public void updateImage(String imageUri) {
+        Image image = Image.from(imageUri);
+        this.images = List.of(image);
     }
 }

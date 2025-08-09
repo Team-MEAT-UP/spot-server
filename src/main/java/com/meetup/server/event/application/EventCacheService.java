@@ -1,16 +1,19 @@
 package com.meetup.server.event.application;
 
-import com.meetup.server.event.dto.response.MiddlePointResultResponse;
-import com.meetup.server.event.dto.response.RouteResponseList;
-import com.meetup.server.event.implement.EventProcessor;
+import com.meetup.server.event.dto.response.MeetingPointResult;
+import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
+import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.implement.MeetingPointCalculator;
+import com.meetup.server.event.implement.RouteAssembler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,22 +21,29 @@ import java.util.UUID;
 @Slf4j
 public class EventCacheService {
 
-    private final MiddlePointService middlePointService;
-    private final RouteService routeService;
+    private final CacheManager cacheManager;
+
+    private final MeetingPointCalculator meetingPointCalculator;
+    private final RouteAssembler routeAssembler;
     private final EventReader eventReader;
-    private final EventProcessor eventProcessor;
+
 
     @Cacheable(value = "routeDetails", key = "#eventId", unless = "#result == null")
-    public RouteResponseList getEventMap(UUID eventId) {
-        MiddlePointResultResponse result = middlePointService.getMiddlePoint(eventId);
-        return routeService.getAllRouteDetails(result.event(), result.startPoints());
+    public MeetingPointRoutesResponse getCachedMeetingPointRoutes(UUID eventId) {
+        List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
+        List<MeetingPointRouteGroup> meetingPointRouteGroups = meetingPointResults.stream()
+                .map(resultResponse -> routeAssembler.assemble(resultResponse.startPoints(), resultResponse.subway()))
+                .toList();
+        return MeetingPointRoutesResponse.of(meetingPointResults, meetingPointRouteGroups);
     }
 
-    @Transactional
-    @CachePut(value = "routeDetails", key = "#eventId")
-    public RouteResponseList updateTransit(UUID eventId, UUID startPointId, boolean isTransit) {
-        RouteResponseList routeResponseList = eventReader.readEventCache(eventId);
-        eventProcessor.updateTransitForStartPoint(routeResponseList, startPointId, isTransit);
-        return routeResponseList;
+    public void updateCachedPlaceName(UUID eventId, String placeName) {
+        MeetingPointRoutesResponse cachedData = eventReader.readEventCache(eventId);
+        if (cachedData == null) {
+            return;
+        }
+
+        Cache cache = cacheManager.getCache("routeDetails");
+        cache.put(eventId, cachedData.withPlaceName(placeName));
     }
 }

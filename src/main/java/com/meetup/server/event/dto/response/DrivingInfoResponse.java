@@ -21,7 +21,7 @@ public record DrivingInfoResponse(
     }
 
     public static DrivingInfoResponse from(KakaoMobilityResponse kakaoMobilityResponse) {
-        if (kakaoMobilityResponse.routes() == null || kakaoMobilityResponse.routes().isEmpty()) {
+        if (kakaoMobilityResponse == null || kakaoMobilityResponse.routes() == null || kakaoMobilityResponse.routes().isEmpty()) {
             return null;
         }
 

@@ -1,12 +1,12 @@
 package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.dto.request.EventRequest;
+import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.RouteResponse;
-import com.meetup.server.event.dto.response.RouteResponseList;
 import com.meetup.server.event.persistence.EventRepository;
-import com.meetup.server.startpoint.domain.StartPoint;
+import com.meetup.server.review.implement.ReviewWriter;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
-import com.meetup.server.startpoint.implement.StartPointReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,27 +19,15 @@ import java.util.function.Predicate;
 public class EventProcessor {
 
     private final EventRepository eventRepository;
-    private final StartPointReader startPointReader;
     private final StartPointProcessor startPointProcessor;
+    private final ReviewWriter reviewWriter;
 
-    public Event save() {
-        Event event = Event.builder().build();
+    public Event save(EventRequest eventRequest) {
+        Event event = Event.builder()
+                .eventName(eventRequest.eventName())
+                .eventDateTime(eventRequest.toDateTime())
+                .build();
         return eventRepository.save(event);
-    }
-
-    public void updateTransitForStartPoint(RouteResponseList routeResponseList, UUID startPointId, boolean isTransit) {
-        List<RouteResponse> routes = routeResponseList.getRouteResponse();
-
-        routes.stream()
-                .filter(route -> startPointId.equals(route.getId()))
-                .findFirst()
-                .ifPresent(route -> {
-                    route.updateIsTransit(isTransit);
-                    StartPoint startPoint = startPointReader.read(startPointId);
-                    startPointProcessor.updateTransit(startPoint, isTransit);
-                });
-
-        routeResponseList.updateRouteResponse(routes);
     }
 
     public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {
@@ -55,5 +43,15 @@ public class EventProcessor {
                     routeList.remove(route);
                     routeList.addFirst(route);
                 });
+    }
+
+    public void update(Event event, UpdateEventRequest updateEventRequest) {
+        event.update(updateEventRequest.eventName(), updateEventRequest.toDateTime());
+    }
+
+    public void delete(Event event) {
+        startPointProcessor.deleteAllByEvent(event);
+        reviewWriter.unlinkFromEvent(event);
+        eventRepository.delete(event);
     }
 }

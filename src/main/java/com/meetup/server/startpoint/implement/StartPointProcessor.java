@@ -67,6 +67,10 @@ public class StartPointProcessor {
         return startPointRepository.save(startPoint);
     }
 
+    public void updateTransit(StartPoint startPoint, boolean isTransit) {
+        startPoint.updateIsTransit(isTransit);
+    }
+
     public void update(StartPoint startPoint, StartPointRequest startPointRequest) {
         startPoint.updateStartPoint(
                 startPointRequest.startPoint(),

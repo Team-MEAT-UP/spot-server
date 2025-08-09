@@ -65,6 +65,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getStartPointId()).isEqualTo(eventStartPointResponse.startPointId());
         assertThat(optionalStartPoint.get().getUser()).isNull();
         assertThat(optionalStartPoint.get().getGuestId()).isEqualTo(guestId);
+        assertThat(optionalStartPoint.get().isTransit()).isEqualTo(startPointRequest.isTransit());
     }
 
     @Transactional
@@ -84,6 +85,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getStartPointId()).isEqualTo(eventStartPointResponse.startPointId());
         assertThat(optionalStartPoint.get().getUser()).isEqualTo(user);
         assertThat(optionalStartPoint.get().getGuestId()).isNull();
+        assertThat(optionalStartPoint.get().isTransit()).isEqualTo(startPointRequest.isTransit());
     }
 
     @Test

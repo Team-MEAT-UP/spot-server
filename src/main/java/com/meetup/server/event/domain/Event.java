@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +21,12 @@ public class Event extends BaseEntity {
     @Id
     @Column(name = "event_id")
     private UUID eventId;
+
+    @Column(name = "event_name", nullable = false)
+    private String eventName;
+
+    @Column(name = "event_date_time", nullable = false)
+    private LocalDateTime eventDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subway_id", nullable = true)
@@ -35,23 +42,24 @@ public class Event extends BaseEntity {
     }
 
     @Builder
-    public Event(Subway subway, Place place) {
+    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime) {
         this.subway = subway;
         this.place = place;
+        this.eventName = eventName;
+        this.eventDateTime = eventDateTime;
+    }
+
+    public void update(String eventName, LocalDateTime eventDateTime) {
+        this.eventName = eventName;
+        this.eventDateTime = eventDateTime;
     }
 
     public void updateSubway(Subway subway) {
         this.subway = subway;
     }
 
-    public void confirmPlace(Place place) {
+    public void updateMeetingPlace(Place place, Subway subway) {
         this.place = place;
-    }
-
-    public void updatePlace(Place place) {
-        if (this.place.isSamePlace(place)) {
-            return;
-        }
-        this.place = place;
+        this.subway = subway;
     }
 }

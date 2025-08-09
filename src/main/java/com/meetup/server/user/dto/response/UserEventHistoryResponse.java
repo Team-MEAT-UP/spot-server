@@ -1,19 +1,18 @@
 package com.meetup.server.user.dto.response;
 
-import com.meetup.server.event.domain.Event;
 import com.meetup.server.global.util.TimeUtil;
-import com.meetup.server.place.domain.Place;
-import com.meetup.server.subway.domain.Subway;
-import com.meetup.server.user.domain.User;
+import com.meetup.server.startpoint.persistence.projection.EventHistory;
 import lombok.Builder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Builder
 public record UserEventHistoryResponse(
         UUID eventId,
+        String eventName,
+        String eventDate,
+        String eventTime,
         String middlePointName,
         String placeName,
         int participatedPeopleCount,
@@ -22,21 +21,18 @@ public record UserEventHistoryResponse(
         int eventHourAgo,
         boolean isReviewed
 ) {
-    public static UserEventHistoryResponse of(List<User> userList, Event event, int participatedPeopleCount, boolean isReviewed) {
+    public static UserEventHistoryResponse of(EventHistory eventHistory, int participatedPeopleCount, List<String> imageUrls, boolean isReviewed) {
         return UserEventHistoryResponse.builder()
-                .eventId(event.getEventId())
-                .middlePointName(Optional.ofNullable(event.getSubway())
-                        .map(Subway::getName)
-                        .orElse(null))
-                .placeName(Optional.ofNullable(event.getPlace())
-                        .map(Place::getName)
-                        .orElse(null))
+                .eventId(eventHistory.eventId())
+                .eventName(eventHistory.eventName())
+                .eventDate(TimeUtil.formatAsDashDate(eventHistory.eventDateTime()))
+                .eventTime(TimeUtil.formatAsTime(eventHistory.eventDateTime()))
+                .middlePointName(eventHistory.subwayName())
+                .placeName(eventHistory.placeName())
                 .participatedPeopleCount(participatedPeopleCount)
-                .userProfileImageUrls(userList.stream()
-                        .map(User::getProfileImage)
-                        .toList())
-                .eventMadeAgo(TimeUtil.calculateDaysAgo(event.getCreatedAt()))
-                .eventHourAgo(TimeUtil.calculateHoursAgo(event.getCreatedAt()))
+                .userProfileImageUrls(imageUrls)
+                .eventMadeAgo(TimeUtil.calculateDaysAgo(eventHistory.createdAt()))
+                .eventHourAgo(TimeUtil.calculateHoursAgo(eventHistory.createdAt()))
                 .isReviewed(isReviewed)
                 .build();
     }

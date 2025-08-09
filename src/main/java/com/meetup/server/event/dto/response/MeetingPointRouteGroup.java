@@ -1,8 +1,7 @@
 package com.meetup.server.event.dto.response;
 
 import com.meetup.server.parkinglot.persistence.projection.ClosestParkingLot;
-import com.meetup.server.startpoint.domain.StartPoint;
-import com.meetup.server.startpoint.util.UsernameExtractor;
+import com.meetup.server.subway.domain.Subway;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,21 +13,19 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteResponseList {
+public class MeetingPointRouteGroup {
 
-    private String eventMaker;
-    private int peopleCount;
+    private int subwayId;
     private int averageTime;
     private MeetingPoint meetingPoint;
     private List<RouteResponse> routeResponse;
     private ParkingLotResponse parkingLot;
 
-    public static RouteResponseList of(StartPoint startPoint, List<RouteResponse> routeResponse, MeetingPoint meetingPoint, ClosestParkingLot closestParkingLot) {
-        return RouteResponseList.builder()
-                .eventMaker(UsernameExtractor.extractDisplayName(startPoint))
+    public static MeetingPointRouteGroup of(List<RouteResponse> routeResponse, Subway subway, ClosestParkingLot closestParkingLot) {
+        return MeetingPointRouteGroup.builder()
+                .subwayId(subway.getSubwayId())
                 .averageTime(calculateAverageTime(routeResponse))
-                .peopleCount(routeResponse.size())
-                .meetingPoint(meetingPoint)
+                .meetingPoint(MeetingPoint.from(subway))
                 .routeResponse(routeResponse)
                 .parkingLot(ParkingLotResponse.from(closestParkingLot))
                 .build();
@@ -38,10 +35,5 @@ public class RouteResponseList {
         return routeResponse.stream()
                 .mapToInt(RouteResponse::getTotalTime)
                 .sum() / routeResponse.size();
-    }
-
-    public void updateRouteResponse(List<RouteResponse> routeResponse) {
-        this.averageTime = calculateAverageTime(routeResponse);
-        this.routeResponse = routeResponse;
     }
 }
