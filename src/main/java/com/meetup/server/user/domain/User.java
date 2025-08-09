@@ -10,11 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users",
-        indexes = {
-                @Index(name = "idx_users_deleted_at", columnList = "deleted_at")
-        }
-)
+@Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class User extends BaseEntity {
