@@ -27,5 +27,4 @@ public class StartPointFixture {
                 .point(CoordinateUtil.createPoint(127.043999, 37.510297))
                 .build();
     }
-
 }

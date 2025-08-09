@@ -85,4 +85,19 @@ class StartPointServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getUser()).isEqualTo(user);
         assertThat(optionalStartPoint.get().getGuestId()).isNull();
     }
+
+    @Test
+    @Transactional
+    void 탈퇴한_사용자_출발지_삭제_확인() {
+        User user = UserFixture.getUser();
+        userRepository.save(user);
+
+        StartPoint startPoint = StartPointFixture.getStartPoint(event, user);
+        startPointRepository.save(startPoint);
+
+        startPointRepository.deleteAllByUser(user);
+
+        UUID startPointId = startPoint.getStartPointId();
+        assertThat(startPointRepository.existsById(startPointId)).isFalse();
+    }
 }
