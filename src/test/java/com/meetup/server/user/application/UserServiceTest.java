@@ -59,7 +59,6 @@ class UserServiceTest extends IntegrationTestContainer {
         assertThat(updatedUser.getRole()).isEqualTo(Role.WITHDRAWN);
         assertThat(updatedUser.getDeletedAt()).isNotNull();
         assertThat(updatedUser.getNickname()).isEqualTo("탈퇴한 사용자");
-        assertThat(updatedUser.getEmail()).isEmpty();
     }
 
     @Test

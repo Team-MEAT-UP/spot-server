@@ -23,7 +23,7 @@ public class UserFixture {
         return User.builder()
                 .nickname("탈퇴한 사용자")
                 .socialId("kakao" + uuid)
-                .email("")
+                .email(uuid + "@spot.com")
                 .role(Role.WITHDRAWN)
                 .personalInfoAgreement(false)
                 .marketingAgreement(false)

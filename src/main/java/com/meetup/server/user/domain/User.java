@@ -68,7 +68,6 @@ public class User extends BaseEntity {
 
     public void updateToWithdraw() {
         this.profileImage = null;
-        this.email = "";
         this.personalInfoAgreement = false;
         this.marketingAgreement = false;
         this.nickname = WITHDRAWN_NICKNAME;
