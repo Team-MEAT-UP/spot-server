@@ -25,13 +25,13 @@ public class UserReader {
                 .orElseThrow(() -> new UserException(UserErrorType.USER_NOT_FOUND));
 
         if (!isActiveUser(user)) {
-            throw new UserException(UserErrorType.DELETED_USER);
+            throw new UserException(UserErrorType.WITHDRAWN_USER);
         }
 
         return user;
     }
 
     private boolean isActiveUser(User user) {
-        return user != null && user.getDeletedAt() == null;
+        return user != null && user.getDeletedAt() == null && !user.getIsDeleted();
     }
 }

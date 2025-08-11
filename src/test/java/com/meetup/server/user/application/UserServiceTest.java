@@ -8,6 +8,7 @@ import com.meetup.server.user.domain.type.Role;
 import com.meetup.server.user.dto.response.UserProfileInfoResponse;
 import com.meetup.server.user.implement.UserReader;
 import com.meetup.server.user.persistence.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ class UserServiceTest extends IntegrationTestContainer {
 
     @Autowired
     private UserReader userReader;
+
+    @Autowired
+    private EntityManager em;
 
     @BeforeEach
     void setUp() {

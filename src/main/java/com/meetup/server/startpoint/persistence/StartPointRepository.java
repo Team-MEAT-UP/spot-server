@@ -22,7 +22,7 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
     @Query("DELETE FROM StartPoint sp WHERE sp.event = :event")
     void deleteAllByEvent(@Param("event") Event event);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM StartPoint sp WHERE sp.user = :user")
     void deleteAllByUser(@Param("user") User user);
 }
