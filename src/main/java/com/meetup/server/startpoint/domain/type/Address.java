@@ -13,13 +13,16 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Address {
 
-    @Column(name = "address", length = 255, nullable = false)
-    private String address;    //지번주소
+    @Column(name = "address", nullable = false)
+    private String address;
 
-    @Column(name = "road_address", length = 255, nullable = false)
-    private String roadAddress; //도로명주소
+    @Column(name = "road_address", nullable = true)
+    private String roadAddress;
 
     public static Address of(String address, String roadAddress) {
-        return new Address(address, roadAddress);
+        return new Address(
+                address,
+                (roadAddress == null || roadAddress.isBlank()) ? null : roadAddress
+        );
     }
 }
