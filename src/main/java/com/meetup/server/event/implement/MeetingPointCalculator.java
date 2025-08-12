@@ -54,7 +54,7 @@ public class MeetingPointCalculator {
         if (topFairSubwayIds.isEmpty()) {
             throw new EventException(EventErrorType.PATH_CALCULATION_FAILED);
         }
-        List<Subway> topFairSubways = subwayReader.readAllByIdIn(topFairSubwayIds);
+        List<Subway> topFairSubways = subwayReader.readAllOrderByIds(topFairSubwayIds);
 
         List<Subway> filteredSubways = topFairSubways.stream()
                 .collect(Collectors.toMap(
