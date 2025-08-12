@@ -36,7 +36,7 @@ public record EventRequest(
         @Schema(description = "지번주소", example = "서울특별시 강남구 삼성동 111-114")
         String address,
 
-        @NotBlank(message = "도로명주소는 필수 값입니다.")
+        @NotNull
         @Schema(description = "도로명주소", example = "서울특별시 강남구 선릉로 지하580")
         String roadAddress,
 
