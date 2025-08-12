@@ -18,8 +18,8 @@ public record StartPointRequest(
         @Schema(description = "지번주소", example = "서울특별시 강남구 삼성동 111-114")
         String address,
 
-        @NotBlank(message = "도로명주소는 필수 값입니다.")
-        @Schema(description = "도로명주소", example = "서울특별시 강남구 선릉로 지하580")
+        @NotNull
+        @Schema(description = "도로명주소 (빈 문자열 허용)", example = "서울특별시 강남구 선릉로 지하580")
         String roadAddress,
 
         @DecimalMin(value = "-180.0", message = "경도는 -180.0보다 크거나 같아야 합니다.")
