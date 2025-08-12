@@ -49,7 +49,6 @@ public class StartPointCustomRepositoryImpl implements StartPointCustomRepositor
                                                         .select(startPoint.event.eventId)
                                                         .from(startPoint)
                                                         .groupBy(startPoint.event.eventId)
-                                                        .having(startPoint.count().goe(2))
                                         )
                                 )
                 )
