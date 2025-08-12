@@ -10,6 +10,7 @@ import com.meetup.server.user.dto.response.UserProfileInfoResponse;
 import com.meetup.server.user.implement.AgreementValidator;
 import com.meetup.server.user.implement.UserEventHistoryAssembler;
 import com.meetup.server.user.implement.UserReader;
+import com.meetup.server.user.implement.UserWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class UserService {
     private final UserReader userReader;
     private final UserEventHistoryAssembler userEventHistoryAssembler;
     private final StartPointProcessor startPointProcessor;
+    private final UserWriter userWriter;
 
     public UserProfileInfoResponse getUserProfileInfo(Long userId) {
         return UserProfileInfoResponse.from(userReader.read(userId));
@@ -65,5 +67,6 @@ public class UserService {
         User user = userReader.read(userId);
         startPointProcessor.delete(user);
         user.updateToWithdraw();
+        userWriter.save(user);
     }
 }
