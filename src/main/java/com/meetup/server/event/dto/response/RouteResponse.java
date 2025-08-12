@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class RouteResponse {
 
-    private static final Pattern START_POINT_PATTERN = Pattern.compile("(\\S+(구|군))\\s+(\\S+(동|읍))");
+    private static final Pattern START_POINT_FULL_ADDRESS_PATTERN = Pattern.compile("(\\S+(구|군))\\s+(\\S+(동|읍))");
+    private static final Pattern START_POINT_REGION_ONLY_PATTERN = Pattern.compile("(\\S+(시|군|구))");
 
     private Boolean isTransit;  // true: 대중교통, false: 자동차
     private Boolean isMe;
@@ -63,9 +64,14 @@ public class RouteResponse {
     private static String convertStartPointName(String address) {
         if (address == null || address.isBlank()) return "";
 
-        Matcher matcher = START_POINT_PATTERN.matcher(address);
+        Matcher matcher = START_POINT_FULL_ADDRESS_PATTERN.matcher(address);
         if (matcher.find()) {
             return matcher.group(1) + " " + matcher.group(3);
+        } else {
+            Matcher siGunGuMatcher = START_POINT_REGION_ONLY_PATTERN.matcher(address);
+            if (siGunGuMatcher.find()) {
+                return siGunGuMatcher.group(1);
+            }
         }
         return "";
     }
