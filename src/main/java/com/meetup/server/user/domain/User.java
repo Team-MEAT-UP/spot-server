@@ -45,8 +45,8 @@ public class User extends BaseEntity {
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    @Column(name = "is_deleted", length = 1, nullable = false)
-    private Boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @Builder
     public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt, Boolean isDeleted) {
@@ -80,7 +80,7 @@ public class User extends BaseEntity {
         this.isDeleted = true;
     }
 
-    private static final String WITHDRAWN_NICKNAME = "탈퇴한 사용자";
+    private static final String WITHDRAWN_NICKNAME = "알 수 없음";
 
     public void updateUser(User user) {
         this.nickname = user.nickname;
