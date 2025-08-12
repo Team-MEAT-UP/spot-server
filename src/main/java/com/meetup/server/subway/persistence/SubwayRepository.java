@@ -33,5 +33,6 @@ public interface SubwayRepository extends JpaRepository<Subway, Integer> {
             """)
     List<Subway> findAllWithinRadius(@Param("centerPoint") Point centerPoint, @Param("radius") double radius);
 
-    List<Subway> findAllBySubwayIdIn(List<Integer> subwayIds);
+    @Query(value = "SELECT s.* FROM subway s WHERE subway_id IN (:subwayIds) ORDER BY array_position(:subwayIds, subway_id)", nativeQuery = true)
+    List<Subway> findAllBySubwayIdInOrderByIds(@Param("subwayIds") Integer[] subwayIds);
 }
