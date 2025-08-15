@@ -17,9 +17,12 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -51,13 +54,23 @@ public class MeetingPointCalculator {
         if (topFairSubwayIds.isEmpty()) {
             throw new EventException(EventErrorType.PATH_CALCULATION_FAILED);
         }
+        List<Subway> topFairSubways = subwayReader.readAllOrderByIds(topFairSubwayIds);
 
-        List<Subway> topFairSubways = subwayReader.readAllByIdIn(topFairSubwayIds);
+        List<Subway> filteredSubways = topFairSubways.stream()
+                .collect(Collectors.toMap(
+                        Subway::getName,
+                        Function.identity(),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ))
+                .values()
+                .stream()
+                .toList();
 
-        Subway firstSubway = topFairSubways.getFirst();
+        Subway firstSubway = filteredSubways.getFirst();
         event.updateSubway(firstSubway);
 
-        return topFairSubways.stream()
+        return filteredSubways.stream()
                 .map(subway -> MeetingPointResult.of(event, startPoints, subway))
                 .toList();
     }

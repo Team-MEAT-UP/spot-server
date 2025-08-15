@@ -25,8 +25,8 @@ public class SubwayReader {
         return subwayRepository.findById(subwayId).orElseThrow(() -> new SubwayException(SubwayErrorType.SUBWAY_NOT_FOUND));
     }
 
-    public List<Subway> readAllByIdIn(List<Integer> subwayIds) {
-        return subwayRepository.findAllBySubwayIdIn(subwayIds);
+    public List<Subway> readAllOrderByIds(List<Integer> subwayIds) {
+        return subwayRepository.findAllBySubwayIdInOrderByIds(subwayIds.toArray(new Integer[0]));
     }
 
     public Subway readClosestSubway(Point startPoint) {
