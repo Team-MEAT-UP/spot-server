@@ -3,6 +3,7 @@ package com.meetup.server.event.dto.response;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.startpoint.domain.StartPoint;
+import com.meetup.server.startpoint.util.AddressConverter;
 import com.meetup.server.startpoint.util.UsernameExtractor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,17 +12,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RouteResponse {
-
-    private static final Pattern FULL_ADDRESS_PATTERN = Pattern.compile("(\\S+(시|군|구))(\\s+\\S+(구|군))?\\s+(\\S+(동|읍|면|가|로))");
-    private static final Pattern REGION_ONLY_PATTERN = Pattern.compile("(\\S+(시|군|구))");
 
     private Boolean isTransit;  // true: 대중교통, false: 자동차
     private Boolean isMe;
@@ -51,7 +47,7 @@ public class RouteResponse {
                 .guestId(startPoint.getGuestId())
                 .nickname(UsernameExtractor.extractDisplayName(startPoint))
                 .profileImage(startPoint.getIsUser() ? startPoint.getUser().getProfileImage() : null)
-                .startName(convertStartPointName(startPoint.getAddress().getAddress()))
+                .startName(AddressConverter.convertStartPointName(startPoint.getAddress().getAddress()))
                 .startLongitude(startPoint.getLocation().getRoadLongitude())
                 .startLatitude(startPoint.getLocation().getRoadLatitude())
                 .transitRoute(TransitRouteResponse.from(transitResponse))
@@ -59,51 +55,6 @@ public class RouteResponse {
                 .drivingRoute(DrivingRouteResponse.from(drivingResponse))
                 .totalTime(startPoint.isTransit() ? transitTime : driveTime)
                 .build();
-    }
-
-    private static String convertStartPointName(String address) {
-        if (address == null || address.isBlank()) return "";
-
-        Matcher fullMatcher = FULL_ADDRESS_PATTERN.matcher(address);
-        Matcher regionMatcher = REGION_ONLY_PATTERN.matcher(address);
-
-        if (fullMatcher.find()) {
-            StringBuilder sb = new StringBuilder();
-
-            String siGunGu = fullMatcher.group(1).trim();
-            String gu = fullMatcher.group(3) != null ? fullMatcher.group(3).trim() : null;
-            String dongEupMyeonGaRo = fullMatcher.group(5).trim();
-
-            if (siGunGu.endsWith("구") && gu == null) {
-                return sb.append(siGunGu).append(" ")
-                        .append(dongEupMyeonGaRo)
-                        .toString();
-            }
-
-            if (siGunGu.endsWith("시") && gu == null) {
-                return sb.append(siGunGu).append(" ")
-                        .append(dongEupMyeonGaRo)
-                        .toString();
-            }
-
-            if (siGunGu.endsWith("시") && gu != null) {
-                return sb.append(siGunGu).append(" ")
-                        .append(gu).append(" ")
-                        .append(dongEupMyeonGaRo)
-                        .toString();
-            }
-
-            return sb.append(siGunGu).append(" ")
-                    .append(gu != null ? gu + " " : "")
-                    .append(dongEupMyeonGaRo)
-                    .toString();
-        }
-
-        if (regionMatcher.find()) {
-            return regionMatcher.group(1).trim();
-        }
-
-        return "";
     }
 
     public void updateIsMe(boolean isMe) {
