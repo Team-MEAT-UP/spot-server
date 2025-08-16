@@ -32,6 +32,6 @@ public class UserReader {
     }
 
     private boolean isActiveUser(User user) {
-        return user != null && user.getDeletedAt() == null && !user.getIsDeleted();
+        return user != null && user.getDeletedAt() == null && !user.isDeleted();
     }
 }

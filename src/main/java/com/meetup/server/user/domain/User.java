@@ -58,7 +58,7 @@ public class User extends BaseEntity {
         this.personalInfoAgreement = personalInfoAgreement;
         this.marketingAgreement = marketingAgreement;
         this.deletedAt = deletedAt;
-        this.isDeleted = isDeleted;
+        this.isDeleted = false;
     }
 
     public void updateAgreement(boolean personalInfoAgreement, boolean marketingAgreement) {
