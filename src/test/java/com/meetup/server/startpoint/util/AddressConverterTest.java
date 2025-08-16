@@ -1,11 +1,10 @@
 package com.meetup.server.startpoint.util;
 
-import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class AddressConverterTest extends IntegrationTestContainer {
+class AddressConverterTest{
 
     @Test
     void 출발지_주소를_변환한다() {
