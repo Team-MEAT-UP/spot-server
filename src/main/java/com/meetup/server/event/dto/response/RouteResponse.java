@@ -3,6 +3,7 @@ package com.meetup.server.event.dto.response;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.startpoint.domain.StartPoint;
+import com.meetup.server.startpoint.util.AddressConverter;
 import com.meetup.server.startpoint.util.UsernameExtractor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,16 +12,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RouteResponse {
-
-    private static final Pattern START_POINT_PATTERN = Pattern.compile("(\\S+(구|군))\\s+(\\S+(동|읍))");
 
     private Boolean isTransit;  // true: 대중교통, false: 자동차
     private Boolean isMe;
@@ -50,7 +47,7 @@ public class RouteResponse {
                 .guestId(startPoint.getGuestId())
                 .nickname(UsernameExtractor.extractDisplayName(startPoint))
                 .profileImage(startPoint.getIsUser() ? startPoint.getUser().getProfileImage() : null)
-                .startName(convertStartPointName(startPoint.getAddress().getAddress()))
+                .startName(AddressConverter.convertStartPointName(startPoint.getAddress().getAddress()))
                 .startLongitude(startPoint.getLocation().getRoadLongitude())
                 .startLatitude(startPoint.getLocation().getRoadLatitude())
                 .transitRoute(TransitRouteResponse.from(transitResponse))
@@ -58,16 +55,6 @@ public class RouteResponse {
                 .drivingRoute(DrivingRouteResponse.from(drivingResponse))
                 .totalTime(startPoint.isTransit() ? transitTime : driveTime)
                 .build();
-    }
-
-    private static String convertStartPointName(String address) {
-        if (address == null || address.isBlank()) return "";
-
-        Matcher matcher = START_POINT_PATTERN.matcher(address);
-        if (matcher.find()) {
-            return matcher.group(1) + " " + matcher.group(3);
-        }
-        return "";
     }
 
     public void updateIsMe(boolean isMe) {
