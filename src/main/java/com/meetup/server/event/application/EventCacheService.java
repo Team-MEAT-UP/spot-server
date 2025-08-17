@@ -1,11 +1,11 @@
 package com.meetup.server.event.application;
 
-import com.meetup.server.event.dto.response.MeetingPointResult;
-import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
-import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
+import com.meetup.server.event.dto.response.route.MeetingPointResult;
+import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
+import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventReader;
-import com.meetup.server.event.implement.MeetingPointCalculator;
-import com.meetup.server.event.implement.RouteAssembler;
+import com.meetup.server.event.implement.route.MeetingPointCalculator;
+import com.meetup.server.event.implement.route.RouteAssembler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;

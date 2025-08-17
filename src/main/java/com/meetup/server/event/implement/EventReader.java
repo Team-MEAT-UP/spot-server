@@ -1,7 +1,7 @@
 package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
-import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
+import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;

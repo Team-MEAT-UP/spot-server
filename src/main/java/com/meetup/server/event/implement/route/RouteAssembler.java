@@ -1,8 +1,8 @@
-package com.meetup.server.event.implement;
+package com.meetup.server.event.implement.route;
 
-import com.meetup.server.event.dto.response.DrivingInfoResponse;
-import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
-import com.meetup.server.event.dto.response.RouteResponse;
+import com.meetup.server.event.dto.response.route.DrivingInfoResponse;
+import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
+import com.meetup.server.event.dto.response.route.RouteResponse;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.parkinglot.implement.ParkingLotFinder;

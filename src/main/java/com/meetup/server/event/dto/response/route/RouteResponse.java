@@ -1,4 +1,4 @@
-package com.meetup.server.event.dto.response;
+package com.meetup.server.event.dto.response.route;
 
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;

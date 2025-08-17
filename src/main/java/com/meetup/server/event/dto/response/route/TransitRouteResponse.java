@@ -1,4 +1,4 @@
-package com.meetup.server.event.dto.response;
+package com.meetup.server.event.dto.response.route;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.meetup.server.event.domain.type.TrafficType;

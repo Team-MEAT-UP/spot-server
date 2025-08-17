@@ -1,5 +1,6 @@
-package com.meetup.server.event.dto.response;
+package com.meetup.server.event.dto.response.route;
 
+import com.meetup.server.parkinglot.dto.response.ParkingLotResponse;
 import com.meetup.server.parkinglot.infrastructure.jpa.projection.ClosestParkingLot;
 import com.meetup.server.subway.domain.Subway;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.meetup.server.startpoint.util;
 
-import com.meetup.server.event.dto.response.DrivingInfoResponse;
+import com.meetup.server.event.dto.response.route.DrivingInfoResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 
 public class RouteExtractor {

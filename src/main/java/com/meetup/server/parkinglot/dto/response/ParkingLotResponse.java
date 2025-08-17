@@ -1,4 +1,4 @@
-package com.meetup.server.event.dto.response;
+package com.meetup.server.parkinglot.dto.response;
 
 import com.meetup.server.parkinglot.domain.ParkingLot;
 import com.meetup.server.parkinglot.infrastructure.jpa.projection.ClosestParkingLot;

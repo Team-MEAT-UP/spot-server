@@ -1,4 +1,4 @@
-package com.meetup.server.event.dto.response;
+package com.meetup.server.event.dto.response.route;
 
 import com.meetup.server.subway.domain.Subway;
 
