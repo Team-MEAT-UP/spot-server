@@ -4,10 +4,10 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.exception.StartPointErrorType;
 import com.meetup.server.startpoint.exception.StartPointException;
-import com.meetup.server.startpoint.persistence.StartPointRepository;
-import com.meetup.server.startpoint.persistence.projection.ParticipantCount;
-import com.meetup.server.startpoint.persistence.projection.Participant;
-import com.meetup.server.startpoint.persistence.projection.EventHistory;
+import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.Participant;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

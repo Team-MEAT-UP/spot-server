@@ -1,7 +1,7 @@
 package com.meetup.server.event.dto.response;
 
 import com.meetup.server.parkinglot.domain.ParkingLot;
-import com.meetup.server.parkinglot.persistence.projection.ClosestParkingLot;
+import com.meetup.server.parkinglot.infrastructure.jpa.projection.ClosestParkingLot;
 import lombok.Builder;
 
 @Builder

@@ -3,7 +3,7 @@ package com.meetup.server.subway.implement.reader;
 import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.exception.SubwayErrorType;
 import com.meetup.server.subway.exception.SubwayException;
-import com.meetup.server.subway.persistence.SubwayRepository;
+import com.meetup.server.subway.infrastructure.jpa.SubwayRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;

@@ -2,9 +2,9 @@ package com.meetup.server.user.implement;
 
 import com.meetup.server.review.implement.ReviewReader;
 import com.meetup.server.startpoint.implement.StartPointReader;
-import com.meetup.server.startpoint.persistence.projection.EventHistory;
-import com.meetup.server.startpoint.persistence.projection.Participant;
-import com.meetup.server.startpoint.persistence.projection.ParticipantCount;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.Participant;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
 import com.meetup.server.user.dto.response.UserEventHistoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

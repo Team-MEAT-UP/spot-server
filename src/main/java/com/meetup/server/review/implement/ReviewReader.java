@@ -2,11 +2,11 @@ package com.meetup.server.review.implement;
 
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.review.domain.Review;
-import com.meetup.server.review.persistence.ReviewRepository;
-import com.meetup.server.review.persistence.VisitedReviewRepository;
-import com.meetup.server.review.persistence.projection.PlaceQuietnessWithRating;
-import com.meetup.server.review.persistence.projection.PlaceWithRating;
-import com.meetup.server.startpoint.persistence.projection.EventHistory;
+import com.meetup.server.review.infrastructure.jpa.ReviewRepository;
+import com.meetup.server.review.infrastructure.jpa.VisitedReviewRepository;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceQuietnessWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceWithRating;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

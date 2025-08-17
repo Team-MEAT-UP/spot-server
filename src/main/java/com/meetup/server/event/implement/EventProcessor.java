@@ -4,7 +4,7 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.RouteResponse;
-import com.meetup.server.event.persistence.EventRepository;
+import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.review.implement.ReviewWriter;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
 import lombok.RequiredArgsConstructor;

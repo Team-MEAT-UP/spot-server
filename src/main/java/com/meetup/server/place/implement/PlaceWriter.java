@@ -2,7 +2,7 @@ package com.meetup.server.place.implement;
 
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.value.GoogleReview;
-import com.meetup.server.place.persistence.PlaceRepository;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

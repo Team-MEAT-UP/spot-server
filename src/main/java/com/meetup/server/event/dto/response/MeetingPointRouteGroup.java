@@ -1,6 +1,6 @@
 package com.meetup.server.event.dto.response;
 
-import com.meetup.server.parkinglot.persistence.projection.ClosestParkingLot;
+import com.meetup.server.parkinglot.infrastructure.jpa.projection.ClosestParkingLot;
 import com.meetup.server.subway.domain.Subway;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

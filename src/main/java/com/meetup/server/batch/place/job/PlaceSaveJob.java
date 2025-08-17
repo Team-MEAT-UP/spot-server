@@ -24,7 +24,7 @@ import com.meetup.server.place.domain.value.OpeningHour;
 import com.meetup.server.place.exception.PlaceErrorType;
 import com.meetup.server.place.exception.PlaceException;
 import com.meetup.server.place.implement.PlaceImageUploader;
-import com.meetup.server.place.persistence.PlaceRepository;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import com.meetup.server.startpoint.domain.type.Location;
 import com.meetup.server.subway.domain.Subway;
 import jakarta.persistence.EntityManagerFactory;

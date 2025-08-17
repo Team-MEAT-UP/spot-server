@@ -6,7 +6,7 @@ import com.meetup.server.event.dto.response.RouteResponse;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import com.meetup.server.global.clients.odsay.OdsayTransitRouteSearchResponse;
 import com.meetup.server.parkinglot.implement.ParkingLotFinder;
-import com.meetup.server.parkinglot.persistence.projection.ClosestParkingLot;
+import com.meetup.server.parkinglot.infrastructure.jpa.projection.ClosestParkingLot;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.util.RouteExtractor;
 import com.meetup.server.subway.domain.Subway;

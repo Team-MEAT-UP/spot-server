@@ -1,7 +1,7 @@
 package com.meetup.server.user.dto.response;
 
 import com.meetup.server.global.util.TimeUtil;
-import com.meetup.server.startpoint.persistence.projection.EventHistory;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
 import lombok.Builder;
 
 import java.util.List;

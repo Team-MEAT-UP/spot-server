@@ -10,7 +10,7 @@ import com.meetup.server.review.domain.value.ActualVisitedPlace;
 import com.meetup.server.review.domain.value.PlaceScore;
 import com.meetup.server.review.dto.request.NonVisitedReviewRequest;
 import com.meetup.server.review.dto.request.VisitedReviewRequest;
-import com.meetup.server.review.persistence.ReviewRepository;
+import com.meetup.server.review.infrastructure.jpa.ReviewRepository;
 import com.meetup.server.startpoint.domain.type.Address;
 import com.meetup.server.startpoint.domain.type.Location;
 import com.meetup.server.user.domain.User;
