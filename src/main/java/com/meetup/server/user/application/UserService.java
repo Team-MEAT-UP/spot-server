@@ -29,7 +29,6 @@ public class UserService {
     private final AgreementValidator agreementValidator;
     private final UserReader userReader;
     private final UserEventHistoryAssembler userEventHistoryAssembler;
-    private final StartPointProcessor startPointProcessor;
     private final UserWriter userWriter;
 
     public UserProfileInfoResponse getUserProfileInfo(Long userId) {
@@ -65,8 +64,6 @@ public class UserService {
     @Transactional
     public void withdraw(Long userId) {
         User user = userReader.read(userId);
-        startPointProcessor.deleteAllByUser(user);
-        user.withdraw();
-        userWriter.save(user);
+        userWriter.withdraw(user);
     }
 }
