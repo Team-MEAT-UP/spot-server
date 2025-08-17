@@ -70,7 +70,7 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
-    public void updateToWithdraw() {
+    public void withdraw() {
         this.profileImage = null;
         this.personalInfoAgreement = false;
         this.marketingAgreement = false;
@@ -82,7 +82,7 @@ public class User extends BaseEntity {
 
     private static final String WITHDRAWN_NICKNAME = "알 수 없음";
 
-    public void updateUser(User user) {
+    public void rejoin(User user) {
         this.nickname = user.nickname;
         this.profileImage = user.profileImage;
         this.email = user.email;

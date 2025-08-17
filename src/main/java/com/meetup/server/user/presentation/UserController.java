@@ -72,7 +72,7 @@ public class UserController {
     public ApiResponse<?> withdrawUser(
             @AuthenticationPrincipal Long userId
     ) {
-        userService.withdrawUser(userId);
+        userService.withdraw(userId);
         return ApiResponse.success();
     }
 }

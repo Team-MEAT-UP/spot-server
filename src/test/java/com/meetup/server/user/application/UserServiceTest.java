@@ -51,7 +51,7 @@ class UserServiceTest extends IntegrationTestContainer {
     void 사용자_탈퇴한다() {
         Long userId = user.getUserId();
 
-        userService.withdrawUser(userId);
+        userService.withdraw(userId);
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

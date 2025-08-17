@@ -21,17 +21,7 @@ public class UserReader {
     }
 
     public User read(Long userId) {
-        User user = readUserIfExists(userId)
+        return readUserIfExists(userId)
                 .orElseThrow(() -> new UserException(UserErrorType.USER_NOT_FOUND));
-
-        if (!isActiveUser(user)) {
-            throw new UserException(UserErrorType.WITHDRAWN_USER);
-        }
-
-        return user;
-    }
-
-    private boolean isActiveUser(User user) {
-        return user != null && user.getDeletedAt() == null && !user.isDeleted();
     }
 }

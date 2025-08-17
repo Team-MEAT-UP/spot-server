@@ -63,10 +63,10 @@ public class UserService {
     }
 
     @Transactional
-    public void withdrawUser(Long userId) {
+    public void withdraw(Long userId) {
         User user = userReader.read(userId);
-        startPointProcessor.delete(user);
-        user.updateToWithdraw();
+        startPointProcessor.deleteAllByUser(user);
+        user.withdraw();
         userWriter.save(user);
     }
 }
