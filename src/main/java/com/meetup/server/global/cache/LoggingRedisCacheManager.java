@@ -1,6 +1,5 @@
-package com.meetup.server.global.support;
+package com.meetup.server.global.cache;
 
-import com.meetup.server.global.util.LoggingCache;
 import org.springframework.cache.Cache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;

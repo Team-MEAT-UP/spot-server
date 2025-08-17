@@ -1,4 +1,4 @@
-package com.meetup.server.global.util;
+package com.meetup.server.global.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
