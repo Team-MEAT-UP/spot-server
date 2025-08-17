@@ -1,6 +1,5 @@
 package com.meetup.server.user.application;
 
-import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.persistence.projection.EventHistory;
 import com.meetup.server.user.domain.User;

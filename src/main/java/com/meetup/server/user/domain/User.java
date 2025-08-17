@@ -49,7 +49,7 @@ public class User extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt, Boolean isDeleted) {
+    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt, boolean isDeleted) {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.email = email;
@@ -58,7 +58,7 @@ public class User extends BaseEntity {
         this.personalInfoAgreement = personalInfoAgreement;
         this.marketingAgreement = marketingAgreement;
         this.deletedAt = deletedAt;
-        this.isDeleted = false;
+        this.isDeleted = isDeleted;
     }
 
     public void updateAgreement(boolean personalInfoAgreement, boolean marketingAgreement) {
