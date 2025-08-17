@@ -66,7 +66,7 @@ public class EventService {
         }
 
         for (MeetingPointRouteGroup group : meetingPointRouteGroups) {
-            routeProcessor.prioritizeMyRoute(userId, guestId, group.getRouteResponse());
+            routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
         }
 
         return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
