@@ -1,20 +1,24 @@
-package com.meetup.server.startpoint.util;
+package com.meetup.server.event.util;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AddressConverter {
 
     private static final Pattern FULL_ADDRESS_PATTERN = Pattern.compile(
             "(?:(\\S+(도|특별시|광역시))\\s+)?" +
-            "(\\S+(시|군|구))" +
-            "(\\s+\\S+(구|군))?" +
-            "\\s+(\\S+(동|읍|면|가|로))"
+                    "(\\S+(시|군|구))" +
+                    "(\\s+\\S+(구|군))?" +
+                    "\\s+(\\S+(동|읍|면|가|로))"
     );
 
     private static final Pattern REGION_ONLY_PATTERN = Pattern.compile(
             "(?:(\\S+(도|특별시|광역시))\\s+)?" +
-            "(\\S+(시|군|구))"
+                    "(\\S+(시|군|구))"
     );
 
     public static String convertStartPointName(String address) {

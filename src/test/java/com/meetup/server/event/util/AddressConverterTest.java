@@ -1,4 +1,4 @@
-package com.meetup.server.startpoint.util;
+package com.meetup.server.event.util;
 
 import org.junit.jupiter.api.Test;
 

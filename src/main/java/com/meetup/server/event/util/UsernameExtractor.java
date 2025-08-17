@@ -1,4 +1,4 @@
-package com.meetup.server.startpoint.util;
+package com.meetup.server.event.util;
 
 import com.meetup.server.global.util.StringUtil;
 import com.meetup.server.startpoint.domain.StartPoint;

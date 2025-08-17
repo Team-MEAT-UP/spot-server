@@ -4,7 +4,7 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.global.util.TimeUtil;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.startpoint.domain.StartPoint;
-import com.meetup.server.startpoint.util.UsernameExtractor;
+import com.meetup.server.event.util.UsernameExtractor;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
