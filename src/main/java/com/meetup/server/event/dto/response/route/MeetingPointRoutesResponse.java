@@ -35,17 +35,14 @@ public record MeetingPointRoutesResponse(
         List<MeetingPointRouteGroup> meetingPointRouteGroups
 ) {
 
-    public static MeetingPointRoutesResponse of(List<MeetingPointResult> meetingPointResults, List<MeetingPointRouteGroup> meetingPointRouteGroups) {
-        MeetingPointResult meetingPointResult = meetingPointResults.getFirst();
-        Event event = meetingPointResult.event();
-
+    public static MeetingPointRoutesResponse of(Event event, List<StartPoint> startPoints, List<MeetingPointRouteGroup> meetingPointRouteGroups) {
         return new MeetingPointRoutesResponse(
                 event.getEventName(),
                 TimeUtil.formatAsDashDate(event.getEventDateTime()),
                 TimeUtil.formatAsTime(event.getEventDateTime()),
-                extractEventMaker(meetingPointResult.startPoints()),
+                extractEventMaker(startPoints),
                 extractPlaceName(event),
-                meetingPointResult.startPoints().size(),
+                startPoints.size(),
                 meetingPointRouteGroups
         );
     }
@@ -61,18 +58,6 @@ public record MeetingPointRoutesResponse(
                 .min(Comparator.comparing(StartPoint::getCreatedAt))
                 .map(UsernameExtractor::extractDisplayName)
                 .orElse(null);
-    }
-
-    public MeetingPointRoutesResponse withPlaceName(String confirmedPlaceName) {
-        return new MeetingPointRoutesResponse(
-                this.eventName,
-                this.eventDate,
-                this.eventTime,
-                this.eventMaker,
-                confirmedPlaceName,
-                this.peopleCount,
-                this.meetingPointRouteGroups
-        );
     }
 
     public MeetingPointRoutesResponse withEvent(String eventName, LocalDateTime eventDateTime) {
