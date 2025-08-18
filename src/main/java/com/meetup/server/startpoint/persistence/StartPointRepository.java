@@ -2,6 +2,7 @@ package com.meetup.server.startpoint.persistence;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.startpoint.domain.StartPoint;
+import com.meetup.server.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,8 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
     @Modifying
     @Query("DELETE FROM StartPoint sp WHERE sp.event = :event")
     void deleteAllByEvent(@Param("event") Event event);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM StartPoint sp WHERE sp.user = :user")
+    void deleteAllByUser(@Param("user") User user);
 }

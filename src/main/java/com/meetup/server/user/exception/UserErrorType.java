@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorType implements ErrorType {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     AGREEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "개인정보 수집 및 이용 동의가 필요합니다."),
+    WITHDRAWN_USER(HttpStatus.BAD_REQUEST, "탈퇴 한 사용자입니다."),
     ;
 
     private final HttpStatus status;

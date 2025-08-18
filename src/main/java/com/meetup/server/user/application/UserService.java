@@ -61,8 +61,8 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
+    public void withdraw(Long userId) {
         User user = userReader.read(userId);
-        userWriter.delete(user);
+        userWriter.withdraw(user);
     }
 }

@@ -69,10 +69,10 @@ public class UserController {
 
     @Operation(summary = "사용자 탈퇴 API", description = "사용자를 탈퇴시킵니다")
     @DeleteMapping("")
-    public ApiResponse<?> deleteUser(
+    public ApiResponse<?> withdrawUser(
             @AuthenticationPrincipal Long userId
     ) {
-        userService.deleteUser(userId);
+        userService.withdraw(userId);
         return ApiResponse.success();
     }
 }
