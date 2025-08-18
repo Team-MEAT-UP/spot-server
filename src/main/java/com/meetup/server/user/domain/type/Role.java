@@ -9,6 +9,7 @@ public enum Role {
 
     USER("ROLE_USER"),
     ADMIN("ROLE_ADMIN"),
+    WITHDRAWN("ROLE_WITHDRAWN"),
     ;
 
     private final String authority;

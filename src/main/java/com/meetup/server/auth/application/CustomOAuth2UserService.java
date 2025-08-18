@@ -48,9 +48,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User getOrGenerateUser(OAuthAttributes attributes) {
+        String socialId = attributes.oauth2UserInfo().getSocialId();
         log.info("attributes: {}", attributes);
 
-        return userRepository.findBySocialId(attributes.oauth2UserInfo().getSocialId())
+        return userRepository.findBySocialId(socialId)
+                .map(user -> {
+                    if (user.isDeleted()) {
+                        user.rejoin(attributes.toEntity(attributes.oauth2UserInfo()));
+                    }
+                    return userRepository.save(user);
+                })
                 .orElseGet(() -> userRepository.save(attributes.toEntity(attributes.oauth2UserInfo())));
     }
 }

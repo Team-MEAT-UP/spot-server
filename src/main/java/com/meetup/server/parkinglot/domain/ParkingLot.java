@@ -38,5 +38,4 @@ public class ParkingLot {
         this.location = location;
         this.point = point;
     }
-
 }

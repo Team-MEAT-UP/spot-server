@@ -28,5 +28,4 @@ public class StartPointFixture {
                 .isTransit(true)
                 .build();
     }
-
 }

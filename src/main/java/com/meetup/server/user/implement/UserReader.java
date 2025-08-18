@@ -17,7 +17,7 @@ public class UserReader {
 
     public Optional<User> readUserIfExists(Long userId) {
         if (userId == null) return Optional.empty();
-        return userRepository.findById(userId);
+        return userRepository.findByUserIdAndDeletedAtIsNull(userId);
     }
 
     public User read(Long userId) {
