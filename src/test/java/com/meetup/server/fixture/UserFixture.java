@@ -15,7 +15,6 @@ public class UserFixture {
                 .socialId("kakao" + uuid)
                 .email(uuid + "@spot.com")
                 .role(Role.USER)
-                .isDeleted(false)
                 .build();
     }
 
@@ -29,7 +28,6 @@ public class UserFixture {
                 .personalInfoAgreement(false)
                 .marketingAgreement(false)
                 .deletedAt(LocalDateTime.now())
-                .isDeleted(true)
                 .build();
     }
 }

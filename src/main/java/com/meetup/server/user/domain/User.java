@@ -20,7 +20,7 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "nickname", length = 255, nullable = false)
+    @Column(name = "nickname", length = 255, nullable = true)
     private String nickname;
 
     @Column(name = "profile_image", length = 255, nullable = true)
@@ -45,11 +45,8 @@ public class User extends BaseEntity {
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
     @Builder
-    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt, boolean isDeleted) {
+    public User(String nickname, String profileImage, String email, String socialId, Role role, boolean personalInfoAgreement, boolean marketingAgreement, LocalDateTime deletedAt) {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.email = email;
@@ -58,7 +55,6 @@ public class User extends BaseEntity {
         this.personalInfoAgreement = personalInfoAgreement;
         this.marketingAgreement = marketingAgreement;
         this.deletedAt = deletedAt;
-        this.isDeleted = isDeleted;
     }
 
     public void updateAgreement(boolean personalInfoAgreement, boolean marketingAgreement) {
@@ -74,13 +70,10 @@ public class User extends BaseEntity {
         this.profileImage = null;
         this.personalInfoAgreement = false;
         this.marketingAgreement = false;
-        this.nickname = WITHDRAWN_NICKNAME;
+        this.nickname = null;
         this.role = Role.WITHDRAWN;
         this.deletedAt = LocalDateTime.now();
-        this.isDeleted = true;
     }
-
-    private static final String WITHDRAWN_NICKNAME = "알 수 없음";
 
     public void rejoin(User user) {
         this.nickname = user.nickname;
@@ -88,6 +81,9 @@ public class User extends BaseEntity {
         this.email = user.email;
         this.role = Role.USER;
         this.deletedAt = null;
-        this.isDeleted = false;
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }
