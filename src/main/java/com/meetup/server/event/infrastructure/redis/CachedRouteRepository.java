@@ -20,17 +20,12 @@ public class CachedRouteRepository {
     }
 
     private MeetingPointRouteGroupsCache getFromCache(UUID eventId) {
-        Cache cache = cacheManager.getCache("routeDetails");
-        if (cache == null) return null;
-
-        Cache.ValueWrapper wrapper = cache.get(eventId);
-        if (wrapper == null) return null;
-
-        Object cachedValue = wrapper.get();
-        if (cachedValue instanceof MeetingPointRouteGroupsCache cached) {
-            return cached;
-        }
-        return null;
+        return Optional.ofNullable(cacheManager.getCache("routeDetails"))
+                .map(cache -> cache.get(eventId))
+                .map(Cache.ValueWrapper::get)
+                .filter(MeetingPointRouteGroupsCache.class::isInstance)
+                .map(MeetingPointRouteGroupsCache.class::cast)
+                .orElse(null);
     }
 
     private Optional<MeetingPointRouteGroupsCache> fallback(UUID eventId) {
