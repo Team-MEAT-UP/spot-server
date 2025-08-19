@@ -4,7 +4,6 @@ import com.meetup.server.global.util.CoordinateUtil;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.startpoint.domain.type.Location;
-import org.locationtech.jts.geom.GeometryFactory;
 
 import java.util.List;
 

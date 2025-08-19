@@ -1,6 +1,6 @@
 package com.meetup.server.place.dto.response;
 
-import com.meetup.server.review.persistence.projection.PlaceQuietnessWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceQuietnessWithRating;
 
 public record PlaceQuietnessResponse(
         Integer morning,

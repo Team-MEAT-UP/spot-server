@@ -3,7 +3,7 @@ package com.meetup.server.user.implement;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.exception.UserErrorType;
 import com.meetup.server.user.exception.UserException;
-import com.meetup.server.user.persistence.UserRepository;
+import com.meetup.server.user.infrastructure.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

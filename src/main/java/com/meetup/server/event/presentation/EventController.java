@@ -4,7 +4,7 @@ import com.meetup.server.event.application.EventService;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
+import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.global.support.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

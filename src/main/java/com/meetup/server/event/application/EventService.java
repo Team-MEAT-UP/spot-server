@@ -4,12 +4,17 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.dto.response.MeetingPointRouteGroup;
-import com.meetup.server.event.dto.response.MeetingPointRoutesResponse;
+import com.meetup.server.event.dto.response.route.MeetingPointResult;
+import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
+import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.implement.route.MeetingPointCalculator;
+import com.meetup.server.event.implement.route.RouteProcessor;
+import com.meetup.server.event.implement.route.RouteReader;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
+import com.meetup.server.startpoint.implement.StartPointReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +22,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -28,7 +34,10 @@ public class EventService {
     private final EventReader eventReader;
     private final EventProcessor eventProcessor;
     private final StartPointProcessor startPointProcessor;
-    private final EventCacheService eventCacheService;
+    private final MeetingPointCalculator meetingPointCalculator;
+    private final RouteReader routeReader;
+    private final RouteProcessor routeProcessor;
+    private final StartPointReader startPointReader;
 
     public EventStartPointResponse createEvent(Long userId, UUID guestId, EventRequest eventRequest) {
         Event event = eventProcessor.save(eventRequest);
@@ -37,11 +46,30 @@ public class EventService {
     }
 
     public MeetingPointRoutesResponse getMeetingPointRoutes(UUID eventId, Long userId, UUID guestId) {
-        MeetingPointRoutesResponse meetingPointRoutesResponse = eventCacheService.getCachedMeetingPointRoutes(eventId);
-        for (MeetingPointRouteGroup event : meetingPointRoutesResponse.meetingPointRouteGroups()) {
-            eventProcessor.prioritizeMyRoute(userId, guestId, event.getRouteResponse());
+        List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
+
+        Event event;
+        List<StartPoint> startPoints;
+        List<MeetingPointRouteGroup> meetingPointRouteGroups;
+
+        if (meetingPointRouteGroupsCache.isEmpty()) {
+            List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
+            meetingPointRouteGroups = routeProcessor.buildAndSaveRouteGroups(eventId, meetingPointResults);
+
+            MeetingPointResult firstResult = meetingPointResults.getFirst();
+            event = firstResult.event();
+            startPoints = firstResult.startPoints();
+        } else {
+            meetingPointRouteGroups = meetingPointRouteGroupsCache;
+            event = eventReader.read(eventId);
+            startPoints = startPointReader.readAll(event);
         }
-        return meetingPointRoutesResponse;
+
+        for (MeetingPointRouteGroup group : meetingPointRouteGroups) {
+            routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
+        }
+
+        return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
     }
 
     @CachePut(value = "routeDetails", key = "#eventId")

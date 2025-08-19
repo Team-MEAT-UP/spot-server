@@ -7,7 +7,7 @@ import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.domain.type.Address;
 import com.meetup.server.startpoint.domain.type.Location;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
-import com.meetup.server.startpoint.persistence.StartPointRepository;
+import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.implement.UserReader;
 import lombok.RequiredArgsConstructor;

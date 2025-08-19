@@ -4,7 +4,7 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.review.exception.ReviewErrorType;
 import com.meetup.server.review.exception.ReviewException;
-import com.meetup.server.review.persistence.ReviewRepository;
+import com.meetup.server.review.infrastructure.jpa.ReviewRepository;
 import com.meetup.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
