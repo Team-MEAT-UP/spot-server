@@ -2,11 +2,11 @@ package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.exception.EventException;
-import com.meetup.server.event.persistence.EventRepository;
+import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.StartPointFixture;
 import com.meetup.server.startpoint.domain.StartPoint;
-import com.meetup.server.startpoint.persistence.StartPointRepository;
+import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

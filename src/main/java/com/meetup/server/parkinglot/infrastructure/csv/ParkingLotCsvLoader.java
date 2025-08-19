@@ -4,7 +4,7 @@ import com.meetup.server.global.support.DummyDataInit;
 import com.meetup.server.global.util.CoordinateUtil;
 import com.meetup.server.parkinglot.domain.ParkingLot;
 import com.meetup.server.parkinglot.infrastructure.csv.mapping.ParkingLotCsvMapping;
-import com.meetup.server.parkinglot.persistence.ParkingLotRepository;
+import com.meetup.server.parkinglot.infrastructure.jpa.ParkingLotRepository;
 import com.meetup.server.startpoint.domain.type.Location;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;

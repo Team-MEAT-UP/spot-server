@@ -2,9 +2,9 @@ package com.meetup.server.place.implement;
 
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.dto.response.PlaceResponse;
-import com.meetup.server.place.persistence.projection.PlaceWithDistance;
+import com.meetup.server.place.infrastructure.jpa.projection.PlaceWithDistance;
 import com.meetup.server.review.implement.ReviewReader;
-import com.meetup.server.review.persistence.projection.PlaceWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceWithRating;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

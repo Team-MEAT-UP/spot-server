@@ -3,7 +3,7 @@ package com.meetup.server.auth.application;
 import com.meetup.server.auth.dto.CustomOAuth2User;
 import com.meetup.server.auth.dto.response.OAuthAttributes;
 import com.meetup.server.user.domain.User;
-import com.meetup.server.user.persistence.UserRepository;
+import com.meetup.server.user.infrastructure.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

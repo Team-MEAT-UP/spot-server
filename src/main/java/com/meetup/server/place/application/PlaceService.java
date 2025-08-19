@@ -1,6 +1,5 @@
 package com.meetup.server.place.application;
 
-import com.meetup.server.event.application.EventCacheService;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.place.domain.Place;
@@ -9,10 +8,10 @@ import com.meetup.server.place.dto.response.*;
 import com.meetup.server.place.implement.PlaceProcessor;
 import com.meetup.server.place.implement.PlaceReader;
 import com.meetup.server.place.implement.PlaceSorter;
-import com.meetup.server.place.persistence.projection.PlaceWithDistance;
+import com.meetup.server.place.infrastructure.jpa.projection.PlaceWithDistance;
 import com.meetup.server.review.domain.Review;
 import com.meetup.server.review.implement.ReviewReader;
-import com.meetup.server.review.persistence.projection.PlaceWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceWithRating;
 import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.implement.reader.SubwayReader;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,6 @@ public class PlaceService {
     private final ReviewReader reviewReader;
     private final PlaceSorter placeSorter;
     private final SubwayReader subwayReader;
-    private final EventCacheService eventCacheService;
 
     @Transactional
     public void confirmPlace(UUID eventId, UUID placeId, int subwayId) {
@@ -46,7 +44,6 @@ public class PlaceService {
         Subway subway = subwayReader.read(subwayId);
 
         event.updateMeetingPlace(place, subway);
-        eventCacheService.updateCachedPlaceName(eventId, place.getName());
     }
 
     public PlaceResponseList getAllPlaces(UUID eventId, int subwayId) {

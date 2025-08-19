@@ -4,7 +4,7 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.startpoint.domain.StartPoint;
-import com.meetup.server.startpoint.persistence.StartPointRepository;
+import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.subway.domain.Subway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;

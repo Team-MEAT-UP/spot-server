@@ -1,7 +1,7 @@
 package com.meetup.server.user.application;
 
 import com.meetup.server.startpoint.implement.StartPointReader;
-import com.meetup.server.startpoint.persistence.projection.EventHistory;
+import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.dto.response.UserEventHistoryResponse;
 import com.meetup.server.user.dto.response.UserEventHistoryResponseList;

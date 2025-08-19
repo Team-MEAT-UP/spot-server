@@ -11,7 +11,7 @@ import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.exception.PlaceErrorType;
 import com.meetup.server.place.exception.PlaceException;
 import com.meetup.server.place.implement.PlaceImageUploader;
-import com.meetup.server.place.persistence.PlaceRepository;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

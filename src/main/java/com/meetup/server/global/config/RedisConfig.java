@@ -1,6 +1,6 @@
 package com.meetup.server.global.config;
 
-import com.meetup.server.global.support.LoggingRedisCacheManager;
+import com.meetup.server.global.cache.LoggingRedisCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

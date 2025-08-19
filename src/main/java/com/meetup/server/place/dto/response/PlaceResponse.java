@@ -5,9 +5,9 @@ import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.place.domain.value.OpeningHour;
-import com.meetup.server.place.persistence.projection.PlaceWithDistance;
+import com.meetup.server.place.infrastructure.jpa.projection.PlaceWithDistance;
 import com.meetup.server.review.domain.value.PlaceScore;
-import com.meetup.server.review.persistence.projection.PlaceWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceWithRating;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

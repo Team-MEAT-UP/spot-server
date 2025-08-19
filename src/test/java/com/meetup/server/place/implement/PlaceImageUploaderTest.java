@@ -11,7 +11,7 @@ import com.meetup.server.global.clients.google.place.search.GoogleSearchTextResp
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.exception.PlaceErrorType;
 import com.meetup.server.place.exception.PlaceException;
-import com.meetup.server.place.persistence.PlaceRepository;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

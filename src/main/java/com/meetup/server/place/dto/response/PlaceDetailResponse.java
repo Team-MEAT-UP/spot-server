@@ -5,7 +5,7 @@ import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.review.domain.value.PlaceScore;
-import com.meetup.server.review.persistence.projection.PlaceQuietnessWithRating;
+import com.meetup.server.review.infrastructure.jpa.projection.PlaceQuietnessWithRating;
 import lombok.Builder;
 
 import java.time.LocalTime;

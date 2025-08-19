@@ -2,7 +2,7 @@ package com.meetup.server.event.implement;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
-import com.meetup.server.event.persistence.EventRepository;
+import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.BeforeEach;
