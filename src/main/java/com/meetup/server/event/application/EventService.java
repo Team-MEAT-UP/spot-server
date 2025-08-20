@@ -18,7 +18,6 @@ import com.meetup.server.startpoint.implement.StartPointReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,13 +71,9 @@ public class EventService {
         return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
     }
 
-    @CachePut(value = "routeDetails", key = "#eventId")
-    public MeetingPointRoutesResponse updateEvent(UUID eventId, UpdateEventRequest updateEventRequest) {
+    public void updateEvent(UUID eventId, UpdateEventRequest updateEventRequest) {
         Event event = eventReader.read(eventId);
         eventProcessor.update(event, updateEventRequest);
-
-        MeetingPointRoutesResponse cachedResponse = eventReader.readEventCache(eventId);
-        return cachedResponse.withEvent(updateEventRequest.eventName(), updateEventRequest.toDateTime());
     }
 
     @CacheEvict(value = "routeDetails", key = "#eventId")

@@ -2,6 +2,7 @@ package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
+import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.global.clients.kakao.local.KakaoLocalResponse;
 import com.meetup.server.startpoint.domain.StartPoint;
@@ -29,6 +30,7 @@ public class StartPointService {
     private final StartPointSearcher startPointSearcher;
     private final EventReader eventReader;
     private final StartPointValidator startPointValidator;
+    private final EventProcessor eventProcessor;
 
     @Transactional
     @CacheEvict(value = "routeDetails", key = "#eventId")
@@ -46,6 +48,8 @@ public class StartPointService {
         }
 
         StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
+
+        eventProcessor.deleteRoute(eventId);
         return EventStartPointResponse.of(event, startPoint);
     }
 
@@ -53,9 +57,11 @@ public class StartPointService {
     @CacheEvict(value = "routeDetails", key = "#eventId")
     public EventStartPointResponse updateStartPoint(UUID eventId, UUID startPointId, StartPointRequest startPointRequest) {
         StartPoint startPoint = startPointReader.read(startPointId);
-        startPointValidator.validateBelongsToEvent(eventId, startPoint);
 
+        startPointValidator.validateBelongsToEvent(eventId, startPoint);
         startPointProcessor.update(startPoint, startPointRequest);
+
+        eventProcessor.deleteRoute(eventId);
         return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
     }
 
@@ -64,8 +70,9 @@ public class StartPointService {
     public void deleteStartPoint(UUID eventId, UUID startPointId) {
         StartPoint startPoint = startPointReader.read(startPointId);
         startPointValidator.validateBelongsToEvent(eventId, startPoint);
-
         startPointProcessor.delete(startPoint);
+
+        eventProcessor.deleteRoute(eventId);
     }
 
     public KakaoLocalResponse searchStartPoint(String textQuery) {

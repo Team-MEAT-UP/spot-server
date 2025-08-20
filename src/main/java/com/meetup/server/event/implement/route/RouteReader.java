@@ -1,8 +1,8 @@
 package com.meetup.server.event.implement.route;
 
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
-import com.meetup.server.event.infrastructure.redis.MeetingPointRouteGroupsCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ public class RouteReader {
 
     public List<MeetingPointRouteGroup> readRouteGroups(UUID eventId) {
         return cachedRouteRepository.findByEventId(eventId)
-                .map(MeetingPointRouteGroupsCache::meetingPointRouteGroups)
+                .map(MeetingPointRouteGroups::meetingPointRouteGroups)
                 .orElse(Collections.emptyList());
     }
 }

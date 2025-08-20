@@ -1,6 +1,7 @@
 package com.meetup.server.event.domain;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.global.domain.BaseEntity;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.subway.domain.Subway;
@@ -8,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,6 +30,10 @@ public class Event extends BaseEntity {
 
     @Column(name = "event_date_time", nullable = false)
     private LocalDateTime eventDateTime;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private MeetingPointRouteGroups route;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subway_id", nullable = true)

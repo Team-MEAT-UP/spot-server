@@ -6,6 +6,7 @@ import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.UserFixture;
+import com.meetup.server.startpoint.application.StartPointService;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.support.IntegrationTestContainer;
@@ -34,6 +35,9 @@ class EventServiceTest extends IntegrationTestContainer {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private StartPointService startPointService;
 
     private User user;
     private EventRequest eventRequest;
@@ -88,5 +92,4 @@ class EventServiceTest extends IntegrationTestContainer {
         assertThat(optionalEvent.get().getEventName()).isEqualTo(eventRequest.eventName());
         assertThat(optionalEvent.get().getEventDateTime()).isEqualTo(eventRequest.toDateTime());
     }
-
 }
