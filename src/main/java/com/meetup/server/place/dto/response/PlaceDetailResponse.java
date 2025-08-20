@@ -10,6 +10,7 @@ import lombok.Builder;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Builder
@@ -45,7 +46,9 @@ public record PlaceDetailResponse(
                 .kakaoPlaceId(place.getKakaoPlaceId())
                 .category(placeResponse.category())
                 .name(placeResponse.name())
-                .images(place.getImages().stream()
+                .images(Optional.ofNullable(place.getImages())
+                        .orElseGet(List::of)
+                        .stream()
                         .map(Image::photoUri)
                         .toList())
                 .openTime(placeResponse.openTime())
