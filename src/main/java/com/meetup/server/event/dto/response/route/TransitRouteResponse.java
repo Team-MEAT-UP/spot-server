@@ -27,48 +27,43 @@ public record TransitRouteResponse(
         int sectionTime //이동 소요 시간
 ) {
     public static List<TransitRouteResponse> from(OdsayTransitRouteSearchResponse response) {
+        return Optional.ofNullable(response)
+                .map(OdsayTransitRouteSearchResponse::data)
+                .map(data -> Optional.ofNullable(data.path()).orElse(List.of()))
+                .filter(pathList -> !pathList.isEmpty())
+                .map(List::getFirst)
+                .map(firstPath -> Optional.ofNullable(firstPath.subPath()).orElse(List.of()).stream()
+                        .map(subPath -> {
+                            String laneName = Optional.ofNullable(subPath.lane())
+                                    .flatMap(lanes -> lanes.stream().findFirst())
+                                    .map(lane -> switch (subPath.trafficType()) {
+                                        case 1 -> lane.name();   // 지하철
+                                        case 2 -> lane.busNo();  // 버스
+                                        case 3 -> lane.name();   // 도보
+                                        default -> null;
+                                    })
+                                    .orElse(null);
 
-        if (response == null || response.data() == null || response.data().path() == null || response.data().path().isEmpty()) {
-            log.warn("[ODSAY] ROUTE IS EMPTY: {}", response);
-            return null;
-        }
+                            List<Stations> passStopList = convertToDomainStations(
+                                    Optional.ofNullable(subPath.passStopList())
+                                            .map(OdsayTransitRouteSearchResponse.TransitData.PassStopList::stations)
+                                            .orElse(List.of()));
 
-        if (response.data().path().getFirst() == null || response.data().path().getFirst().subPath() == null) {
-            log.warn("[ODSAY] ROUTE IS EMPTY : {}", response);
-            return null;
-        }
-
-        return response.data().path().getFirst().subPath().stream()
-                .map(subPath -> {
-                    String laneName = Optional.ofNullable(subPath.lane())
-                            .flatMap(lanes -> lanes.stream().findFirst())
-                            .map(lane -> switch (subPath.trafficType()) {
-                                case 1 -> lane.name();   // 지하철
-                                case 2 -> lane.busNo();  // 버스
-                                case 3 -> lane.name();   // 도보
-                                default -> null;
-                            })
-                            .orElse(null);
-
-                    List<Stations> passStopList = convertToDomainStations(
-                            Optional.ofNullable(subPath.passStopList())
-                                    .map(OdsayTransitRouteSearchResponse.TransitData.PassStopList::stations)
-                                    .orElse(List.of()));
-
-                    return TransitRouteResponse.builder()
-                            .trafficType(TrafficType.fromCode(subPath.trafficType()))
-                            .distance(subPath.distance())
-                            .laneName(laneName)
-                            .startBoardName(subPath.startName())
-                            .endBoardName(subPath.endName())
-                            .stationCount(Optional.ofNullable(subPath.stationCount()).orElse(0))
-                            .passStopList(subPath.trafficType() == 3 ? null : new PassStopList(passStopList))
-                            .startExitNo(subPath.startExitNo())
-                            .endExitNo(subPath.endExitNo())
-                            .sectionTime(subPath.sectionTime())
-                            .build();
-                })
-                .toList();
+                            return TransitRouteResponse.builder()
+                                    .trafficType(TrafficType.fromCode(subPath.trafficType()))
+                                    .distance(subPath.distance())
+                                    .laneName(laneName)
+                                    .startBoardName(subPath.startName())
+                                    .endBoardName(subPath.endName())
+                                    .stationCount(Optional.ofNullable(subPath.stationCount()).orElse(0))
+                                    .passStopList(subPath.trafficType() == 3 ? null : new PassStopList(passStopList))
+                                    .startExitNo(subPath.startExitNo())
+                                    .endExitNo(subPath.endExitNo())
+                                    .sectionTime(subPath.sectionTime())
+                                    .build();
+                        })
+                        .toList()
+                ).orElse(null);
     }
 
     private static List<Stations> convertToDomainStations(List<OdsayTransitRouteSearchResponse.TransitData.Station> odsayStations) {
