@@ -26,7 +26,7 @@ public class RouteProcessor {
                 .map(resultResponse -> routeAssembler.assemble(resultResponse.startPoints(), resultResponse.subway()))
                 .toList();
 
-        eventProcessor.saveRoute(eventId, new com.meetup.server.event.domain.value.MeetingPointRouteGroups(meetingPointRouteGroups));
+        eventProcessor.saveRoute(eventId, new MeetingPointRouteGroups(meetingPointRouteGroups));
         cachedRouteRepository.save(eventId, new MeetingPointRouteGroups(meetingPointRouteGroups));
 
         return meetingPointRouteGroups;
