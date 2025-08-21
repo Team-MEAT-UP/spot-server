@@ -22,7 +22,7 @@ public class RouteApiCaller {
     private final KakaoMobilityClient kakaoMobilityClient;
 
     public OdsayTransitRouteSearchResponse getTransitRoute(String startX, String startY, String endX, String endY) {
-        OdsayTransitRouteSearchResponse response = odsayTransitRouteSearchClient.sendRequest(
+        return odsayTransitRouteSearchClient.sendRequest(
                 OdsayTransitRouteSearchRequest.builder()
                         .sx(startX)
                         .sy(startY)
@@ -30,7 +30,6 @@ public class RouteApiCaller {
                         .ey(endY)
                         .build()
         );
-        return response;
     }
 
     public KakaoMobilityResponse getDrivingRoute(String startX, String startY, String endX, String endY) {
@@ -41,7 +40,6 @@ public class RouteApiCaller {
                         .build()
 
         );
-        log.info("response: {}", response);
 
         if (response.routes() != null) {
             for (KakaoMobilityResponse.Route route : response.routes()) {

@@ -8,9 +8,9 @@ import com.meetup.server.event.infrastructure.redis.MeetingPointRouteGroupsCache
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 @Component
 @RequiredArgsConstructor
@@ -31,17 +31,14 @@ public class RouteProcessor {
     }
 
     public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {
-        Predicate<RouteResponse> isOwnedByUserOrGuest = (userId != null)
-                ? route -> userId.equals(route.getUserId())
-                : route -> guestId != null && guestId.equals(route.getGuestId());
+        routeList.forEach(route -> {
+            boolean isMine = (userId != null && userId.equals(route.getUserId()))
+                    || (guestId != null && guestId.equals(route.getGuestId()));
+            route.updateIsMe(isMine);
+        });
 
-        routeList.stream()
-                .filter(isOwnedByUserOrGuest)
-                .findFirst()
-                .ifPresent(route -> {
-                    route.updateIsMe(true);
-                    routeList.remove(route);
-                    routeList.addFirst(route);
-                });
+        routeList.sort(Comparator.comparing((RouteResponse route) -> route.getTotalTime() == 0)
+                .thenComparing(RouteResponse::getIsMe, Comparator.reverseOrder())
+        );
     }
 }
