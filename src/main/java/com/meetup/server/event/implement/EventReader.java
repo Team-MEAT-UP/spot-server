@@ -22,7 +22,7 @@ public class EventReader {
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
     }
 
-    public List<Event> readEventsAtWithPlace(int hour) {
+    public List<Event> readEventsWithPlaceAtHour(int hour) {
         LocalDateTime targetTime = LocalDateTime.now()
                 .plusHours(hour)
                 .withSecond(0)

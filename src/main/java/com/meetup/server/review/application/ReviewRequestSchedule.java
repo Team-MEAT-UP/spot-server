@@ -50,7 +50,7 @@ public class ReviewRequestSchedule {
 
     @Scheduled(cron = EVERY_30_MINUTES, zone = "Asia/Seoul")
     public void sendReviewRequestEmail() {
-        List<Event> events = eventReader.readEventsAtWithPlace(REVIEW_REQUEST_HOURS_AHEAD);
+        List<Event> events = eventReader.readEventsWithPlaceAtHour(REVIEW_REQUEST_HOURS_AHEAD);
         if (events.isEmpty()) return;
 
         List<EmailSendHistory> eventSendHistories = emailSendHistoryRepository.findAllByEventInAndEmailType(events, EmailType.REVIEW_REQUEST);
