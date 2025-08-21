@@ -46,4 +46,8 @@ public class RouteProcessor {
                     routeList.addFirst(route);
                 });
     }
+
+    public void deleteCache(UUID eventId) {
+        cachedRouteRepository.delete(eventId);
+    }
 }

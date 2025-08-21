@@ -17,7 +17,6 @@ import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,9 +75,10 @@ public class EventService {
         eventProcessor.update(event, updateEventRequest);
     }
 
-    @CacheEvict(value = "routeDetails", key = "#eventId")
     public void deleteEvent(UUID eventId) {
         Event event = eventReader.read(eventId);
+
+        routeProcessor.deleteCache(eventId);
         eventProcessor.delete(event);
     }
 }

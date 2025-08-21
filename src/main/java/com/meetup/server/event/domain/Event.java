@@ -49,11 +49,12 @@ public class Event extends BaseEntity {
     }
 
     @Builder
-    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime) {
+    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups route) {
         this.subway = subway;
         this.place = place;
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
+        this.route = route;
     }
 
     public void update(String eventName, LocalDateTime eventDateTime) {

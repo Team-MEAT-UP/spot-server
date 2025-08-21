@@ -63,4 +63,11 @@ public class CachedRouteRepository {
             cache.put(eventId, cached);
         }
     }
+
+    public void delete(UUID eventId) {
+        Cache cache = cacheManager.getCache("routeDetails");
+        if (cache != null) {
+            cache.evict(eventId);
+        }
+    }
 }
