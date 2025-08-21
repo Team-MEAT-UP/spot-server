@@ -49,8 +49,8 @@ public class StartPointService {
 
         StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
 
-        routeProcessor.deleteCache(eventId);
         eventProcessor.deleteRoute(eventId);
+        routeProcessor.deleteCache(eventId);
 
         return EventStartPointResponse.of(event, startPoint);
     }
@@ -62,8 +62,8 @@ public class StartPointService {
         startPointValidator.validateBelongsToEvent(eventId, startPoint);
         startPointProcessor.update(startPoint, startPointRequest);
 
-        routeProcessor.deleteCache(eventId);
         eventProcessor.deleteRoute(eventId);
+        routeProcessor.deleteCache(eventId);
 
         return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
     }
@@ -74,8 +74,8 @@ public class StartPointService {
         startPointValidator.validateBelongsToEvent(eventId, startPoint);
         startPointProcessor.delete(startPoint);
 
-        routeProcessor.deleteCache(eventId);
         eventProcessor.deleteRoute(eventId);
+        routeProcessor.deleteCache(eventId);
     }
 
     public KakaoLocalResponse searchStartPoint(String textQuery) {
