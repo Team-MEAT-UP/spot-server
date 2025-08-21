@@ -101,7 +101,10 @@ public class Place extends BaseEntity {
     }
 
     public void updateImage(String imageUri) {
-        Image image = Image.from(imageUri);
-        this.images = List.of(image);
+        if (imageUri == null || imageUri.isBlank()) {
+            this.images = List.of();
+        } else {
+            this.images = List.of(Image.from(imageUri));
+        }
     }
 }

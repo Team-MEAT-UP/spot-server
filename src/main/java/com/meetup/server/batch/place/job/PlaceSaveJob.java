@@ -196,7 +196,9 @@ public class PlaceSaveJob {
                 .category(PlaceCategory.CAFE)
                 .name(kakaoSearchResponse.getPlaceName())
                 .googleRating(googlePlace.rating())
-                .images(List.of(Image.from(photoUri)))
+                .images((photoUri == null || photoUri.isBlank())
+                        ? List.of()
+                        : List.of(Image.from(photoUri)))
                 .openingHours(
                         Optional.ofNullable(googlePlace.regularOpeningHours())
                                 .map(openingHours -> openingHours.periods().stream().map(OpeningHour::from).toList())
