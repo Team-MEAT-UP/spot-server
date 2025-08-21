@@ -80,7 +80,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private String buildDefaultCallbackUrl(String eventId, String to) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(successRedirectUri + "/oauth/kakao/callback");
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(successRedirectUri).pathSegment("oauth", "kakao", "callback");
         if (eventId != null && !eventId.isBlank()) {
             uriBuilder.queryParam("eventId", eventId);
         }
