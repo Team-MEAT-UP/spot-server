@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'[모이삼] 오늘 ' + ${eventName} + '는 어떠셨나요?'"></title>
+    <!-- 모바일 확대/재배치 방지 -->
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="x-apple-disable-message-reformatting"/>
+    <meta
+            name="format-detection"
+            content="telephone=no,address=no,email=no,date=no,url=no"
+    />
+    <!-- 외부 폰트는 일부 메일앱에서 폴백될 수 있음 -->
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css"
+    />
+</head>
+<body style="margin: 0; padding: 0; background: #ffffff">
+<!-- 풀폭 래퍼 -->
+<table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+        border-collapse: collapse;
+        mso-table-lspace: 0;
+        mso-table-rspace: 0;
+      "
+>
+    <tr>
+        <td align="center" valign="top" style="padding: 0">
+            <table
+                    role="presentation"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+              width: 100%;
+              max-width: 600px;
+              border-collapse: collapse;
+              font-family: Pretendard, -apple-system, BlinkMacSystemFont,
+                'Segoe UI', Roboto, 'Noto Sans KR', Arial, sans-serif;
+            "
+            >
+                <!-- 헤더 -->
+                <tr>
+                    <td style="padding: 0; background: #007aff">
+                        <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="border-collapse: collapse"
+                        >
+                            <tr>
+                                <td align="center" style="padding: 0 24px; height: 74px">
+                                    <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                    >
+                                        <tr>
+                                            <td align="center" style="padding-right: 268px">
+                                                <img
+                                                        src="https://moisam-server.s3.ap-northeast-2.amazonaws.com/moisam_white_logo.png"
+                                                        alt="모이삼"
+                                                        width="121"
+                                                        height="28"
+                                                        style="display: block; border: 0; outline: 0"
+                                                />
+                                            </td>
+                                            <td align="center">
+                                                <img
+                                                        src="https://moisam-server.s3.ap-northeast-2.amazonaws.com/moisam_graphic.png"
+                                                        alt=""
+                                                        width="171"
+                                                        height="74"
+                                                        style="display: block; border: 0; outline: 0"
+                                                />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- 본문: 타이틀 -->
+                <tr>
+                    <td style="padding: 32px 40px 0 40px">
+                        <h2
+                                style="
+                    margin: 0;
+                    font-size: 24px;
+                    line-height: 120%;
+                    font-weight: 700;
+                    letter-spacing: -0.48px;
+                    color: #1c1c22;
+                  "
+                        >
+                            오늘
+                            <span style="color: #007aff" th:text="${eventName}"></span>는
+                        </h2>
+                        <h2
+                                style="
+                    margin: 0;
+                    font-size: 24px;
+                    line-height: 120%;
+                    font-weight: 700;
+                    letter-spacing: -0.48px;
+                    color: #1c1c22;
+                  "
+                        >
+                            어떠셨나요?
+                        </h2>
+                    </td>
+                </tr>
+
+                <!-- 본문: 인사/설명 -->
+                <tr>
+                    <td style="padding: 24px 40px 0 40px">
+                        <p
+                                style="
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: 150%;
+                    letter-spacing: -0.28px;
+                    color: #49495a;
+                  "
+                        >
+                            안녕하세요, <span th:text="${participantName}"></span>님
+                        </p>
+                        <p
+                                style="
+                    margin: 8px 0 0 0;
+                    font-size: 16px;
+                    font-weight: 400;
+                    line-height: 150%;
+                    letter-spacing: -0.28px;
+                    color: #787891;
+                  "
+                        >
+                            오늘 <span th:text="${otherParticipantName}"></span>님 외
+                            <span th:text="${otherParticipantCount}"></span>명과 함께한 시간은
+                            어떠셨나요? <br/>
+                            모이삼과 함께한 약속이 즐겁고 행복했기를 바랍니다.
+                        </p>
+                        <p
+                                style="
+                    margin: 8px 0 0 0;
+                    font-size: 16px;
+                    font-weight: 400;
+                    line-height: 150%;
+                    letter-spacing: -0.28px;
+                    color: #787891;
+                  "
+                        >
+                            오늘 방문한
+                            <span
+                                    style="color: #49495a; font-weight: 600"
+                                    th:text="${placeName}"
+                            ></span
+                            >의 후기를 남겨주시면 <br/>
+                            <span th:text="${participantName}"></span>님의 다음 약속 장소
+                            추천에 반영됩니다.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- 카드 -->
+                <tr>
+                    <td style="padding: 24px 40px 0 40px">
+                        <table
+                                role="presentation"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="
+                    width: 100%;
+                    max-width: 320px;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                  "
+                        >
+                            <!-- 장소 이미지 -->
+                            <tr th:if="${placeImage != null}">
+                                <td
+                                        style="
+                        padding: 0;
+                        border-radius: 10px 10px 0 0;
+                        overflow: hidden;
+                        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                      "
+                                >
+                                    <img
+                                            th:src="${placeImage}"
+                                            alt=""
+                                            width="320"
+                                            style="
+                          width: 100%;
+                          height: auto;
+                          display: block;
+                          border: 0;
+                          outline: 0;
+                        "
+                                    />
+                                </td>
+                            </tr>
+                            <!-- 카드 바디 -->
+                            <tr>
+                                <td
+                                        style="
+                        padding: 14px;
+                        border-radius: 0 0 10px 10px;
+                        background: #ffffff;
+                        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                      "
+                                >
+                                    <div
+                                            style="
+                          margin: 0;
+                          color: #1c1c22;
+                          font-size: 16px;
+                          font-weight: 600;
+                          line-height: 150%;
+                        "
+                                            th:text="${placeName}"
+                                    ></div>
+
+                                    <!-- 평점 -->
+                                    <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="margin-top: 4px"
+                                            th:if="${placeRating != null}"
+                                    >
+                                        <tr>
+                                            <td style="padding: 0 4px 0 0">
+                                                <img
+                                                        src="https://moisam-server.s3.ap-northeast-2.amazonaws.com/star_icon.png"
+                                                        alt="★"
+                                                        width="14"
+                                                        height="14"
+                                                        style="display: block"
+                                                />
+                                            </td>
+                                            <td style="padding: 0">
+                                                <div
+                                                        style="
+                                margin: 0;
+                                color: #32323e;
+                                font-size: 12px;
+                                font-weight: 600;
+                                line-height: 150%;
+                              "
+                                                >
+                                                    <span th:text="${placeRating}"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- 영업시간 -->
+                                    <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="margin-top: 4px"
+                                            th:if="${openTime != null and closeTime != null}"
+                                    >
+                                        <tr>
+                                            <td style="padding: 0 4px 0 0">
+                                                <img
+                                                        src="https://moisam-server.s3.ap-northeast-2.amazonaws.com/clock_icon.png"
+                                                        alt=""
+                                                        width="14"
+                                                        height="14"
+                                                        style="display: block"
+                                                />
+                                            </td>
+                                            <td
+                                                    style="
+                              padding: 0 6px 0 0;
+                              white-space: nowrap;
+                              color: #787891;
+                              font-size: 12px;
+                              font-weight: 500;
+                              line-height: 150%;
+                            "
+                                            >
+                                                영업시간
+                                            </td>
+                                            <td
+                                                    style="
+                              padding: 0;
+                              white-space: nowrap;
+                              color: #32323e;
+                              font-size: 12px;
+                              font-weight: 500;
+                              line-height: 150%;
+                            "
+                                            >
+                                                <span th:text="${openTime} + ' ~ ' + ${closeTime}"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- 버튼 두 개 -->
+                <!-- 버튼 두 개 -->
+                <tr>
+                    <td style="padding: 24px 40px 64px 40px">
+                        <table
+                                role="presentation"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                width="320"
+                        >
+                            <tr>
+                                <!-- 다른 곳에 갔어요 -->
+                                <td align="center" width="126" style="padding-right: 8px">
+                                    <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            width="100%"
+                                    >
+                                        <tr>
+                                            <td
+                                                    align="center"
+                                                    bgcolor="#E9E9ED"
+                                                    style="border-radius: 10px"
+                                            >
+                                                <a
+                                                        th:href="${serverUrl + '/oauth2/authorization/kakao?to=notvisited' + '&eventId=' + eventId + '&placeId=' + placeId}"
+                                                        style="
+                                display: block;
+                                text-align: center;
+                                text-decoration: none;
+                                color: #606076;
+                                font-size: 16px;
+                                font-weight: 500;
+                                letter-spacing: -0.32px;
+                                line-height: 120%;
+                                padding: 12px 0;
+                                border-radius: 10px;
+                              "
+                                                >
+                                                    다른 곳에 갔어요
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                                <!-- 리뷰 남기기 -->
+                                <td align="center" width="126" style="padding-right: 0">
+                                    <!-- 마지막은 0으로 -->
+                                    <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            width="100%"
+                                    >
+                                        <tr>
+                                            <td
+                                                    align="center"
+                                                    bgcolor="#1C1C22"
+                                                    style="border-radius: 10px"
+                                            >
+                                                <a
+                                                        th:href="${serverUrl + '/oauth2/authorization/kakao?to=visited' + '&eventId=' + eventId + '&placeId=' + placeId}"
+                                                        style="
+                                display: block;
+                                text-align: center;
+                                text-decoration: none;
+                                color: #ffffff;
+                                font-size: 16px;
+                                font-weight: 500;
+                                letter-spacing: -0.32px;
+                                line-height: 120%;
+                                padding: 12px 0;
+                                border-radius: 10px;
+                              "
+                                                >
+                                                    리뷰 남기기
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- 푸터 -->
+                <tr>
+                    <td style="padding: 32px 40px; border-top: 1px solid #e9e9ed">
+                        <img
+                                src="https://moisam-server.s3.ap-northeast-2.amazonaws.com/moisam_dark_logo.png"
+                                alt="모이삼"
+                                width="78"
+                                height="18"
+                                style="display: block"
+                        />
+                        <div
+                                style="
+                    margin: 10px 0 0 0;
+                    font-size: 14px;
+                    font-weight: 500;
+                    line-height: 150%;
+                    letter-spacing: -0.28px;
+                    color: #9494a8;
+                  "
+                        >
+                            클릭 한 번으로 찾는 약속의 중간장소
+                        </div>
+                        <div style="margin-top: 6px">
+                            <a
+                                    href="https://forms.gle/Z5FB9f7JwXgKdc6G7"
+                                    style="
+                      font-size: 14px;
+                      font-weight: 500;
+                      line-height: 150%;
+                      letter-spacing: -0.28px;
+                      color: #606076;
+                    "
+                            >
+                                문의하기
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -19,6 +19,9 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
     @Query("SELECT DISTINCT sp FROM StartPoint sp JOIN FETCH sp.event WHERE sp.event = :event")
     List<StartPoint> findAllByEvent(@Param("event") Event event);
 
+    @Query("SELECT DISTINCT sp FROM StartPoint sp LEFT JOIN FETCH sp.user WHERE sp.event = :event")
+    List<StartPoint> findAllWithUserByEvent(@Param("event") Event event);
+
     @Modifying
     @Query("DELETE FROM StartPoint sp WHERE sp.event = :event")
     void deleteAllByEvent(@Param("event") Event event);

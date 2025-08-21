@@ -40,4 +40,8 @@ public class StartPointReader {
     public List<ParticipantCount> readParticipantCounts(List<UUID> eventIds) {
         return startPointRepository.findParticipantsCounts(eventIds);
     }
+
+    public List<StartPoint> readAllWithUserByEvent(Event event) {
+        return startPointRepository.findAllWithUserByEvent(event);
+    }
 }
