@@ -1,8 +1,11 @@
 package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
+import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
+import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.StartPointFixture;
 import com.meetup.server.fixture.UserFixture;
@@ -12,9 +15,12 @@ import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.support.IntegrationTestContainer;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.infrastructure.jpa.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -36,10 +42,25 @@ class StartPointServiceTest extends IntegrationTestContainer {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CachedRouteRepository cachedRouteRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @Autowired
+    private EventReader eventReader;
+
+    @Autowired
+    private EntityManager entityManager;
+
     private Event event;
     private StartPointRequest startPointRequest;
     private User user;
     private UUID guestId;
+    private StartPoint startPoint;
+    private Event eventWithRoute;
+    private MeetingPointRouteGroups meetingPointRouteGroups;
 
     @BeforeEach
     void setUp() {
@@ -47,6 +68,10 @@ class StartPointServiceTest extends IntegrationTestContainer {
         startPointRequest = StartPointFixture.getStartPointRequest();
         user = userRepository.save(UserFixture.getUser());
         guestId = UUID.randomUUID();
+        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
+        meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
+
+        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
     }
 
     @Test
@@ -101,5 +126,71 @@ class StartPointServiceTest extends IntegrationTestContainer {
 
         UUID startPointId = startPoint.getStartPointId();
         assertThat(startPointRepository.existsById(startPointId)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    void 출발지_생성_후_캐시와_모임경로데이터_삭제_검증() {
+        // given
+        Cache cache = cacheManager.getCache("routeDetails");
+        assertThat(cache.get(eventWithRoute.getEventId())).isNotNull();
+
+        //when
+        startPointService.createStartPoint(
+                eventWithRoute.getEventId(),
+                user.getUserId(),
+                null,
+                startPointRequest
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(cache.get(eventWithRoute.getEventId())).isNull();
+    }
+
+    @Test
+    @Transactional
+    void 출발지_수정_후_캐시와_모임경로데이터_삭제_검증() {
+        // given
+        Cache cache = cacheManager.getCache("routeDetails");
+        assertThat(cache.get(eventWithRoute.getEventId())).isNotNull();
+
+        //when
+        startPointService.updateStartPoint(
+                eventWithRoute.getEventId(),
+                startPoint.getStartPointId(),
+                startPointRequest
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(cache.get(eventWithRoute.getEventId())).isNull();
+    }
+
+    @Test
+    @Transactional
+    void 출발지_삭제_후_캐시와_모임경로데이터_삭제_검증() {
+        // given
+        Cache cache = cacheManager.getCache("routeDetails");
+        assertThat(cache.get(eventWithRoute.getEventId())).isNotNull();
+
+        // when
+        startPointService.deleteStartPoint(
+                eventWithRoute.getEventId(),
+                startPoint.getStartPointId()
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(cache.get(eventWithRoute.getEventId())).isNull();
     }
 }

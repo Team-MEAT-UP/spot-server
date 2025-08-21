@@ -1,12 +1,15 @@
 package com.meetup.server.event.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.request.EventRequest;
+import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
+import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
+import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.UserFixture;
-import com.meetup.server.startpoint.application.StartPointService;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.support.IntegrationTestContainer;
@@ -15,6 +18,8 @@ import com.meetup.server.user.infrastructure.jpa.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -37,17 +42,31 @@ class EventServiceTest extends IntegrationTestContainer {
     private UserRepository userRepository;
 
     @Autowired
-    private StartPointService startPointService;
+    private CachedRouteRepository cachedRouteRepository;
 
+    @Autowired
+    private EventReader eventReader;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    private Event event;
     private User user;
     private EventRequest eventRequest;
     private UUID guestId;
+    private UpdateEventRequest updateEventRequest;
+    private MeetingPointRouteGroups meetingPointRouteGroups;
+    private Event eventWithRoute;
 
     @BeforeEach
     void setUp() {
+        event = eventRepository.save(EventFixture.getEvent());
         user = userRepository.save(UserFixture.getUser());
         eventRequest = EventFixture.getEventRequest();
         guestId = UUID.randomUUID();
+        updateEventRequest = EventFixture.getUpdateEventRequest();
+        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
+        meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
     }
 
     @Test
@@ -91,5 +110,40 @@ class EventServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getGuestId()).isNull();
         assertThat(optionalEvent.get().getEventName()).isEqualTo(eventRequest.eventName());
         assertThat(optionalEvent.get().getEventDateTime()).isEqualTo(eventRequest.toDateTime());
+    }
+
+    @Test
+    @Transactional
+    void 모임_수정_후_캐시와_모임경로데이터_검증() {
+        //given
+        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+
+        //when
+        eventService.updateEvent(eventWithRoute.getEventId(), updateEventRequest);
+
+        //then
+        Event updatedEvent = eventReader.read(eventWithRoute.getEventId());
+        MeetingPointRouteGroups cache = cachedRouteRepository.findByEventId(eventWithRoute.getEventId()).orElseThrow();
+
+        assertThat(cache)
+                .usingRecursiveComparison()
+                .isEqualTo(updatedEvent.getRoute());
+    }
+
+    @Test
+    @Transactional
+    void 모임_삭제_후_캐시와_모임경로데이터_검증() {
+        //given
+        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+
+        Cache cache = cacheManager.getCache("routeDetails");
+        assertThat(cache.get(eventWithRoute.getEventId())).isNotNull();
+
+        //when
+        eventService.deleteEvent(eventWithRoute.getEventId());
+
+        //then
+        assertThat(eventRepository.existsById(eventWithRoute.getEventId())).isFalse();
+        assertThat(cache.get(eventWithRoute.getEventId())).isNull();
     }
 }
