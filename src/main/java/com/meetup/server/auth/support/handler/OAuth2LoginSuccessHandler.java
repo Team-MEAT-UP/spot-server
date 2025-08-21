@@ -91,11 +91,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private String buildVisitedRedirectUrl(String eventId, String placeId) {
-        return String.format("%s/visited/%s/%s", successRedirectUri, eventId, placeId);
+        return UriComponentsBuilder.fromUriString(successRedirectUri)
+                .pathSegment("visited", eventId, placeId)
+                .build()
+                .toUriString();
     }
 
     private String buildNotVisitedRedirectUrl(String eventId, String placeId) {
-        return String.format("%s/notvisited/%s/%s", successRedirectUri, eventId, placeId);
+        return UriComponentsBuilder.fromUriString(successRedirectUri)
+                .pathSegment("notvisited", eventId, placeId)
+                .build()
+                .toUriString();
     }
 
     private static class StateParams {
