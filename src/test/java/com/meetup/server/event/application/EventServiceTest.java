@@ -6,6 +6,7 @@ import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.implement.route.RouteReader;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
@@ -43,6 +44,9 @@ class EventServiceTest extends IntegrationTestContainer {
 
     @Autowired
     private CachedRouteRepository cachedRouteRepository;
+
+    @Autowired
+    private RouteReader routeReader;
 
     @Autowired
     private EventReader eventReader;
@@ -123,11 +127,11 @@ class EventServiceTest extends IntegrationTestContainer {
 
         //then
         Event updatedEvent = eventReader.read(eventWithRoute.getEventId());
-        MeetingPointRouteGroups cache = cachedRouteRepository.findByEventId(eventWithRoute.getEventId()).orElseThrow();
+        MeetingPointRouteGroups cache = routeReader.findByEventId(eventWithRoute.getEventId()).orElseThrow();
 
         assertThat(cache)
                 .usingRecursiveComparison()
-                .isEqualTo(updatedEvent.getRoute());
+                .isEqualTo(updatedEvent.getRoutes());
     }
 
     @Test

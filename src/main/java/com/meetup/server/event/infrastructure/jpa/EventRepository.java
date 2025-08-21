@@ -12,11 +12,11 @@ import java.util.UUID;
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Modifying
-    @Query("UPDATE Event e SET e.route = null WHERE e.eventId = :eventId")
+    @Query("UPDATE Event e SET e.routes = null WHERE e.eventId = :eventId")
     void deleteRouteByEventId(@Param("eventId") UUID eventId);
 
     @Modifying
-    @Query("UPDATE Event e SET e.route = :route WHERE e.eventId = :eventId")
+    @Query("UPDATE Event e SET e.routes = :route WHERE e.eventId = :eventId")
     void saveRouteByEventId(@Param("eventId") UUID eventId,
                               @Param("route") MeetingPointRouteGroups route);
 }

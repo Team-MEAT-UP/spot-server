@@ -51,7 +51,7 @@ public class EventFixture {
         return Event.builder()
                 .eventName("모임핑")
                 .eventDateTime(LocalDateTime.parse("2025-10-01T10:00:00"))
-                .route(getMeetingPointRouteGroups())
+                .routes(getMeetingPointRouteGroups())
                 .build();
     }
 

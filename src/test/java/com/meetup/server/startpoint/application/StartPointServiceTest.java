@@ -57,7 +57,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
     private Event event;
     private StartPointRequest startPointRequest;
     private User user;
-    private User newUSer;
+    private User newUser;
     private UUID guestId;
     private StartPoint startPoint;
     private Event eventWithRoute;
@@ -68,11 +68,11 @@ class StartPointServiceTest extends IntegrationTestContainer {
         event = eventRepository.save(EventFixture.getEvent());
         startPointRequest = StartPointFixture.getStartPointRequest();
         user = userRepository.save(UserFixture.getUser());
-        newUSer = userRepository.save(UserFixture.getNewUser());
+        newUser = userRepository.save(UserFixture.getNewUser());
         guestId = UUID.randomUUID();
         eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
-        startPoint = startPointRepository.save(StartPointFixture.getStartPoint(eventWithRoute, newUSer));
+        startPoint = startPointRepository.save(StartPointFixture.getStartPoint(eventWithRoute, newUser));
         cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
     }
 
@@ -149,7 +149,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         entityManager.clear();
 
         //then
-        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoutes()).isNull();
         assertThat(cache.get(eventWithRoute.getEventId())).isNull();
     }
 
@@ -171,7 +171,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         entityManager.clear();
 
         //then
-        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoutes()).isNull();
         assertThat(cache.get(eventWithRoute.getEventId())).isNull();
     }
 
@@ -192,7 +192,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         entityManager.clear();
 
         // then
-        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoute()).isNull();
+        assertThat(eventReader.read(eventWithRoute.getEventId()).getRoutes()).isNull();
         assertThat(cache.get(eventWithRoute.getEventId())).isNull();
     }
 }

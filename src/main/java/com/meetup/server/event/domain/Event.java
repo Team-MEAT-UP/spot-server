@@ -33,7 +33,7 @@ public class Event extends BaseEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private MeetingPointRouteGroups route;
+    private MeetingPointRouteGroups routes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subway_id", nullable = true)
@@ -49,12 +49,12 @@ public class Event extends BaseEntity {
     }
 
     @Builder
-    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups route) {
+    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups routes) {
         this.subway = subway;
         this.place = place;
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
-        this.route = route;
+        this.routes = routes;
     }
 
     public void update(String eventName, LocalDateTime eventDateTime) {
