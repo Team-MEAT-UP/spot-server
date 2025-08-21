@@ -3,6 +3,9 @@ package com.meetup.server.event.dto.response.route;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityResponse;
 import lombok.Builder;
 
+import java.util.List;
+import java.util.Optional;
+
 @Builder
 public record DrivingInfoResponse(
         int taxi,     // 요금
@@ -21,15 +24,21 @@ public record DrivingInfoResponse(
     }
 
     public static DrivingInfoResponse from(KakaoMobilityResponse kakaoMobilityResponse) {
-        if (kakaoMobilityResponse == null || kakaoMobilityResponse.routes() == null || kakaoMobilityResponse.routes().isEmpty()) {
-            return null;
-        }
-
-        KakaoMobilityResponse.Route route = kakaoMobilityResponse.routes().getFirst();
-        KakaoMobilityResponse.Summary summary = route.summary();
-        KakaoMobilityResponse.Fare fare = summary.fare();
-
-        return DrivingInfoResponse.of(fare.taxi(), fare.toll(), summary.duration(), summary.distance());
+        return Optional.ofNullable(kakaoMobilityResponse)
+                .map(KakaoMobilityResponse::routes)
+                .filter(routes -> !routes.isEmpty())
+                .map(List::getFirst)
+                .map(KakaoMobilityResponse.Route::summary)
+                .flatMap(summary ->
+                        Optional.ofNullable(summary.fare())
+                                .map(fare -> DrivingInfoResponse.of(
+                                        fare.taxi(),
+                                        fare.toll(),
+                                        summary.duration(),
+                                        summary.distance()
+                                ))
+                )
+                .orElse(null);
     }
 
     private static int durationConverter(int duration) {
