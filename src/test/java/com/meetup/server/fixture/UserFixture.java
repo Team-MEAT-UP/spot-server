@@ -18,6 +18,18 @@ public class UserFixture {
                 .build();
     }
 
+    public static User getNewUser() {
+        String uuid = UUID.randomUUID().toString();
+        return User.builder()
+                .nickname("김아무개")
+                .socialId("kakao" + uuid)
+                .email(uuid + "@spot.com")
+                .role(Role.USER)
+                .personalInfoAgreement(true)
+                .marketingAgreement(true)
+                .build();
+    }
+
     public static User getWithdrawnUser() {
         String uuid = UUID.randomUUID().toString();
         return User.builder()
