@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "email_send_history", uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "user_id"}))
+@Table(name = "email_send_history", uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "user_id", "email_type"}))
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class EmailSendHistory {
