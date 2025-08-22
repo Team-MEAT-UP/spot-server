@@ -13,10 +13,10 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Modifying
     @Query("UPDATE Event e SET e.routes = null WHERE e.eventId = :eventId")
-    void deleteRouteByEventId(@Param("eventId") UUID eventId);
+    void deleteRoutesByEventId(@Param("eventId") UUID eventId);
 
     @Modifying
-    @Query("UPDATE Event e SET e.routes = :route WHERE e.eventId = :eventId")
-    void saveRouteByEventId(@Param("eventId") UUID eventId,
-                              @Param("route") MeetingPointRouteGroups route);
+    @Query("UPDATE Event e SET e.routes = :routes WHERE e.eventId = :eventId")
+    void saveRoutesByEventId(@Param("eventId") UUID eventId,
+                             @Param("routes") MeetingPointRouteGroups routes);
 }

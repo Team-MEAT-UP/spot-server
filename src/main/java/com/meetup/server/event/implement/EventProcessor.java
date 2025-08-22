@@ -29,7 +29,7 @@ public class EventProcessor {
     }
 
     public void saveRoute(UUID eventId, MeetingPointRouteGroups meetingPointRouteGroups) {
-        eventRepository.saveRouteByEventId(eventId, meetingPointRouteGroups);
+        eventRepository.saveRoutesByEventId(eventId, meetingPointRouteGroups);
     }
 
     public void update(Event event, UpdateEventRequest updateEventRequest) {
@@ -43,6 +43,6 @@ public class EventProcessor {
     }
 
     public void deleteRoute(UUID eventId) {
-        eventRepository.deleteRouteByEventId(eventId);
+        eventRepository.deleteRoutesByEventId(eventId);
     }
 }

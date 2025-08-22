@@ -3,9 +3,7 @@ package com.meetup.server.event.implement.route;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
-import com.meetup.server.event.exception.EventErrorType;
-import com.meetup.server.event.exception.EventException;
-import com.meetup.server.event.infrastructure.jpa.EventRepository;
+import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,23 +17,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RouteReader {
 
-    private final EventRepository eventRepository;
+    private final EventReader eventReader;
     private final CachedRouteRepository cachedRouteRepository;
 
     public List<MeetingPointRouteGroup> readRouteGroups(UUID eventId) {
-        return findByEventId(eventId)
+        return readByEventId(eventId)
                 .map(MeetingPointRouteGroups::meetingPointRouteGroups)
                 .orElse(Collections.emptyList());
     }
 
-    public Optional<MeetingPointRouteGroups> findByEventId(UUID eventId) {
-        return Optional.ofNullable(cachedRouteRepository.getFromCache(eventId))
+    public Optional<MeetingPointRouteGroups> readByEventId(UUID eventId) {
+        return Optional.ofNullable(cachedRouteRepository.findByEventId(eventId))
                 .or(() -> fallback(eventId));
     }
 
     private Optional<MeetingPointRouteGroups> fallback(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
+        Event event = eventReader.read(eventId);
 
         if (event.getRoutes() == null) {
             return Optional.empty();

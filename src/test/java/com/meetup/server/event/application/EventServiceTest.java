@@ -127,7 +127,7 @@ class EventServiceTest extends IntegrationTestContainer {
 
         //then
         Event updatedEvent = eventReader.read(eventWithRoute.getEventId());
-        MeetingPointRouteGroups cache = routeReader.findByEventId(eventWithRoute.getEventId()).orElseThrow();
+        MeetingPointRouteGroups cache = routeReader.readByEventId(eventWithRoute.getEventId()).orElseThrow();
 
         assertThat(cache)
                 .usingRecursiveComparison()

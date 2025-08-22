@@ -22,14 +22,15 @@ public class RouteProcessor {
     private final EventProcessor eventProcessor;
 
     public List<MeetingPointRouteGroup> buildAndSaveRouteGroups(UUID eventId, List<MeetingPointResult> meetingPointResults) {
-        List<MeetingPointRouteGroup> meetingPointRouteGroups = meetingPointResults.stream()
+        List<MeetingPointRouteGroup> routes = meetingPointResults.stream()
                 .map(resultResponse -> routeAssembler.assemble(resultResponse.startPoints(), resultResponse.subway()))
                 .toList();
 
-        eventProcessor.saveRoute(eventId, new MeetingPointRouteGroups(meetingPointRouteGroups));
-        cachedRouteRepository.save(eventId, new MeetingPointRouteGroups(meetingPointRouteGroups));
+        MeetingPointRouteGroups groupedRoutes = new MeetingPointRouteGroups(routes);
+        eventProcessor.saveRoute(eventId, groupedRoutes);
+        cachedRouteRepository.save(eventId, groupedRoutes);
 
-        return meetingPointRouteGroups;
+        return routes;
     }
 
     public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {

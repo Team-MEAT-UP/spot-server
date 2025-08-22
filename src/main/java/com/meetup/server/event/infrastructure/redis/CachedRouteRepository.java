@@ -15,7 +15,7 @@ public class CachedRouteRepository {
 
     private final CacheManager cacheManager;
 
-    public MeetingPointRouteGroups getFromCache(UUID eventId) {
+    public MeetingPointRouteGroups findByEventId(UUID eventId) {
         return Optional.ofNullable(cacheManager.getCache("routeDetails"))
                 .map(cache -> cache.get(eventId))
                 .map(Cache.ValueWrapper::get)
