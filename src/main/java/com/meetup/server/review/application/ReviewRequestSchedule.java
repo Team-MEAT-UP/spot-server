@@ -2,6 +2,7 @@ package com.meetup.server.review.application;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.util.UsernameExtractor;
 import com.meetup.server.global.email.EmailSender;
 import com.meetup.server.global.email.domain.EmailSendHistory;
 import com.meetup.server.global.email.domain.EmailSendStatus;
@@ -111,7 +112,7 @@ public class ReviewRequestSchedule {
 
         List<String> otherParticipants = participants.stream()
                 .filter(startPoint -> !participant.getStartPointId().equals(startPoint.getStartPointId()))
-                .map(StartPoint::getNonUserName)
+                .map(UsernameExtractor::extractDisplayName)
                 .toList();
 
         Context context = new Context();
