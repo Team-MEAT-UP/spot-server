@@ -6,9 +6,6 @@ import lombok.Getter;
 @Getter
 public class ParkingLotCsvMapping {
 
-    @CsvBindByName(column = "주차장코드")
-    private int code;
-
     @CsvBindByName(column = "주차장명")
     private String name;
 
