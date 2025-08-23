@@ -7,6 +7,8 @@ import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -18,5 +20,13 @@ public class EventReader {
     public Event read(UUID eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
+    }
+
+    public List<Event> readEventsWithPlaceAtHour(int hour) {
+        LocalDateTime targetTime = LocalDateTime.now()
+                .plusHours(hour)
+                .withSecond(0)
+                .withNano(0);
+        return eventRepository.findAllByEventDateTimeWithPlace(targetTime);
     }
 }

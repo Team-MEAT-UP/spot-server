@@ -37,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String token = cookieUtil.getAccessTokenFromCookie(request);
-        log.info("Success Access Token With Cookie");
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             authenticationUtil.setAuthenticationFromRequest(request, token);
