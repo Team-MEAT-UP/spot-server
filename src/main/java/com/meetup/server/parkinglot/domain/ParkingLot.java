@@ -19,9 +19,6 @@ public class ParkingLot {
     @Column(name = "parking_lot_id")
     private Integer parkingLotId;
 
-    @Column(name = "parking_lot_code", nullable = false)
-    private int code;
-
     @Column(name = "parking_lot_name", length = 50, nullable = false)
     private String name;
 
@@ -32,8 +29,7 @@ public class ParkingLot {
     private Point point;
 
     @Builder
-    public ParkingLot(int code, String name, Location location, Point point) {
-        this.code = code;
+    public ParkingLot(String name, Location location, Point point) {
         this.name = name;
         this.location = location;
         this.point = point;

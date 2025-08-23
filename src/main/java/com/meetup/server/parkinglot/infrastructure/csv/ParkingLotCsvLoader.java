@@ -56,7 +56,6 @@ public class ParkingLotCsvLoader implements ApplicationRunner {
                     .stream()
                     .filter(csvLine -> csvLine.getLongitude() != null && csvLine.getLatitude() != null)
                     .map(csvLine -> ParkingLot.builder()
-                            .code(csvLine.getCode())
                             .name(csvLine.getName())
                             .location(Location.of(csvLine.getLongitude(), csvLine.getLatitude()))
                             .point(CoordinateUtil.createPoint(csvLine.getLongitude(), csvLine.getLatitude()))
