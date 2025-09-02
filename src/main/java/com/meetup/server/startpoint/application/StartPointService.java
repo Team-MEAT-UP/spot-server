@@ -44,6 +44,10 @@ public class StartPointService {
                     null,
                     startPointRequest
             );
+
+            eventProcessor.deleteRoute(eventId);
+            routeProcessor.deleteCache(eventId);
+
             return EventStartPointResponse.of(event, startPoint);
         }
 
