@@ -2,6 +2,7 @@ package com.meetup.server.global.clients.util;
 
 import com.meetup.server.global.clients.exception.ClientErrorType;
 import com.meetup.server.global.clients.exception.ClientException;
+import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
 import com.meetup.server.global.util.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,9 @@ public class RedisRateLimiter implements RateLimiter {
 
     private final RedisTemplate<String, String> redisRateLimitTemplate;
     private final RedisScript<Long> redisRateLimitScript;
+    private final DiscordAlarmSender discordAlarmSender;
+
+    private static final String DISCORD_ALERT_SENT_KEY_PREFIX = "rate_limit_alert:";
 
     @Override
     public void tryApiCall(LimitRequestPerDay limitRequestPerDay) {
@@ -34,11 +38,16 @@ public class RedisRateLimiter implements RateLimiter {
         );
 
         if (result == -1) {
-            throw new ClientException(ClientErrorType.EXCEED_RATE_LIMIT_PER_DAY);
+            discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.EXCEED_RATE_LIMIT_PER_DAY));
+            return;
         }
 
         if (result >= limitCount - 50) {
-            log.warn("[RedisRateLimiter] Rate limit near threshold ({} / {}) for key: {}", result, limitCount, key);
+            String alertSentKey = DISCORD_ALERT_SENT_KEY_PREFIX + key;
+            Boolean isAlertSent = redisRateLimitTemplate.opsForValue().setIfAbsent(alertSentKey, "1", getTTL());
+            if (Boolean.TRUE.equals(isAlertSent)) {
+                discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.WARNING_RATE_LIMIT_PER_DAY));
+            }
         }
     }
 

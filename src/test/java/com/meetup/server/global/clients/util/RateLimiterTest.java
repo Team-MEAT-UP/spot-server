@@ -1,6 +1,5 @@
 package com.meetup.server.global.clients.util;
 
-import com.meetup.server.global.clients.exception.ClientException;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class RateLimiterTest extends IntegrationTestContainer {
 
@@ -47,26 +45,16 @@ class RateLimiterTest extends IntegrationTestContainer {
             }
         };
 
-        AtomicInteger successCount = new AtomicInteger();
-        AtomicInteger failCount = new AtomicInteger();
-
         for (int i = 0; i < 10; i++) {
-            try {
-                rateLimiter.tryApiCall(annotation);
-                successCount.incrementAndGet();
-            } catch (ClientException e) {
-                failCount.incrementAndGet();
-            }
+            rateLimiter.tryApiCall(annotation);
         }
 
-        Assertions.assertEquals(5, successCount.get());
-        Assertions.assertEquals(5, failCount.get());
-
+        Long count = Long.valueOf(redisRateLimitTemplate.opsForValue().get("test"));
+        Assertions.assertEquals(5L, count);
     }
 
     @Test
-    void 동시_요청_상황에서도_요청제한을_원자적으로_보장한다() throws InterruptedException {
-        // given
+    void 동시_요청_상황에서도_요청제한을_보장한다() throws InterruptedException {
         LimitRequestPerDay annotation = new LimitRequestPerDay() {
             @Override
             public String key() {
@@ -88,17 +76,9 @@ class RateLimiterTest extends IntegrationTestContainer {
         ExecutorService executorService = Executors.newFixedThreadPool(totalThreads);
         CountDownLatch latch = new CountDownLatch(totalThreads);
 
-        AtomicInteger successCount = new AtomicInteger();
-        AtomicInteger failCount = new AtomicInteger();
-
         for (int i = 0; i < totalThreads; i++) {
             executorService.submit(() -> {
-                try {
-                    rateLimiter.tryApiCall(annotation);
-                    successCount.incrementAndGet();
-                } catch (ClientException e) {
-                    failCount.incrementAndGet();
-                }
+                rateLimiter.tryApiCall(annotation);
                 latch.countDown();
             });
         }
@@ -106,7 +86,8 @@ class RateLimiterTest extends IntegrationTestContainer {
         latch.await();
         executorService.shutdown();
 
-        Assertions.assertEquals(10, successCount.get());
+        Long count = Long.valueOf(redisRateLimitTemplate.opsForValue().get("test"));
+        Assertions.assertEquals(10L, count);
     }
 
 }
