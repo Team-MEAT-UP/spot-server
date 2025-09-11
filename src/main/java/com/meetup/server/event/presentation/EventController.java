@@ -54,4 +54,11 @@ public class EventController {
             @RequestParam(required = false) UUID guestId) {
         return ApiResponse.success(eventService.getMeetingPointRoutes(eventId, userId, guestId));
     }
+
+    @Operation(summary = "확정된 모임 장소 취소 API", description = "모임 ID를 통해 확정된 모임 장소를 취소합니다.")
+    @DeleteMapping("/{eventId}/place")
+    public ApiResponse<?> cancelPlace(@PathVariable UUID eventId) {
+        eventService.cancelPlace(eventId);
+        return ApiResponse.success();
+    }
 }

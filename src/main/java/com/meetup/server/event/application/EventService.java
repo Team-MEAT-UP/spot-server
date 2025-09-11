@@ -81,4 +81,9 @@ public class EventService {
         routeProcessor.deleteCache(eventId);
         eventProcessor.delete(event);
     }
+
+    public void cancelPlace(UUID eventId) {
+        Event event = eventReader.read(eventId);
+        event.removePlace();
+    }
 }
