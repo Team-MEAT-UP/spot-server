@@ -3,6 +3,7 @@ package com.meetup.server.event.presentation;
 import com.meetup.server.event.application.EventService;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
+import com.meetup.server.event.dto.request.UpdatePlaceRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.global.support.response.ApiResponse;
@@ -55,10 +56,20 @@ public class EventController {
         return ApiResponse.success(eventService.getMeetingPointRoutes(eventId, userId, guestId));
     }
 
+    @Operation(summary = "모임 장소 확정/변경 API", description = "모임 ID와 장소 ID를 통해 모임 장소를 확정/변경합니다.")
+    @PutMapping("/{eventId}/place")
+    public ApiResponse<?> updatePlace(
+            @PathVariable UUID eventId,
+            @Valid @RequestBody UpdatePlaceRequest updatePlaceRequest
+    ) {
+        eventService.updatePlace(eventId, updatePlaceRequest);
+        return ApiResponse.success();
+    }
+
     @Operation(summary = "확정된 모임 장소 취소 API", description = "모임 ID를 통해 확정된 모임 장소를 취소합니다.")
     @DeleteMapping("/{eventId}/place")
-    public ApiResponse<?> cancelPlace(@PathVariable UUID eventId) {
-        eventService.cancelPlace(eventId);
+    public ApiResponse<?> deletePlace(@PathVariable UUID eventId) {
+        eventService.deletePlace(eventId);
         return ApiResponse.success();
     }
 }

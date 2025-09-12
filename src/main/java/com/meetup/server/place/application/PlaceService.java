@@ -37,15 +37,6 @@ public class PlaceService {
     private final PlaceSorter placeSorter;
     private final SubwayReader subwayReader;
 
-    @Transactional
-    public void confirmPlace(UUID eventId, UUID placeId, int subwayId) {
-        Event event = eventReader.read(eventId);
-        Place place = placeReader.read(placeId);
-        Subway subway = subwayReader.read(subwayId);
-
-        event.updateMeetingPlace(place, subway);
-    }
-
     public PlaceResponseList getAllPlaces(UUID eventId, int subwayId) {
         Event event = eventReader.read(eventId);
         Subway subway = subwayReader.read(subwayId);

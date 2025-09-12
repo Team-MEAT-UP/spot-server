@@ -3,6 +3,7 @@ package com.meetup.server.event.application;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
+import com.meetup.server.event.dto.request.UpdatePlaceRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.route.MeetingPointResult;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
@@ -12,9 +13,13 @@ import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.implement.route.MeetingPointCalculator;
 import com.meetup.server.event.implement.route.RouteProcessor;
 import com.meetup.server.event.implement.route.RouteReader;
+import com.meetup.server.place.domain.Place;
+import com.meetup.server.place.implement.PlaceReader;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
 import com.meetup.server.startpoint.implement.StartPointReader;
+import com.meetup.server.subway.domain.Subway;
+import com.meetup.server.subway.implement.reader.SubwayReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +41,8 @@ public class EventService {
     private final RouteReader routeReader;
     private final RouteProcessor routeProcessor;
     private final StartPointReader startPointReader;
+    private final PlaceReader placeReader;
+    private final SubwayReader subwayReader;
 
     public EventStartPointResponse createEvent(Long userId, UUID guestId, EventRequest eventRequest) {
         Event event = eventProcessor.save(eventRequest);
@@ -82,8 +89,16 @@ public class EventService {
         eventProcessor.delete(event);
     }
 
-    public void cancelPlace(UUID eventId) {
+    public void updatePlace(UUID eventId, UpdatePlaceRequest updatePlaceRequest) {
         Event event = eventReader.read(eventId);
-        event.removePlace();
+        Place place = placeReader.read(updatePlaceRequest.placeId());
+        Subway subway = subwayReader.read(updatePlaceRequest.subwayId());
+
+        event.updateMeetingPlace(place, subway);
+    }
+
+    public void deletePlace(UUID eventId) {
+        Event event = eventReader.read(eventId);
+        event.deletePlace();
     }
 }

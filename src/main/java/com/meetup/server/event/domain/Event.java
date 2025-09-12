@@ -71,7 +71,7 @@ public class Event extends BaseEntity {
         this.subway = subway;
     }
 
-    public void removePlace() {
+    public void deletePlace() {
         this.place = null;
     }
 }
