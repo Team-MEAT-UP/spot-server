@@ -57,7 +57,7 @@ public class EventController {
     }
 
     @Operation(summary = "모임 장소 확정/변경 API", description = "모임 ID와 장소 ID를 통해 모임 장소를 확정/변경합니다.")
-    @PutMapping("/{eventId}/place")
+    @PatchMapping("/{eventId}/place")
     public ApiResponse<?> updatePlace(
             @PathVariable UUID eventId,
             @Valid @RequestBody UpdatePlaceRequest updatePlaceRequest
