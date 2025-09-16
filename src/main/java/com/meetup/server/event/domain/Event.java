@@ -70,4 +70,8 @@ public class Event extends BaseEntity {
         this.place = place;
         this.subway = subway;
     }
+
+    public void deletePlace() {
+        this.place = null;
+    }
 }
