@@ -11,7 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -21,16 +27,32 @@ public class RouteProcessor {
     private final CachedRouteRepository cachedRouteRepository;
     private final EventProcessor eventProcessor;
 
-    public List<MeetingPointRouteGroup> buildAndSaveRouteGroups(UUID eventId, List<MeetingPointResult> meetingPointResults) {
-        List<MeetingPointRouteGroup> routes = meetingPointResults.stream()
-                .map(resultResponse -> routeAssembler.assemble(resultResponse.startPoints(), resultResponse.subway()))
-                .toList();
+    public List<MeetingPointRouteGroup> buildRouteGroups(List<MeetingPointResult> meetingPointResults) {
+        List<MeetingPointRouteGroup> routeGroups;
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<MeetingPointRouteGroup>> routeGroupFutures = meetingPointResults.stream()
+                    .map(meetingPointResult -> executor.submit(
+                            () -> routeAssembler.assemble(meetingPointResult.startPoints(), meetingPointResult.subway())
+                    ))
+                    .toList();
 
-        MeetingPointRouteGroups groupedRoutes = new MeetingPointRouteGroups(routes);
+            routeGroups = routeGroupFutures.stream()
+                    .flatMap(routeFuture -> {
+                        try {
+                            return Optional.ofNullable(routeFuture.get()).stream();
+                        } catch (Exception e) {
+                            return Stream.empty();
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
+        return routeGroups;
+    }
+
+    public void saveRouteGroups(UUID eventId, List<MeetingPointRouteGroup> routeGroups) {
+        MeetingPointRouteGroups groupedRoutes = new MeetingPointRouteGroups(routeGroups);
         eventProcessor.saveRoute(eventId, groupedRoutes);
         cachedRouteRepository.save(eventId, groupedRoutes);
-
-        return routes;
     }
 
     public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {
