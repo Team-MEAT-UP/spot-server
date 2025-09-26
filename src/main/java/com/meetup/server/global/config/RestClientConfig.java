@@ -7,6 +7,7 @@ import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -19,22 +20,37 @@ public class RestClientConfig {
     private final ClovaProperties clovaProperties;
 
     @Bean
-    public RestClient restClient() {
-        return RestClient.builder()
-                .build();
-    }
-
-    @Bean
     public RestClient kakaoLocalRestClient() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(1500);
+        requestFactory.setReadTimeout(1500);
+
         return RestClient.builder()
+                .requestFactory(requestFactory)
                 .defaultHeader("Authorization", "KakaoAK " + kakaoLocalProperties.secretKey())
                 .baseUrl(kakaoLocalProperties.baseUrl())
                 .build();
     }
 
     @Bean
-    public RestClient kakaoMobilityRestClient() {
+    public RestClient odsayRestClient() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(1500);
+        requestFactory.setReadTimeout(2000);
+
         return RestClient.builder()
+                .requestFactory(requestFactory)
+                .build();
+    }
+
+    @Bean
+    public RestClient kakaoMobilityRestClient() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(1500);
+        requestFactory.setReadTimeout(2000);
+
+        return RestClient.builder()
+                .requestFactory(requestFactory)
                 .defaultHeader("Authorization", "KakaoAK " + kakaoMobilityProperties.secretKey())
                 .baseUrl(kakaoMobilityProperties.url())
                 .build();

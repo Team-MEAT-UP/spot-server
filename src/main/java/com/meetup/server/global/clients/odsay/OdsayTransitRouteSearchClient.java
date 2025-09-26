@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OdsayTransitRouteSearchClient {
 
-    private final RestClient restClient;
+    private final RestClient odsayRestClient;
     private final OdsayProperties odsayProperties;
 
     @LimitRequestPerDay(
@@ -33,7 +33,7 @@ public class OdsayTransitRouteSearchClient {
                 .build(true)
                 .toUri();
 
-        return restClient
+        return odsayRestClient
                 .get()
                 .uri(uri)
                 .retrieve()
