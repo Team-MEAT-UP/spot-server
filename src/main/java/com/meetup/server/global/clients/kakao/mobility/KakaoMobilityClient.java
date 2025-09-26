@@ -3,7 +3,7 @@ package com.meetup.server.global.clients.kakao.mobility;
 import com.meetup.server.global.clients.util.LimitRequestPerDay;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
@@ -11,14 +11,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KakaoMobilityClient {
 
-    private final WebClient kakaoMobilityWebClient;
+    private final RestClient kakaoMobilityRestClient;
 
     @LimitRequestPerDay(
             key = "kakao-mobility",
             count = 10000
     )
     public KakaoMobilityResponse sendRequest(KakaoMobilityRequest request) {
-        return kakaoMobilityWebClient
+        return kakaoMobilityRestClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("origin", request.origin())
@@ -35,7 +35,6 @@ public class KakaoMobilityClient {
                         .queryParamIfPresent("summary", Optional.ofNullable(request.summary()))
                         .build())
                 .retrieve()
-                .bodyToMono(KakaoMobilityResponse.class)
-                .block();
+                .body(KakaoMobilityResponse.class);
     }
 }

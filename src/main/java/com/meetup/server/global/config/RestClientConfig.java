@@ -7,11 +7,11 @@ import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebClientConfig {
+public class RestClientConfig {
 
     private final KakaoLocalProperties kakaoLocalProperties;
     private final KakaoMobilityProperties kakaoMobilityProperties;
@@ -19,38 +19,38 @@ public class WebClientConfig {
     private final ClovaProperties clovaProperties;
 
     @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
+    public RestClient restClient() {
+        return RestClient.builder()
                 .build();
     }
 
     @Bean
-    public WebClient kakaoLocalWebClient() {
-        return WebClient.builder()
+    public RestClient kakaoLocalRestClient() {
+        return RestClient.builder()
                 .defaultHeader("Authorization", "KakaoAK " + kakaoLocalProperties.secretKey())
                 .baseUrl(kakaoLocalProperties.baseUrl())
                 .build();
     }
 
     @Bean
-    public WebClient kakaoMobilityWebClient() {
-        return WebClient.builder()
+    public RestClient kakaoMobilityRestClient() {
+        return RestClient.builder()
                 .defaultHeader("Authorization", "KakaoAK " + kakaoMobilityProperties.secretKey())
                 .baseUrl(kakaoMobilityProperties.url())
                 .build();
     }
 
     @Bean
-    public WebClient googlePlaceWebClient() {
-        return WebClient.builder()
+    public RestClient googlePlaceRestClient() {
+        return RestClient.builder()
                 .defaultHeader("X-Goog-Api-Key", googlePlaceProperties.secretKey())
                 .baseUrl(googlePlaceProperties.baseUrl())
                 .build();
     }
 
     @Bean
-    public WebClient clovaWebClient() {
-        return WebClient.builder()
+    public RestClient clovaRestClient() {
+        return RestClient.builder()
                 .defaultHeader("Authorization", "Bearer " + clovaProperties.studioApiKey())
                 .defaultHeader("X-NCP-CLOVASTUDIO-REQUEST-ID", clovaProperties.requestId())
                 .baseUrl(clovaProperties.baseUrl())

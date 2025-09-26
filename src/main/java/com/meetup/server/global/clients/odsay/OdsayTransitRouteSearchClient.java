@@ -3,7 +3,7 @@ package com.meetup.server.global.clients.odsay;
 import com.meetup.server.global.clients.util.LimitRequestPerDay;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OdsayTransitRouteSearchClient {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
     private final OdsayProperties odsayProperties;
 
     @LimitRequestPerDay(
@@ -33,11 +33,10 @@ public class OdsayTransitRouteSearchClient {
                 .build(true)
                 .toUri();
 
-        return webClient
+        return restClient
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(OdsayTransitRouteSearchResponse.class)
-                .block();
+                .body(OdsayTransitRouteSearchResponse.class);
     }
 }
