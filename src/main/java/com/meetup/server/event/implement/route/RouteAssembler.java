@@ -11,12 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -26,37 +25,46 @@ public class RouteAssembler {
     private final ParkingLotFinder parkingLotFinder;
     private final RouteFetcher routeFetcher;
 
-    public MeetingPointRouteGroup assemble(List<StartPoint> startPointList, Subway subway) {
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<RouteResponse>> routeFutures = startPointList.stream()
-                    .map(startPoint -> executor.submit(() -> routeFetcher.fetch(startPoint, subway)))
-                    .toList();
-            Future<ClosestParkingLot> parkingLotFuture = executor.submit(() -> parkingLotFinder.findClosestParkingLot(subway.getPoint()));
+    public CompletableFuture<MeetingPointRouteGroup> assemble(List<StartPoint> startPoints, Subway subway) {
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
-            List<RouteResponse> routeList = getRoutesFromFutures(routeFutures);
-            ClosestParkingLot closestParkingLot = getClosestParkingLotFromFutures(parkingLotFuture);
+        List<CompletableFuture<RouteResponse>> routeFutures = startPoints.stream()
+                .map(startPoint -> CompletableFuture.supplyAsync(() -> routeFetcher.fetch(startPoint, subway), executor))
+                .toList();
 
-            return MeetingPointRouteGroup.of(routeList, subway, closestParkingLot);
-        }
-    }
+        CompletableFuture<List<RouteResponse>> allRoutesFuture = CompletableFuture.allOf(routeFutures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> routeFutures.stream()
+                        .map(routeFuture -> {
+                            try {
+                                return routeFuture.get();
+                            } catch (Exception e) {
+                                log.warn("[RouteAssembler] Failed fetching route", e);
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()));
 
-    private List<RouteResponse> getRoutesFromFutures(List<Future<RouteResponse>> routeFutures) {
-        return routeFutures.stream()
-                .flatMap(routeFuture -> {
-                    try {
-                        return Optional.ofNullable(routeFuture.get()).stream();
-                    } catch (Exception e) {
-                        return Stream.empty();
-                    }
-                })
-                .collect(Collectors.toList());
-    }
+        CompletableFuture<ClosestParkingLot> closestParkingLotFuture =
+                CompletableFuture.supplyAsync(() -> parkingLotFinder.findClosestParkingLot(subway.getPoint()), executor);
 
-    private ClosestParkingLot getClosestParkingLotFromFutures(Future<ClosestParkingLot> parkingLotFuture) {
-        try {
-            return parkingLotFuture.get();
-        } catch (Exception e) {
-            return null;
-        }
+        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(allRoutesFuture, closestParkingLotFuture);
+        return combinedFuture.thenApply(v -> {
+            try {
+                List<RouteResponse> routes = allRoutesFuture.get();
+                ClosestParkingLot closestParkingLot = closestParkingLotFuture.get();
+
+                if (routes == null || routes.isEmpty()) {
+                    log.warn("[RouteAssembler] No routes found for subway: {}", subway);
+                    return null;
+                }
+                return MeetingPointRouteGroup.of(routes, subway, closestParkingLot);
+            } catch (Exception e) {
+                log.warn("[RouteAssembler] Failed assembling MeetingPointRouteGroup", e);
+                return null;
+            } finally {
+                executor.shutdown();
+            }
+        });
     }
 }

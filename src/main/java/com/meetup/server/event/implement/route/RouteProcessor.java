@@ -4,21 +4,22 @@ import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.route.MeetingPointResult;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
 import com.meetup.server.event.dto.response.route.RouteResponse;
+import com.meetup.server.event.exception.EventErrorType;
+import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RouteProcessor {
@@ -28,25 +29,32 @@ public class RouteProcessor {
     private final EventProcessor eventProcessor;
 
     public List<MeetingPointRouteGroup> buildRouteGroups(List<MeetingPointResult> meetingPointResults) {
-        List<MeetingPointRouteGroup> routeGroups;
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<MeetingPointRouteGroup>> routeGroupFutures = meetingPointResults.stream()
-                    .map(meetingPointResult -> executor.submit(
-                            () -> routeAssembler.assemble(meetingPointResult.startPoints(), meetingPointResult.subway())
-                    ))
-                    .toList();
+        List<CompletableFuture<MeetingPointRouteGroup>> routeGroupFutures = meetingPointResults.stream()
+                .map(meetingPointResult -> routeAssembler.assemble(meetingPointResult.startPoints(), meetingPointResult.subway()))
+                .toList();
 
-            routeGroups = routeGroupFutures.stream()
-                    .flatMap(routeFuture -> {
-                        try {
-                            return Optional.ofNullable(routeFuture.get()).stream();
-                        } catch (Exception e) {
-                            return Stream.empty();
-                        }
-                    })
-                    .collect(Collectors.toList());
+        CompletableFuture<Void> allCompletedFuture = CompletableFuture.allOf(routeGroupFutures.toArray(new CompletableFuture[0]));
+        try {
+            List<MeetingPointRouteGroup> routeGroups = allCompletedFuture.thenApply(v -> routeGroupFutures.stream()
+                            .map(routeGroupFuture -> {
+                                try {
+                                    return routeGroupFuture.get();
+                                } catch (Exception e) {
+                                    log.warn("[RouteProcessor] Failed building MeetingPointRouteGroup", e);
+                                    return null;
+                                }
+                            })
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()))
+                    .get();
+
+            if (routeGroups == null || routeGroups.isEmpty()) {
+                throw new EventException(EventErrorType.ROUTE_FETCH_FAILED);
+            }
+            return routeGroups;
+        } catch (Exception e) {
+            throw new EventException(EventErrorType.ROUTE_FETCH_FAILED);
         }
-        return routeGroups;
     }
 
     public void saveRouteGroups(UUID eventId, List<MeetingPointRouteGroup> routeGroups) {
