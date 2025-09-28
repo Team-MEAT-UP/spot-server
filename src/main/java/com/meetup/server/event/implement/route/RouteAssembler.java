@@ -22,11 +22,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RouteAssembler {
 
+    private static final int THREAD_POOL_SIZE = 2;
+
     private final ParkingLotFinder parkingLotFinder;
     private final RouteFetcher routeFetcher;
 
     public CompletableFuture<MeetingPointRouteGroup> assemble(List<StartPoint> startPoints, Subway subway) {
-        try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+        try (ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE)) {
             List<CompletableFuture<RouteResponse>> routeFutures = startPoints.stream()
                     .map(startPoint -> CompletableFuture.supplyAsync(() -> routeFetcher.fetch(startPoint, subway), executor))
                     .toList();
