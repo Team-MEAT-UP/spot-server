@@ -59,7 +59,8 @@ public class EventService {
 
         if (meetingPointRouteGroupsCache.isEmpty()) {
             List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
-            meetingPointRouteGroups = routeProcessor.buildAndSaveRouteGroups(eventId, meetingPointResults);
+            meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
+            routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
 
             MeetingPointResult firstResult = meetingPointResults.getFirst();
             event = firstResult.event();
