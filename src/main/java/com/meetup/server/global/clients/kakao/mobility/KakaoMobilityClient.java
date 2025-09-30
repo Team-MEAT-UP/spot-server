@@ -1,22 +1,32 @@
 package com.meetup.server.global.clients.kakao.mobility;
 
+import com.meetup.server.global.clients.exception.ClientErrorType;
+import com.meetup.server.global.clients.exception.ClientException;
 import com.meetup.server.global.clients.util.LimitRequestPerDay;
+import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class KakaoMobilityClient {
 
     private final RestClient kakaoMobilityRestClient;
+    private final DiscordAlarmSender discordAlarmSender;
 
     @LimitRequestPerDay(
             key = "kakao-mobility",
             count = 10000
     )
+    @Retry(name = "routeApi", fallbackMethod = "retryFallback")
+    @CircuitBreaker(name = "routeApi", fallbackMethod = "circuitBreakerFallback")
     public KakaoMobilityResponse sendRequest(KakaoMobilityRequest request) {
         return kakaoMobilityRestClient
                 .get()
@@ -36,5 +46,17 @@ public class KakaoMobilityClient {
                         .build())
                 .retrieve()
                 .body(KakaoMobilityResponse.class);
+    }
+
+    private KakaoMobilityResponse retryFallback(Throwable t) {
+        log.warn("[Failed Retry] Fallback method executed. Reason: {}", t.getMessage());
+        discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE));
+        throw new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE);
+    }
+
+    private KakaoMobilityResponse circuitBreakerFallback(Throwable t) {
+        log.warn("[CircuitBreaker: OPEN] Fallback method executed. Reason: {}", t.getMessage());
+        discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE));
+        throw new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE);
     }
 }
