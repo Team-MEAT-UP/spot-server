@@ -106,7 +106,8 @@ public class Resilience4jTest extends IntegrationTestContainer {
             };
 
             // then
-            assertThrows(ClientException.class, supplierWithFallback::get);
+            ClientException exception = assertThrows(ClientException.class, supplierWithFallback::get);
+            assertEquals(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE, exception.getErrorType());
             verify(kakaoMobilityClient, times(3)).sendRequest(kakaoMobilityRequest);
         }
 
@@ -128,7 +129,8 @@ public class Resilience4jTest extends IntegrationTestContainer {
             };
 
             // then
-            assertThrows(ClientException.class, supplierWithFallback::get);
+            ClientException exception = assertThrows(ClientException.class, supplierWithFallback::get);
+            assertEquals(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE, exception.getErrorType());
             assertEquals(circuitBreaker.getState(), CircuitBreaker.State.OPEN);
             verify(kakaoMobilityClient, never()).sendRequest(kakaoMobilityRequest);
         }
@@ -174,7 +176,8 @@ public class Resilience4jTest extends IntegrationTestContainer {
             };
 
             // then
-            assertThrows(ClientException.class, supplierWithFallback::get);
+            ClientException exception = assertThrows(ClientException.class, supplierWithFallback::get);
+            assertEquals(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE, exception.getErrorType());
             verify(odsayTransitRouteSearchClient, times(3)).sendRequest(odsayTransitRouteSearchRequest);
         }
 
@@ -196,7 +199,8 @@ public class Resilience4jTest extends IntegrationTestContainer {
             };
 
             // then
-            assertThrows(ClientException.class, supplierWithFallback::get);
+            ClientException exception = assertThrows(ClientException.class, supplierWithFallback::get);
+            assertEquals(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE, exception.getErrorType());
             assertEquals(circuitBreaker.getState(), CircuitBreaker.State.OPEN);
             verify(odsayTransitRouteSearchClient, never()).sendRequest(odsayTransitRouteSearchRequest);
         }
