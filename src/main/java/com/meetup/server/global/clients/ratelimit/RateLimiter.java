@@ -1,4 +1,4 @@
-package com.meetup.server.global.clients.util;
+package com.meetup.server.global.clients.ratelimit;
 
 public interface RateLimiter {
 

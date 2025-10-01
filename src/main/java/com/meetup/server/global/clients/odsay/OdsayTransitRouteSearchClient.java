@@ -2,7 +2,7 @@ package com.meetup.server.global.clients.odsay;
 
 import com.meetup.server.global.clients.exception.ClientErrorType;
 import com.meetup.server.global.clients.exception.ClientException;
-import com.meetup.server.global.clients.util.LimitRequestPerDay;
+import com.meetup.server.global.clients.ratelimit.LimitRequestPerDay;
 import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
