@@ -48,8 +48,8 @@ public class KakaoMobilityClient {
                 .body(KakaoMobilityResponse.class);
     }
 
-    private KakaoMobilityResponse circuitBreakerFallback(Throwable t) {
-        log.warn("[CircuitBreaker: OPEN] Fallback method executed. Reason: {}", t.getMessage());
+    private KakaoMobilityResponse circuitBreakerFallback(KakaoMobilityRequest request, Exception e) {
+        log.warn("[CircuitBreaker: OPEN] Fallback method executed. Reason: {}", e.getMessage());
         discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE));
         throw new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE);
     }

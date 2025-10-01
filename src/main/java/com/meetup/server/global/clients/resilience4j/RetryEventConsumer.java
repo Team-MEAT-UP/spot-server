@@ -38,11 +38,9 @@ public class RetryEventConsumer implements RegistryEventConsumer<Retry> {
 
     @Override
     public void onEntryRemovedEvent(EntryRemovedEvent<Retry> entryRemoveEvent) {
-
     }
 
     @Override
     public void onEntryReplacedEvent(EntryReplacedEvent<Retry> entryReplacedEvent) {
-
     }
 }

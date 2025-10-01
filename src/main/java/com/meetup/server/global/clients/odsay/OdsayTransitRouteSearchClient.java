@@ -50,8 +50,8 @@ public class OdsayTransitRouteSearchClient {
                 .body(OdsayTransitRouteSearchResponse.class);
     }
 
-    private OdsayTransitRouteSearchResponse circuitBreakerFallback(Throwable t) {
-        log.warn("[CircuitBreaker: OPEN] Fallback method executed. Reason: {}", t.getMessage());
+    private OdsayTransitRouteSearchResponse circuitBreakerFallback(OdsayTransitRouteSearchRequest request, Exception e) {
+        log.warn("[CircuitBreaker: OPEN] Fallback method executed. Reason: {}", e.getMessage());
         discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE));
         throw new ClientException(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE);
     }
