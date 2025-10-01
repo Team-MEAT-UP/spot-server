@@ -25,7 +25,7 @@ public class KakaoMobilityClient {
             key = "kakao-mobility",
             count = 10000
     )
-    @Retry(name = "routeApi", fallbackMethod = "retryFallback")
+    @Retry(name = "routeApi")
     @CircuitBreaker(name = "routeApi", fallbackMethod = "circuitBreakerFallback")
     public KakaoMobilityResponse sendRequest(KakaoMobilityRequest request) {
         return kakaoMobilityRestClient
@@ -46,12 +46,6 @@ public class KakaoMobilityClient {
                         .build())
                 .retrieve()
                 .body(KakaoMobilityResponse.class);
-    }
-
-    private KakaoMobilityResponse retryFallback(Throwable t) {
-        log.warn("[Failed Retry] Fallback method executed. Reason: {}", t.getMessage());
-        discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE));
-        throw new ClientException(ClientErrorType.KAKAO_MOBILITY_SERVICE_UNAVAILABLE);
     }
 
     private KakaoMobilityResponse circuitBreakerFallback(Throwable t) {

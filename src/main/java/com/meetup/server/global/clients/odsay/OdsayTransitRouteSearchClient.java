@@ -28,7 +28,7 @@ public class OdsayTransitRouteSearchClient {
             key = "odsay-transit",
             count = 1000
     )
-    @Retry(name = "routeApi", fallbackMethod = "retryFallback")
+    @Retry(name = "routeApi")
     @CircuitBreaker(name = "routeApi", fallbackMethod = "circuitBreakerFallback")
     public OdsayTransitRouteSearchResponse sendRequest(OdsayTransitRouteSearchRequest request) {
         URI uri = UriComponentsBuilder.fromUriString(odsayProperties.baseUrl() + "/searchPubTransPathT")
@@ -48,12 +48,6 @@ public class OdsayTransitRouteSearchClient {
                 .uri(uri)
                 .retrieve()
                 .body(OdsayTransitRouteSearchResponse.class);
-    }
-
-    private OdsayTransitRouteSearchResponse retryFallback(Throwable t) {
-        log.warn("[Failed Retry] Fallback method executed. Reason: {}", t.getMessage());
-        discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE));
-        throw new ClientException(ClientErrorType.ODSAY_SERVICE_UNAVAILABLE);
     }
 
     private OdsayTransitRouteSearchResponse circuitBreakerFallback(Throwable t) {
