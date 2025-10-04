@@ -8,6 +8,8 @@ import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 public class CircuitBreakerEventConsumer implements RegistryEventConsumer<CircuitBreaker> {
@@ -20,9 +22,11 @@ public class CircuitBreakerEventConsumer implements RegistryEventConsumer<Circui
                         event.getFailureRate(),
                         event.getCreationTime())
                 )
-                .onError(event -> log.error("{} error with duration {}ms",
+                .onError(event -> log.error("{} error with duration {}ms. failure reason: {} on {}",
                         event.getCircuitBreakerName(),
-                        event.getElapsedDuration().toMillis())
+                        event.getElapsedDuration().toMillis(),
+                        Optional.ofNullable(event.getThrowable()).map(Throwable::getMessage).orElse(null),
+                        event.getCreationTime())
                 )
                 .onStateTransition(event -> log.info("{} state transition from {} to {} on {}",
                         event.getCircuitBreakerName(),
