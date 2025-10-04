@@ -14,6 +14,13 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class RestClientConfig {
 
+    private static final int KAKAO_LOCAL_CONNECT_TIMEOUT = 1500;
+    private static final int KAKAO_LOCAL_READ_TIMEOUT = 1500;
+    private static final int ODSAY_CONNECT_TIMEOUT = 1500;
+    private static final int ODSAY_READ_TIMEOUT = 2000;
+    private static final int KAKAO_MOBILITY_CONNECT_TIMEOUT = 1500;
+    private static final int KAKAO_MOBILITY_READ_TIMEOUT = 2000;
+
     private final KakaoLocalProperties kakaoLocalProperties;
     private final KakaoMobilityProperties kakaoMobilityProperties;
     private final GooglePlaceProperties googlePlaceProperties;
@@ -22,8 +29,8 @@ public class RestClientConfig {
     @Bean
     public RestClient kakaoLocalRestClient() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(1500);
-        requestFactory.setReadTimeout(1500);
+        requestFactory.setConnectTimeout(KAKAO_LOCAL_CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(KAKAO_LOCAL_READ_TIMEOUT);
 
         return RestClient.builder()
                 .requestFactory(requestFactory)
@@ -35,8 +42,8 @@ public class RestClientConfig {
     @Bean
     public RestClient odsayRestClient() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(1500);
-        requestFactory.setReadTimeout(2000);
+        requestFactory.setConnectTimeout(ODSAY_CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(ODSAY_READ_TIMEOUT);
 
         return RestClient.builder()
                 .requestFactory(requestFactory)
@@ -46,8 +53,8 @@ public class RestClientConfig {
     @Bean
     public RestClient kakaoMobilityRestClient() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(1500);
-        requestFactory.setReadTimeout(2000);
+        requestFactory.setConnectTimeout(KAKAO_MOBILITY_CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(KAKAO_MOBILITY_READ_TIMEOUT);
 
         return RestClient.builder()
                 .requestFactory(requestFactory)
