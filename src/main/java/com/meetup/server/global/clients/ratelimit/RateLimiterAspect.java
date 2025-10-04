@@ -1,4 +1,4 @@
-package com.meetup.server.global.clients.util;
+package com.meetup.server.global.clients.ratelimit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -21,7 +21,7 @@ public class RateLimiterAspect {
         this.rateLimiter = rateLimiter;
     }
 
-    @Around("@annotation(com.meetup.server.global.clients.util.LimitRequestPerDay)")
+    @Around("@annotation(com.meetup.server.global.clients.ratelimit.LimitRequestPerDay)")
     public Object applyRateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
         LimitRequestPerDay limitRequestPerDay = getLimitRequestPerDayAnnotationFromMethod(joinPoint);
         rateLimiter.tryApiCall(limitRequestPerDay);

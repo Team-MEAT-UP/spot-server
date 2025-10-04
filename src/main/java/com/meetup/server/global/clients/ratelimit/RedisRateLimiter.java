@@ -1,4 +1,4 @@
-package com.meetup.server.global.clients.util;
+package com.meetup.server.global.clients.ratelimit;
 
 import com.meetup.server.global.clients.exception.ClientErrorType;
 import com.meetup.server.global.clients.exception.ClientException;
@@ -24,6 +24,8 @@ public class RedisRateLimiter implements RateLimiter {
     private final DiscordAlarmSender discordAlarmSender;
 
     private static final String DISCORD_ALERT_SENT_KEY_PREFIX = "rate_limit_alert:";
+    private static final String ODSAY_TRANSIT = "odsay-transit";
+    private static final String KAKAO_MOBILITY = "kakao-mobility";
 
     @Override
     public void tryApiCall(LimitRequestPerDay limitRequestPerDay) {
@@ -38,7 +40,7 @@ public class RedisRateLimiter implements RateLimiter {
         );
 
         if (result == -1) {
-            discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.EXCEED_RATE_LIMIT_PER_DAY));
+            sendRateLimitExceedAlert(key);
             return;
         }
 
@@ -46,7 +48,7 @@ public class RedisRateLimiter implements RateLimiter {
             String alertSentKey = DISCORD_ALERT_SENT_KEY_PREFIX + key;
             Boolean isAlertSent = redisRateLimitTemplate.opsForValue().setIfAbsent(alertSentKey, "1", getTTL());
             if (Boolean.TRUE.equals(isAlertSent)) {
-                discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.WARNING_RATE_LIMIT_PER_DAY));
+                sendRateLimitWarningAlert(key);
             }
         }
     }
@@ -55,5 +57,23 @@ public class RedisRateLimiter implements RateLimiter {
         ZonedDateTime now = ZonedDateTime.now(TimeUtil.KST_ZONE_ID);
         ZonedDateTime midnight = now.plusDays(1).toLocalDate().atStartOfDay(TimeUtil.KST_ZONE_ID);
         return Duration.between(now, midnight);
+    }
+
+    private void sendRateLimitExceedAlert(String key) {
+        switch (key) {
+            case ODSAY_TRANSIT ->
+                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_EXCEED_RATE_LIMIT_PER_DAY));
+            case KAKAO_MOBILITY ->
+                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_EXCEED_RATE_LIMIT_PER_DAY));
+        }
+    }
+
+    private void sendRateLimitWarningAlert(String key) {
+        switch (key) {
+            case ODSAY_TRANSIT ->
+                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_WARNING_RATE_LIMIT_PER_DAY));
+            case KAKAO_MOBILITY ->
+                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_WARNING_RATE_LIMIT_PER_DAY));
+        }
     }
 }
