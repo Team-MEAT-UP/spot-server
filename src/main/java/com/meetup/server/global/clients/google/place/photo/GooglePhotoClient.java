@@ -3,7 +3,7 @@ package com.meetup.server.global.clients.google.place.photo;
 import com.meetup.server.global.clients.google.place.GooglePlaceProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
@@ -11,11 +11,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GooglePhotoClient {
 
-    private final WebClient googlePlaceWebClient;
+    private final RestClient googlePlaceRestClient;
     private final GooglePlaceProperties googlePlaceProperties;
 
     public GooglePhotoResponse sendRequest(GooglePhotoRequest request) {
-        return googlePlaceWebClient.get()
+        return googlePlaceRestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/" + request.name() + "/media")
                         .queryParam("key", googlePlaceProperties.secretKey())
@@ -24,7 +24,6 @@ public class GooglePhotoClient {
                         .build()
                 )
                 .retrieve()
-                .bodyToMono(GooglePhotoResponse.class)
-                .block();
+                .body(GooglePhotoResponse.class);
     }
 }

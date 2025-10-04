@@ -2,7 +2,7 @@ package com.meetup.server.global.clients.kakao.local;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
@@ -10,10 +10,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KakaoLocalKeywordClient {
 
-    private final WebClient kakaoLocalWebClient;
+    private final RestClient kakaoLocalRestClient;
 
     public KakaoLocalResponse sendRequest(KakaoLocalRequest request) {
-        return kakaoLocalWebClient
+        return kakaoLocalRestClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/keyword.json")
@@ -28,7 +28,6 @@ public class KakaoLocalKeywordClient {
                         .queryParamIfPresent("sort", Optional.ofNullable(request.sort()))
                         .build())
                 .retrieve()
-                .bodyToMono(KakaoLocalResponse.class)
-                .block();
+                .body(KakaoLocalResponse.class);
     }
 }
