@@ -1,6 +1,7 @@
 package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.StartPointChangedEvent;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
@@ -16,6 +17,7 @@ import com.meetup.server.startpoint.implement.StartPointSearcher;
 import com.meetup.server.startpoint.implement.StartPointValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class StartPointService {
     private final RouteProcessor routeProcessor;
     private final EventProcessor eventProcessor;
     private final EventLockManager eventLockManager;
+    private final ApplicationEventPublisher publisher;
 
     private static final int MAX_START_POINTS = 8;
 
@@ -61,13 +64,8 @@ public class StartPointService {
 
         ReentrantLock lock = eventLockManager.getLock(eventId);
 
-        lock.lock();
-        try {
-            eventProcessor.deleteRoute(eventId);
-            routeProcessor.deleteCache(eventId);
-        } finally {
-            lock.unlock();
-        }
+        publisher.publishEvent(StartPointChangedEvent.from(eventId));
+        log.info("[PUBLISH EVENT] StartPointChangedEvent - eventId: {}", eventId);
 
         event.incrementParticipantsCount(MAX_START_POINTS);
         return EventStartPointResponse.of(event, startPoint);
