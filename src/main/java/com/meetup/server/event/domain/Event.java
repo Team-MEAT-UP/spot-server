@@ -2,6 +2,8 @@ package com.meetup.server.event.domain;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
+import com.meetup.server.event.exception.EventErrorType;
+import com.meetup.server.event.exception.EventException;
 import com.meetup.server.global.domain.BaseEntity;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.subway.domain.Subway;
@@ -43,18 +45,37 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "place_id", nullable = true)
     private Place place;
 
+    @Version
+    @Column(name = "version")
+    private Long version = 0L;
+
+    @Column(name = "participants_count")
+    private int participantsCount = 0;
+
     @PrePersist
     public void prePersist() {
         this.eventId = UuidCreator.getTimeOrderedEpoch();
     }
 
     @Builder
-    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups routes) {
+    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups routes, Integer participantsCount) {
         this.subway = subway;
         this.place = place;
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
         this.routes = routes;
+        this.participantsCount = participantsCount;
+    }
+
+    public void incrementParticipantsCount(int maxParticipantsCount) {
+        participantsLimitRestriction(maxParticipantsCount);
+        this.participantsCount += 1;
+    }
+
+    public void participantsLimitRestriction(int maxParticipantsCount) {
+        if (participantsCount >= maxParticipantsCount) {
+            throw new EventException(EventErrorType.START_POINT_LIMIT_EXCEEDED);
+        }
     }
 
     public void update(String eventName, LocalDateTime eventDateTime) {
