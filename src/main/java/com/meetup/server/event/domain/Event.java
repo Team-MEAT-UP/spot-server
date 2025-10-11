@@ -50,7 +50,7 @@ public class Event extends BaseEntity {
     private Long version = 0L;
 
     @Column(name = "participants_count")
-    private int participantsCount = 0;
+    private int participantsCount;
 
     @PrePersist
     public void prePersist() {
@@ -64,7 +64,7 @@ public class Event extends BaseEntity {
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
         this.routes = routes;
-        this.participantsCount = participantsCount;
+        this.participantsCount = participantsCount == null ? 0 : participantsCount;
     }
 
     public void incrementParticipantsCount(int maxParticipantsCount) {

@@ -67,13 +67,21 @@ public class EventService {
 
             lock.lock();
             try {
-                List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
-                meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
-                routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
+                meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
 
-                MeetingPointResult firstResult = meetingPointResults.getFirst();
-                event = firstResult.event();
-                startPoints = firstResult.startPoints();
+                if (meetingPointRouteGroupsCache.isEmpty()) {
+                    List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
+                    meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
+                    routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
+
+                    MeetingPointResult firstResult = meetingPointResults.getFirst();
+                    event = firstResult.event();
+                    startPoints = firstResult.startPoints();
+                } else {
+                    meetingPointRouteGroups = meetingPointRouteGroupsCache;
+                    event = eventReader.read(eventId);
+                    startPoints = startPointReader.readAll(event);
+                }
             } finally {
                 lock.unlock();
             }
