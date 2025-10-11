@@ -1,6 +1,6 @@
 # 📍 모두를 위한 하나의 SPOT
 
-> 🔗 **배포 주소** : https://www.pickspot.co.kr
+> 🔗 **배포 주소** : https://www.moisam.kr
 
 <img width="1247" alt="spot" src="https://github.com/user-attachments/assets/6948789d-d053-41c5-99f1-ac7fa12d82a4" />
 

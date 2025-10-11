@@ -1,7 +1,6 @@
 package com.meetup.server.startpoint.implement;
 
 import com.meetup.server.event.domain.Event;
-import com.meetup.server.event.implement.EventValidator;
 import com.meetup.server.global.util.CoordinateUtil;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.domain.type.Address;
@@ -21,7 +20,6 @@ import java.util.UUID;
 public class StartPointProcessor {
 
     private final StartPointRepository startPointRepository;
-    private final EventValidator eventValidator;
     private final UserReader userReader;
 
     public StartPoint save(Event event, Long userId, UUID guestId, StartPointRequest startPointRequest) {
@@ -34,7 +32,6 @@ public class StartPointProcessor {
     }
 
     public StartPoint saveByUser(Event event, User user, StartPointRequest startPointRequest) {
-        eventValidator.validateEventIsNotFull(event);
         StartPoint startPoint = StartPoint.builder()
                 .event(event)
                 .user(user)
@@ -50,7 +47,6 @@ public class StartPointProcessor {
     }
 
     public StartPoint saveByGuest(Event event, UUID guestId, StartPointRequest startPointRequest) {
-        eventValidator.validateEventIsNotFull(event);
         StartPoint startPoint = StartPoint.builder()
                 .event(event)
                 .user(null)
