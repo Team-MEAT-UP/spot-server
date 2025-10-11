@@ -131,7 +131,6 @@ class StartPointServiceTest extends IntegrationTestContainer {
     }
 
     @Test
-    @Transactional
     void 출발지_생성_후_캐시와_모임경로데이터_삭제_검증() {
         // given
         Cache cache = cacheManager.getCache("routeDetails");
@@ -144,9 +143,6 @@ class StartPointServiceTest extends IntegrationTestContainer {
                 null,
                 startPointRequest
         );
-
-        entityManager.flush();
-        entityManager.clear();
 
         //then
         assertThat(eventReader.read(eventWithRoute.getEventId()).getRoutes()).isNull();

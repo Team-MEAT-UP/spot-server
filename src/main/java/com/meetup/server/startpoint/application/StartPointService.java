@@ -2,10 +2,13 @@ package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
+import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.implement.EventValidator;
 import com.meetup.server.event.implement.route.RouteProcessor;
 import com.meetup.server.global.clients.kakao.local.KakaoLocalResponse;
+import com.meetup.server.global.support.Performance;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
 import com.meetup.server.startpoint.implement.StartPointProcessor;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Service
@@ -32,31 +36,41 @@ public class StartPointService {
     private final StartPointValidator startPointValidator;
     private final RouteProcessor routeProcessor;
     private final EventProcessor eventProcessor;
+    private final EventValidator eventValidator;
+    private final EventLockManager eventLockManager;
 
+    @Performance
     @Transactional
     public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        Event event = eventReader.read(eventId);
-        List<StartPoint> startPointList = startPointReader.readAll(event);
+        ReentrantLock lock = eventLockManager.getLock(eventId);
+        StartPoint startPoint;
+        Event event;
 
-        if (userId != null && validateAlreadyHasStartPoint(userId, startPointList)) {
-            StartPoint startPoint = startPointProcessor.saveByGuest(
-                    event,
-                    null,
-                    startPointRequest
-            );
+        lock.lock();
+        try {
+            event = eventReader.read(eventId);
+            List<StartPoint> startPointList = startPointReader.readAll(event);
+
+            eventValidator.validateEventIsNotFull(event);
+
+            if (userId != null && validateAlreadyHasStartPoint(userId, startPointList)) {
+                startPoint = startPointProcessor.saveByGuest(
+                        event,
+                        null,
+                        startPointRequest
+                );
+            } else {
+                startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
+            }
 
             eventProcessor.deleteRoute(eventId);
             routeProcessor.deleteCache(eventId);
+            log.info("[DELETE ROUTE/CACHE] eventId: {}", eventId);
 
             return EventStartPointResponse.of(event, startPoint);
+        } finally {
+            lock.unlock();
         }
-
-        StartPoint startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
-
-        eventProcessor.deleteRoute(eventId);
-        routeProcessor.deleteCache(eventId);
-
-        return EventStartPointResponse.of(event, startPoint);
     }
 
     @Transactional
