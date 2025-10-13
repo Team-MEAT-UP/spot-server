@@ -3,23 +3,22 @@ package com.meetup.server.global.clients.clova;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
 public class ClovaClient {
 
     private final ClovaProperties clovaProperties;
-    private final WebClient clovaWebClient;
+    private final RestClient clovaRestClient;
 
     public ClovaResponse sendRequest(ClovaRequest request) {
-        return clovaWebClient
+        return clovaRestClient
                 .post()
                 .uri(clovaProperties.basePath())
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(ClovaResponse.class)
-            .block();
+                .body(ClovaResponse.class);
     }
 }

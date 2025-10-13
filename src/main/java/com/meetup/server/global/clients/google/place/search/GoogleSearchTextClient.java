@@ -3,21 +3,20 @@ package com.meetup.server.global.clients.google.place.search;
 import com.meetup.server.global.clients.google.place.GoogleFieldMask;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
 public class GoogleSearchTextClient {
 
-    private final WebClient googlePlaceWebClient;
+    private final RestClient googlePlaceRestClient;
 
     public GoogleSearchTextResponse sendRequest(GoogleSearchTextRequest request, GoogleFieldMask googleFieldMask) {
-        return googlePlaceWebClient.post()
+        return googlePlaceRestClient.post()
                 .uri("/places:searchText")
                 .header("X-Goog-FieldMask", googleFieldMask.getMask())
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(GoogleSearchTextResponse.class)
-                .block();
+                .body(GoogleSearchTextResponse.class);
     }
 }

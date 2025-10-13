@@ -38,7 +38,6 @@ public class RouteApiCaller {
                         .origin(startX + "," + startY)
                         .destination(endX + "," + endY)
                         .build()
-
         );
 
         if (response.routes() != null) {
