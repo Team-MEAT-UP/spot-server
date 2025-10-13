@@ -3,7 +3,6 @@ package com.meetup.server.startpoint.application;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.StartPointChangedEvent;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.implement.route.RouteProcessor;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Service
@@ -38,7 +36,6 @@ public class StartPointService {
     private final StartPointValidator startPointValidator;
     private final RouteProcessor routeProcessor;
     private final EventProcessor eventProcessor;
-    private final EventLockManager eventLockManager;
     private final ApplicationEventPublisher publisher;
 
     private static final int MAX_START_POINTS = 8;
@@ -49,7 +46,7 @@ public class StartPointService {
         Event event = eventReader.read(eventId);
         List<StartPoint> startPointList = startPointReader.readAll(event);
 
-        event.participantsLimitRestriction(MAX_START_POINTS);
+        event.validateEventParticipants(MAX_START_POINTS);
 
         StartPoint startPoint;
         if (userId != null && validateAlreadyHasStartPoint(userId, startPointList)) {
@@ -62,12 +59,9 @@ public class StartPointService {
             startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
         }
 
-        ReentrantLock lock = eventLockManager.getLock(eventId);
-
         publisher.publishEvent(StartPointChangedEvent.from(eventId));
         log.info("[PUBLISH EVENT] StartPointChangedEvent - eventId: {}", eventId);
 
-        event.incrementParticipantsCount(MAX_START_POINTS);
         return EventStartPointResponse.of(event, startPoint);
     }
 

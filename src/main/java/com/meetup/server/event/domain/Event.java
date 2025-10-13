@@ -47,7 +47,7 @@ public class Event extends BaseEntity {
 
     @Version
     @Column(name = "version")
-    private Long version = 0L;
+    private Long version;
 
     @Column(name = "participants_count")
     private int participantsCount;
@@ -64,18 +64,15 @@ public class Event extends BaseEntity {
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
         this.routes = routes;
-        this.participantsCount = participantsCount == null ? 0 : participantsCount;
+        this.participantsCount = (participantsCount == null || participantsCount < 1) ? 1 : participantsCount;
     }
 
-    public void incrementParticipantsCount(int maxParticipantsCount) {
-        participantsLimitRestriction(maxParticipantsCount);
-        this.participantsCount += 1;
-    }
-
-    public void participantsLimitRestriction(int maxParticipantsCount) {
+    public void validateEventParticipants(int maxParticipantsCount) {
         if (participantsCount >= maxParticipantsCount) {
             throw new EventException(EventErrorType.START_POINT_LIMIT_EXCEEDED);
         }
+
+        this.participantsCount += 1;
     }
 
     public void update(String eventName, LocalDateTime eventDateTime) {
