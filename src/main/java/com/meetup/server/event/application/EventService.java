@@ -56,46 +56,47 @@ public class EventService {
 
     @Performance
     public MeetingPointRoutesResponse getMeetingPointRoutes(UUID eventId, Long userId, UUID guestId) {
-        List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
+        List<MeetingPointRouteGroup> meetingPointRouteGroups = calculateRouteGroupsIfCacheAbsent(eventId);
 
-        Event event;
-        List<StartPoint> startPoints;
-        List<MeetingPointRouteGroup> meetingPointRouteGroups;
-
-        if (meetingPointRouteGroupsCache.isEmpty()) {
-            ReentrantLock lock = eventLockManager.getLock(eventId);
-
-            lock.lock();
-            try {
-                meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
-
-                if (meetingPointRouteGroupsCache.isEmpty()) {
-                    List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
-                    meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
-                    routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
-
-                    MeetingPointResult firstResult = meetingPointResults.getFirst();
-                    event = firstResult.event();
-                    startPoints = firstResult.startPoints();
-                } else {
-                    meetingPointRouteGroups = meetingPointRouteGroupsCache;
-                    event = eventReader.read(eventId);
-                    startPoints = startPointReader.readAll(event);
-                }
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            meetingPointRouteGroups = meetingPointRouteGroupsCache;
-            event = eventReader.read(eventId);
-            startPoints = startPointReader.readAll(event);
-        }
+        Event event = eventReader.read(eventId);
+        List<StartPoint> startPoints = startPointReader.readAll(event);
 
         for (MeetingPointRouteGroup group : meetingPointRouteGroups) {
             routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
         }
 
         return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
+    }
+
+    private List<MeetingPointRouteGroup> calculateRouteGroupsIfCacheAbsent(UUID eventId) {
+        List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
+
+        if (!meetingPointRouteGroupsCache.isEmpty()) {
+            return meetingPointRouteGroupsCache;
+        }
+
+        return calculateAndSaveRouteGroups(eventId);
+    }
+
+    private List<MeetingPointRouteGroup> calculateAndSaveRouteGroups(UUID eventId) {
+        ReentrantLock reentrantLock = eventLockManager.getLock(eventId);
+
+        reentrantLock.lock();
+        try {
+            List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
+
+            if (!meetingPointRouteGroupsCache.isEmpty()) {
+                return meetingPointRouteGroupsCache;
+            }
+
+            List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
+            List<MeetingPointRouteGroup> meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
+            routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
+
+            return meetingPointRouteGroups;
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
     public void updateEvent(UUID eventId, UpdateEventRequest updateEventRequest) {

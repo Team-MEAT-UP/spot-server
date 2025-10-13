@@ -26,15 +26,16 @@ public class StartPointEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleStartPointChanged(StartPointChangedEvent event) {
-        ReentrantLock lock = eventLockManager.getLock(event.eventId());
+        ReentrantLock reentrantLock = eventLockManager.getLock(event.eventId());
 
-        lock.lock();
+        reentrantLock.lock();
         try {
             eventProcessor.deleteRoute(event.eventId());
             routeProcessor.deleteCache(event.eventId());
+
             log.info("[DELETE ROUTE/CACHE AFTER COMMIT] eventId: {}", event.eventId());
         } finally {
-            lock.unlock();
+            reentrantLock.unlock();
         }
     }
 }
