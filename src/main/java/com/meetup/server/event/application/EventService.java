@@ -56,7 +56,7 @@ public class EventService {
 
     @Performance
     public MeetingPointRoutesResponse getMeetingPointRoutes(UUID eventId, Long userId, UUID guestId) {
-        List<MeetingPointRouteGroup> meetingPointRouteGroups = calculateRouteGroupsIfCacheAbsent(eventId);
+        List<MeetingPointRouteGroup> meetingPointRouteGroups = getRouteGroups(eventId);
 
         Event event = eventReader.read(eventId);
         List<StartPoint> startPoints = startPointReader.readAll(event);
@@ -68,7 +68,7 @@ public class EventService {
         return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
     }
 
-    private List<MeetingPointRouteGroup> calculateRouteGroupsIfCacheAbsent(UUID eventId) {
+    private List<MeetingPointRouteGroup> getRouteGroups(UUID eventId) {
         List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
 
         if (!meetingPointRouteGroupsCache.isEmpty()) {
