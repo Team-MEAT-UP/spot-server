@@ -1,4 +1,4 @@
-package com.meetup.server.event.domain.value;
+package com.meetup.server.event.domain.listener;
 
 import java.util.UUID;
 

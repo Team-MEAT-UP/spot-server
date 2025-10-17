@@ -1,7 +1,7 @@
 package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
-import com.meetup.server.event.domain.value.StartPointChangedEvent;
+import com.meetup.server.event.domain.listener.StartPointChangedEvent;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;

@@ -1,6 +1,5 @@
-package com.meetup.server.startpoint.listener;
+package com.meetup.server.event.domain.listener;
 
-import com.meetup.server.event.domain.value.StartPointChangedEvent;
 import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.route.RouteProcessor;
@@ -17,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StartPointEventListener {
+public class StartPointChangedEventListener {
 
     private final RouteProcessor routeProcessor;
     private final EventLockManager eventLockManager;
@@ -25,7 +24,7 @@ public class StartPointEventListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleStartPointChanged(StartPointChangedEvent event) {
+    public void handle(StartPointChangedEvent event) {
         ReentrantLock reentrantLock = eventLockManager.getLock(event.eventId());
 
         reentrantLock.lock();
