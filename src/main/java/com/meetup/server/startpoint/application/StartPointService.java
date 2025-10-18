@@ -65,7 +65,6 @@ public class StartPointService {
 
             eventProcessor.deleteRoute(eventId);
             routeProcessor.deleteCache(eventId);
-
             log.info("[DELETE ROUTE/CACHE AFTER COMMIT] eventId: {}", eventId);
 
             return EventStartPointResponse.of(event, startPoint);
@@ -75,27 +74,40 @@ public class StartPointService {
     }
 
     @Transactional
-    public EventStartPointResponse updateStartPoint(UUID eventId, UUID startPointId, StartPointRequest
-            startPointRequest) {
-        StartPoint startPoint = startPointReader.read(startPointId);
+    public EventStartPointResponse updateStartPoint(UUID eventId, UUID startPointId, StartPointRequest startPointRequest) {
+        ReentrantLock lock = eventLockManager.getLock(eventId);
 
-        startPointValidator.validateBelongsToEvent(eventId, startPoint);
-        startPointProcessor.update(startPoint, startPointRequest);
+        lock.lock();
+        try {
+            StartPoint startPoint = startPointReader.read(startPointId);
 
-        eventProcessor.deleteRoute(eventId);
-        routeProcessor.deleteCache(eventId);
+            startPointValidator.validateBelongsToEvent(eventId, startPoint);
+            startPointProcessor.update(startPoint, startPointRequest);
 
-        return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
+            eventProcessor.deleteRoute(eventId);
+            routeProcessor.deleteCache(eventId);
+
+            return EventStartPointResponse.of(startPoint.getEvent(), startPoint);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Transactional
     public void deleteStartPoint(UUID eventId, UUID startPointId) {
-        StartPoint startPoint = startPointReader.read(startPointId);
-        startPointValidator.validateBelongsToEvent(eventId, startPoint);
-        startPointProcessor.delete(startPoint);
+        ReentrantLock lock = eventLockManager.getLock(eventId);
 
-        eventProcessor.deleteRoute(eventId);
-        routeProcessor.deleteCache(eventId);
+        lock.lock();
+        try {
+            StartPoint startPoint = startPointReader.read(startPointId);
+            startPointValidator.validateBelongsToEvent(eventId, startPoint);
+            startPointProcessor.delete(startPoint);
+
+            eventProcessor.deleteRoute(eventId);
+            routeProcessor.deleteCache(eventId);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public KakaoLocalResponse searchStartPoint(String textQuery) {
