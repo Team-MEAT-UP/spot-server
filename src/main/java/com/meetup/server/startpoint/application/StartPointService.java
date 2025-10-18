@@ -63,13 +63,13 @@ public class StartPointService {
                 startPoint = startPointProcessor.save(event, userId, guestId, startPointRequest);
             }
 
+            eventProcessor.deleteRoute(eventId);
+            routeProcessor.deleteCache(eventId);
+            log.info("[DELETE ROUTE/CACHE] eventId: {}", eventId);
+
             return EventStartPointResponse.of(event, startPoint);
         } finally {
             lock.unlock();
-            eventProcessor.deleteRoute(eventId);
-            routeProcessor.deleteCache(eventId);
-
-            log.info("[DELETE ROUTE/CACHE AFTER COMMIT] eventId: {}", eventId);
         }
     }
 
