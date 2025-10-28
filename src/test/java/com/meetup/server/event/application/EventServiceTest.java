@@ -11,6 +11,7 @@ import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.UserFixture;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.support.IntegrationTestContainer;
@@ -43,6 +44,9 @@ class EventServiceTest extends IntegrationTestContainer {
     private UserRepository userRepository;
 
     @Autowired
+    private PlaceRepository placeRepository;
+
+    @Autowired
     private CachedRouteRepository cachedRouteRepository;
 
     @Autowired
@@ -54,7 +58,6 @@ class EventServiceTest extends IntegrationTestContainer {
     @Autowired
     private CacheManager cacheManager;
 
-    private Event event;
     private User user;
     private EventRequest eventRequest;
     private UUID guestId;
@@ -64,16 +67,17 @@ class EventServiceTest extends IntegrationTestContainer {
 
     @BeforeEach
     void setUp() {
-        event = eventRepository.save(EventFixture.getEvent());
+        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
         user = userRepository.save(UserFixture.getUser());
         eventRequest = EventFixture.getEventRequest();
         guestId = UUID.randomUUID();
         updateEventRequest = EventFixture.getUpdateEventRequest();
-        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
+        placeRepository.save(eventWithRoute.getPlace());
     }
 
     @Test
+    @Transactional
     void 비로그인_사용자가_이벤트를_생성한다() {
         EventStartPointResponse eventStartPointResponse = eventService.createEvent(null, guestId, eventRequest);
 
@@ -93,8 +97,8 @@ class EventServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().getGuestId()).isEqualTo(guestId);
     }
 
-    @Transactional
     @Test
+    @Transactional
     void 로그인_사용자가_이벤트를_생성한다() {
         EventStartPointResponse eventStartPointResponse = eventService.createEvent(user.getUserId(), null, eventRequest);
 

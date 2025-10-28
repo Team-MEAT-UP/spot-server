@@ -9,6 +9,7 @@ import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.StartPointFixture;
 import com.meetup.server.fixture.UserFixture;
+import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
 import com.meetup.server.startpoint.domain.StartPoint;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
 import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
@@ -43,6 +44,9 @@ class StartPointServiceTest extends IntegrationTestContainer {
     private UserRepository userRepository;
 
     @Autowired
+    private PlaceRepository placeRepository;
+
+    @Autowired
     private CachedRouteRepository cachedRouteRepository;
 
     @Autowired
@@ -74,9 +78,11 @@ class StartPointServiceTest extends IntegrationTestContainer {
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
         startPoint = startPointRepository.save(StartPointFixture.getStartPoint(eventWithRoute, newUser));
         cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+        placeRepository.save(eventWithRoute.getPlace());
     }
 
     @Test
+    @Transactional
     void 비로그인_사용자가_출발지를_저장한다() {
         EventStartPointResponse eventStartPointResponse = startPointService.createStartPoint(
                 event.getEventId(),
@@ -95,8 +101,8 @@ class StartPointServiceTest extends IntegrationTestContainer {
         assertThat(optionalStartPoint.get().isTransit()).isEqualTo(startPointRequest.isTransit());
     }
 
-    @Transactional
     @Test
+    @Transactional
     void 로그인_사용자가_출발지를_저장한다() {
         EventStartPointResponse eventStartPointResponse = startPointService.createStartPoint(
                 event.getEventId(),
@@ -131,6 +137,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
     }
 
     @Test
+    @Transactional
     void 출발지_생성_후_캐시와_모임경로데이터_삭제_검증() {
         // given
         Cache cache = cacheManager.getCache("routeDetails");
@@ -143,6 +150,9 @@ class StartPointServiceTest extends IntegrationTestContainer {
                 null,
                 startPointRequest
         );
+
+        entityManager.flush();
+        entityManager.clear();
 
         //then
         assertThat(eventReader.read(eventWithRoute.getEventId()).getRoutes()).isNull();
