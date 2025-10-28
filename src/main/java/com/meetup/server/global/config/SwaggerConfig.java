@@ -1,8 +1,6 @@
 package com.meetup.server.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.meetup.server.global.support.error.GlobalErrorType;
-import com.meetup.server.global.support.error.GlobalException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -11,6 +9,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -18,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.InputStream;
 import java.util.Collections;
 
+@Slf4j
 @OpenAPIDefinition(
         info = @Info(
                 title = "MOISAM API Specification",
@@ -64,7 +64,14 @@ public class SwaggerConfig {
             openAPI.security(Collections.singletonList(securityRequirement));
 
         } catch (Exception e) {
-            throw new GlobalException(GlobalErrorType.FAILED_SWAGGER_REST_DOCS_INTEGRATION);
+            log.warn("Not Exist an OpenAPI Specification", e);
+
+            Components components = new Components();
+            components.addSecuritySchemes(SECURITY_SCHEME_NAME, securityScheme);
+            openAPI.components(components);
+
+            SecurityRequirement securityRequirement = new SecurityRequirement().addList(SECURITY_SCHEME_NAME);
+            openAPI.security(Collections.singletonList(securityRequirement));
         }
 
         return openAPI;
