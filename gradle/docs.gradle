@@ -20,3 +20,11 @@ tasks.register('copyOasToSwagger', Copy) {
 tasks.named('build') {
     finalizedBy 'copyOasToSwagger'
 }
+
+bootJar {
+    dependsOn copyOasToSwagger
+    from('src/main/resources/static/swagger-ui') {
+        include 'openapi3.json'
+        into 'static/swagger-ui/'
+    }
+}
