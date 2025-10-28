@@ -49,7 +49,8 @@ public class Event extends BaseEntity {
     }
 
     @Builder
-    public Event(Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups routes) {
+    public Event(UUID eventId, Subway subway, Place place, String eventName, LocalDateTime eventDateTime, MeetingPointRouteGroups routes) {
+        this.eventId = eventId;
         this.subway = subway;
         this.place = place;
         this.eventName = eventName;

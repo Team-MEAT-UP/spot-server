@@ -18,7 +18,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RouteResponse {
-
     private Boolean isTransit;  // true: 대중교통, false: 자동차
     private Boolean isMe;
     private UUID id;
