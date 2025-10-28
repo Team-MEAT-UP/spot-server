@@ -67,13 +67,14 @@ class EventServiceTest extends IntegrationTestContainer {
 
     @BeforeEach
     void setUp() {
-        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
         user = userRepository.save(UserFixture.getUser());
         eventRequest = EventFixture.getEventRequest();
         guestId = UUID.randomUUID();
         updateEventRequest = EventFixture.getUpdateEventRequest();
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
+        eventWithRoute = EventFixture.getEventWithRoute();
         placeRepository.save(eventWithRoute.getPlace());
+        eventWithRoute = eventRepository.save(eventWithRoute);
     }
 
     @Test

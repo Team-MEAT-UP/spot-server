@@ -74,11 +74,12 @@ class StartPointServiceTest extends IntegrationTestContainer {
         user = userRepository.save(UserFixture.getUser());
         newUser = userRepository.save(UserFixture.getNewUser());
         guestId = UUID.randomUUID();
-        eventWithRoute = eventRepository.save(EventFixture.getEventWithRoute());
+        eventWithRoute = EventFixture.getEventWithRoute();
+        placeRepository.save(eventWithRoute.getPlace());
+        eventWithRoute = eventRepository.save(eventWithRoute);
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
         startPoint = startPointRepository.save(StartPointFixture.getStartPoint(eventWithRoute, newUser));
         cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
-        placeRepository.save(eventWithRoute.getPlace());
     }
 
     @Test
