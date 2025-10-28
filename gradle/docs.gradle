@@ -11,14 +11,12 @@ openapi3 {
 }
 
 tasks.register('copyOasToSwagger', Copy) {
-    delete "src/main/resources/static/swagger-ui/openapi3.json"
-    from(layout.buildDirectory.file("api-spec/openapi3.json"))
-    into("src/main/resources/static/swagger-ui/.")
-    dependsOn("openapi3")
-}
-
-tasks.named('build') {
-    finalizedBy 'copyOasToSwagger'
+    dependsOn('openapi3')
+    doFirst {
+        delete "src/main/resources/static/swagger-ui/openapi3.json"
+    }
+    from file("build/api-spec/openapi3.json")
+    into file("src/main/resources/static/swagger-ui/.")
 }
 
 bootJar {
