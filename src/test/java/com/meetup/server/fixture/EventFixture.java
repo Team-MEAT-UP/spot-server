@@ -4,9 +4,8 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
-import com.meetup.server.event.dto.response.route.MeetingPoint;
-import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
-import com.meetup.server.event.dto.response.route.RouteResponse;
+import com.meetup.server.event.dto.request.UpdatePlaceRequest;
+import com.meetup.server.event.dto.response.route.*;
 import com.meetup.server.parkinglot.dto.response.ParkingLotResponse;
 
 import java.time.LocalDate;
@@ -17,8 +16,11 @@ import java.util.UUID;
 
 public class EventFixture {
 
+    public static final UUID EVENT_ID = UUID.fromString("01968fe2-5277-712a-ad3c-98f29c2782e0");
+
     public static Event getEvent() {
         return Event.builder()
+                .eventId(EVENT_ID)
                 .eventName("모임핑")
                 .eventDateTime(LocalDateTime.parse("2025-10-01T10:00:00"))
                 .build();
@@ -29,6 +31,13 @@ public class EventFixture {
                 "수정핑",
                 LocalDate.parse("2025-08-01"),
                 LocalTime.parse("12:00")
+        );
+    }
+
+    public static UpdatePlaceRequest getUpdatePlaceRequest() {
+        return new UpdatePlaceRequest(
+                UUID.fromString("0196f346-5244-79b9-85b0-955d6328f09b"),
+                1
         );
     }
 
@@ -52,21 +61,25 @@ public class EventFixture {
                 .eventName("모임핑")
                 .eventDateTime(LocalDateTime.parse("2025-10-01T10:00:00"))
                 .routes(getMeetingPointRouteGroups())
+                .place(PlaceFixture.getPlace())
                 .build();
     }
 
     public static MeetingPointRouteGroups getMeetingPointRouteGroups() {
+        List<TransitRouteResponse> transitRoutes = List.of(RouteFixture.getTransitRoute());
+        DrivingInfoResponse drivingInfo = RouteFixture.getDrivingInfo();
+        List<DrivingRouteResponse> drivingRoutes = List.of(RouteFixture.getDrivingRoute());
 
         List<RouteResponse> routeResponses = List.of(
-                new RouteResponse(false, false, UUID.fromString("0198c64a-5a06-7095-a692-3c5e1a2c294f"),
+                new RouteResponse(true, false, UUID.fromString("0198c64a-5a06-7095-a692-3c5e1a2c294f"),
                         null, UUID.fromString("0198c64a-5a06-7095-a693-c3f8ebde622c"), "김아무개",
-                        null, "강남구 삼성동", 127.043999, 37.510297, null, null, null, 0),
+                        null, "강남구 삼성동", 127.043999, 37.510297, transitRoutes, null, null, 10),
                 new RouteResponse(false, false, UUID.fromString("0198c64b-086a-796d-a4d3-105c89ee529e"),
                         null, UUID.fromString("0198c64b-086a-796d-a4d4-8d44881d2ad7"), "안연아바보",
-                        null, "강남구 삼성동", 127.043999, 37.510297, null, null, null, 0),
+                        null, "강남구 삼성동", 127.043999, 37.510297, null, drivingInfo, drivingRoutes, 0),
                 new RouteResponse(false, false, UUID.fromString("0198c64d-780c-736b-9ba9-589632f5f136"),
                         null, UUID.fromString("0198c64d-780c-736b-9baa-a3f2fe33c325"), "나야나",
-                        null, "동작구 상도동", 126.95781764313084, 37.4963172817574, null, null, null, 0)
+                        null, "동작구 상도동", 126.95781764313084, 37.4963172817574, null, drivingInfo, drivingRoutes, 0)
         );
 
         List<MeetingPointRouteGroup> groups = List.of(

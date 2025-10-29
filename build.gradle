@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.epages.restdocs-api-spec' version '0.19.4'
 }
 
 group = 'com.meetup'
@@ -26,7 +27,6 @@ dependencyManagement {
 repositories {
 	mavenCentral()
 }
-
 
 apply from: "gradle/spring.gradle"
 apply from: "gradle/database.gradle"
