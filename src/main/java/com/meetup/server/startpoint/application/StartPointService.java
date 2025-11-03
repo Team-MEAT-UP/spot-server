@@ -42,12 +42,16 @@ public class StartPointService {
     @Performance
     @Transactional
     public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        ReentrantLock lock = eventLockManager.getLock(eventId);
+        Object participantId = userId != null ? userId : guestId;
         StartPoint startPoint;
         Event event;
 
+        ReentrantLock lock = eventLockManager.getLock(eventId);
+
         lock.lock();
         try {
+            eventLockManager.markParticipantInProcess(eventId, participantId);
+
             event = eventReader.read(eventId);
             List<StartPoint> startPointList = startPointReader.readAll(event);
 
@@ -69,6 +73,7 @@ public class StartPointService {
 
             return EventStartPointResponse.of(event, startPoint);
         } finally {
+            eventLockManager.removeParticipantInProcess(eventId, participantId);
             lock.unlock();
         }
     }
