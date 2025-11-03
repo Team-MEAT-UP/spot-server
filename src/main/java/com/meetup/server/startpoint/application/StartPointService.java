@@ -50,9 +50,12 @@ public class StartPointService {
 
         lock.lock();
         try {
-            eventLockManager.markParticipantInProcess(eventId, participantId);
-
             event = eventReader.read(eventId);
+
+            if (!eventLockManager.markParticipantInProcess(eventId, participantId)) {
+               return EventStartPointResponse.ignored(event);
+            }
+
             List<StartPoint> startPointList = startPointReader.readAll(event);
 
             eventValidator.validateEventIsNotFull(event);

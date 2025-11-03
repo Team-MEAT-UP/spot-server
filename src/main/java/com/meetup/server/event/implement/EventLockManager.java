@@ -1,6 +1,5 @@
 package com.meetup.server.event.implement;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
-@Getter
 @Component
 public class EventLockManager {
     private final ConcurrentHashMap<UUID, ReentrantLock> eventLocks = new ConcurrentHashMap<>();
@@ -20,11 +18,12 @@ public class EventLockManager {
         return eventLocks.computeIfAbsent(eventId, key -> new ReentrantLock());
     }
 
-    public void markParticipantInProcess(UUID eventId, Object participantId) {
-        participantLocks
+    public boolean markParticipantInProcess(UUID eventId, Object participantId) {
+        log.debug("[EVENT LOCK] mark participant lock , eventId: {}, participantId: {}", eventId, participantId);
+
+        return participantLocks
                 .computeIfAbsent(eventId, key -> ConcurrentHashMap.newKeySet())
                 .add(participantId);
-        log.debug("[EVENT LOCK] mark participant lock , eventId: {}, participantId: {}", eventId, participantId);
     }
 
     public void removeParticipantInProcess(UUID eventId, Object participantId) {

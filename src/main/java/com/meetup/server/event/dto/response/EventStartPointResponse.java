@@ -22,4 +22,8 @@ public record EventStartPointResponse(
                 .username(UsernameExtractor.extractDisplayName(startPoint))
                 .build();
     }
+
+    public static EventStartPointResponse ignored(Event event) {
+        return new EventStartPointResponse(event.getEventId(), null, null, null);
+    }
 }
