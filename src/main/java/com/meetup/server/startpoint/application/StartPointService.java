@@ -1,6 +1,7 @@
 package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.ParticipantKey;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
@@ -42,7 +43,7 @@ public class StartPointService {
     @Performance
     @Transactional
     public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        Object participantId = userId != null ? userId : guestId;
+        ParticipantKey participantId = userId != null ? ParticipantKey.ofUser(userId) : ParticipantKey.ofGuest(guestId);
         StartPoint startPoint;
         Event event;
 
