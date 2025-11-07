@@ -14,6 +14,7 @@ public class GzipHttpServletResponseWrapper extends HttpServletResponseWrapper {
     public GzipHttpServletResponseWrapper(HttpServletResponse response) {
         super(response);
         response.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+        response.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
     }
 
     @Override
