@@ -36,7 +36,6 @@ public class GzipServletOutputStream extends ServletOutputStream {
 
     @Override
     public void close() throws IOException {
-        gzipOutputStream.finish();
         gzipOutputStream.close();
     }
 }
