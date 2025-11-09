@@ -5,12 +5,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.meetup.server.global.filter.GzipHttpServletResponseWrapper.GZIP;
 
 @Component
 public class CompressFilter extends OncePerRequestFilter {
@@ -39,10 +42,10 @@ public class CompressFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        boolean isGet = "GET".equalsIgnoreCase(method);
+        boolean isGet = HttpMethod.GET.name().equalsIgnoreCase(method);
 
         return acceptEncoding != null
-                && acceptEncoding.contains("gzip")
+                && acceptEncoding.contains(GZIP)
                 && isGet
                 && matchesAllowedUri(uri);
     }

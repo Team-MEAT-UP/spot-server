@@ -9,26 +9,28 @@ import java.io.IOException;
 
 public class GzipHttpServletResponseWrapper extends HttpServletResponseWrapper {
 
-    private GzipServletOutputStream gzipOutputStream;
+    public static final String GZIP = "gzip";
+
+    private GzipServletOutputStream gzipServletOutputStream;
 
     public GzipHttpServletResponseWrapper(HttpServletResponse response) {
         super(response);
-        response.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+        response.addHeader(HttpHeaders.CONTENT_ENCODING, GZIP);
         response.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        if (gzipOutputStream == null) {
-            gzipOutputStream = new GzipServletOutputStream(getResponse().getOutputStream());
+        if (gzipServletOutputStream == null) {
+            gzipServletOutputStream = new GzipServletOutputStream(getResponse().getOutputStream());
         }
-        return gzipOutputStream;
+        return gzipServletOutputStream;
     }
 
     public void finish() throws IOException {
-        if (gzipOutputStream != null) {
-            gzipOutputStream.flush();
-            gzipOutputStream.close();
+        if (gzipServletOutputStream != null) {
+            gzipServletOutputStream.flush();
+            gzipServletOutputStream.close();
         }
     }
 }
