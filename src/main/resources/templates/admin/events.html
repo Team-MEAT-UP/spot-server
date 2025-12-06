@@ -70,7 +70,7 @@
         <td th:text="${event.eventId}">01989e08-9eca-7cbb-a6ae-a93e21cadf6e</td>
 
         <td>
-            <a th:href="@{|${serverUrl}/mapview/${event.eventId}|}" class="event-link"
+            <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
                th:text="${event.eventName}">모이삼 MAU 1000만 기념 회식</a>
         </td>
 
@@ -89,12 +89,28 @@
 </table>
 
 <div class="pagination" th:if="${eventPages.totalPages > 1}">
-    <a th:href="@{/admins/events(page=${eventPages.number - 1})}" th:if="${eventPages.hasPrevious()}">이전</a>
-    <span th:each="i : ${#numbers.sequence(0, eventPages.totalPages - 1)}">
+
+    <th:block th:with="
+        currentPageNumber=${eventPages.number},
+        blockSize=5,
+        startPage=${(currentPageNumber / blockSize) * blockSize},
+        endPage=(${(startPage + blockSize - 1) < eventPages.totalPages ? (startPage + blockSize - 1) : eventPages.totalPages - 1})
+    ">
+
+        <a th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}">처음</a>
+
+        <a th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}">이전</a>
+
+        <span th:each="i : ${#numbers.sequence(startPage, endPage)}">
         <a th:href="@{/admins/events(page=${i})}" th:text="${i + 1}"
            th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
     </span>
-    <a th:href="@{/admins/events(page=${eventPages.number + 1})}" th:if="${eventPages.hasNext()}">다음</a>
+
+        <a th:href="@{/admins/events(page=${endPage + 1})}" th:if="${endPage < eventPages.totalPages - 1}">다음</a>
+
+        <a th:href="@{/admins/events(page=${eventPages.totalPages - 1})}" th:if="${endPage < eventPages.totalPages - 1}">끝</a>
+
+    </th:block>
 </div>
 
 </body>

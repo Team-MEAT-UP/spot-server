@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admins")
 public class AdminController {
 
-    @Value("${server-url}")
-    private String serverUrl;
+    @Value("${client-url}")
+    private String clientUrl;
 
     private final AdminService adminService;
 
@@ -57,11 +57,11 @@ public class AdminController {
     @GetMapping("/events")
     public String getAllEvents(
             Model model,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<AdminEventResponse> eventPages = adminService.getAllEvents(pageable);
         model.addAttribute("eventPages", eventPages);
-        model.addAttribute("serverUrl", serverUrl);
+        model.addAttribute("clientUrl", clientUrl);
         return "admin/events";
     }
 }
