@@ -51,6 +51,7 @@
     <h2>관리자 로그인</h2>
 
     <form th:action="@{/admins/login}" th:object="${adminLoginRequest}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div th:if="${param.error}" class="error-message">
 

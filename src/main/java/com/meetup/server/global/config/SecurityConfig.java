@@ -52,7 +52,7 @@ public class SecurityConfig {
     public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher(new AntPathRequestMatcher("/admins/**"))
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .formLogin(form -> form
                         .loginPage("/admins/login")
