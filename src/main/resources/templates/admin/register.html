@@ -81,6 +81,8 @@
             </label>
             <span class="error-message" th:if="${#fields.hasErrors('passwordConfirmed')}"
                   th:errors="*{passwordConfirmed}">비밀번호가 일치하지 않습니다.</span>
+            <span class="error-message" th:if="${#fields.hasErrors('passwordNotTrim')}"
+                  th:errors="*{passwordNotTrim}">비밀번호는 공백으로 시작하거나 끝날 수 없습니다.</span>
         </div>
 
         <button type="submit">확인</button>

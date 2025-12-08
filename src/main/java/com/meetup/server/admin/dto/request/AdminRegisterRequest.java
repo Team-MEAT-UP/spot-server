@@ -25,4 +25,9 @@ public record AdminRegisterRequest(
     public boolean isPasswordConfirmed() {
         return password.equals(confirmPassword);
     }
+
+    @AssertTrue(message = "비밀번호는 공백으로 시작하거나 끝날 수 없습니다.")
+    public boolean isPasswordNotTrim() {
+        return this.password.equals(this.password.trim());
+    }
 }
