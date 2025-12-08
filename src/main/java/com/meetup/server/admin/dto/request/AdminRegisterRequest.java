@@ -23,11 +23,17 @@ public record AdminRegisterRequest(
 ) {
     @AssertTrue(message = "비밀번호가 일치하지 않습니다.")
     public boolean isPasswordConfirmed() {
+        if (password == null || confirmPassword == null) {
+            return true;
+        }
         return password.equals(confirmPassword);
     }
 
     @AssertTrue(message = "비밀번호는 공백으로 시작하거나 끝날 수 없습니다.")
     public boolean isPasswordNotTrim() {
-        return this.password.equals(this.password.trim());
+        if (password == null) {
+            return true;
+        }
+        return password.equals(password.trim());
     }
 }
