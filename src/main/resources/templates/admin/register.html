@@ -67,6 +67,8 @@
             <label>아이디
                 <input type="text" th:field="*{username}" minlength="4" maxlength="20" required>
             </label>
+            <span class="error-message" th:if="${#fields.hasErrors('username')}"
+                  th:errors="*{username}">이미 등록된 관리자입니다.</span>
         </div>
 
         <div>

@@ -4,6 +4,8 @@ import com.meetup.server.admin.application.AdminService;
 import com.meetup.server.admin.dto.request.AdminLoginRequest;
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
 import com.meetup.server.admin.dto.response.AdminEventResponse;
+import com.meetup.server.admin.exception.AdminErrorType;
+import com.meetup.server.admin.exception.AdminException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +46,16 @@ public class AdminController {
             return "admin/register";
         }
 
-        adminService.register(adminRegisterRequest);
+        try {
+            adminService.register(adminRegisterRequest);
+        } catch (AdminException e) {
+            if (e.getErrorType() == AdminErrorType.ADMIN_ALREADY_EXISTS) {
+                bindingResult.rejectValue("username", "AdminAlreadyExists", e.getMessage());
+            }
+            return "admin/register";
+        } catch (Exception e) {
+            bindingResult.reject("InternalServerError", "회원가입 중 오류가 발생했습니다.");
+        }
         return "redirect:/admins/login";
     }
 
