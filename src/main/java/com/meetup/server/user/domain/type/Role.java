@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 public enum Role {
 
     USER("ROLE_USER"),
-    ADMIN("ROLE_ADMIN"),
     WITHDRAWN("ROLE_WITHDRAWN"),
+    ADMIN("ROLE_ADMIN"),
+    ADMIN_PENDING("ROLE_ADMIN_PENDING"),
+    ADMIN_REJECTED("ROLE_ADMIN_REJECTED"),
     ;
 
     private final String authority;
