@@ -5,6 +5,7 @@ import com.meetup.server.auth.presentation.filter.*;
 import com.meetup.server.auth.support.handler.OAuth2LoginFailureHandler;
 import com.meetup.server.auth.support.handler.OAuth2LoginSuccessHandler;
 import com.meetup.server.auth.support.resolver.CustomAuthorizationRequestResolver;
+import com.meetup.server.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -14,9 +15,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -42,6 +46,31 @@ public class SecurityConfig {
     @Bean
     public CustomAuthorizationRequestResolver customAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
         return new CustomAuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
+    }
+
+    @Bean
+    public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(new AntPathRequestMatcher("/admins/**"))
+                .csrf(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .formLogin(form -> form
+                        .loginPage("/admins/login")
+                        .loginProcessingUrl("/admins/login")
+                        .defaultSuccessUrl("/admins/events", true)
+                        .failureUrl("/admins/login?error=true")
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admins/login", "/admins/register").permitAll()
+                        .requestMatchers("/admins/**").hasAuthority(Role.ADMIN.getAuthority())
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/admins/logout")
+                        .logoutSuccessUrl("/admins/login")
+                        .invalidateHttpSession(true)
+                );
+
+        return http.build();
     }
 
     @Bean
@@ -75,5 +104,10 @@ public class SecurityConfig {
                 .addFilterBefore(responseContextFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

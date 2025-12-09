@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>MOISAM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>관리자 회원가입</h2>
+
+    <form th:action="@{/admins/register}" th:object="${adminRegisterRequest}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="error-message" th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">전역 오류 메시지</p>
+        </div>
+
+        <div>
+            <label>이름
+                <input type="text" th:field="*{name}" minlength="1" maxlength="10" required>
+            </label>
+        </div>
+
+        <div>
+            <label>아이디
+                <input type="text" th:field="*{username}" minlength="4" maxlength="20" required>
+            </label>
+            <span class="error-message" th:if="${#fields.hasErrors('username')}"
+                  th:errors="*{username}">이미 등록된 관리자입니다.</span>
+        </div>
+
+        <div>
+            <label>비밀번호
+                <input type="password" th:field="*{password}" minlength="8" maxlength="30" required>
+            </label>
+        </div>
+
+        <div>
+            <label>비밀번호 확인
+                <input type="password" th:field="*{confirmPassword}" minlength="8" maxlength="30" required>
+            </label>
+            <span class="error-message" th:if="${#fields.hasErrors('passwordConfirmed')}"
+                  th:errors="*{passwordConfirmed}">비밀번호가 일치하지 않습니다.</span>
+            <span class="error-message" th:if="${#fields.hasErrors('passwordNotTrim')}"
+                  th:errors="*{passwordNotTrim}">비밀번호는 공백으로 시작하거나 끝날 수 없습니다.</span>
+        </div>
+
+        <button type="submit">확인</button>
+    </form>
+
+    <p style="margin-top: 15px;">
+        이미 계정이 있으신가요? <a th:href="@{/admins/login}">로그인</a>
+    </p>
+</div>
+
+</body>
+</html>

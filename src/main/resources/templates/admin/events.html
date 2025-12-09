@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>MOISAM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            margin: 0 4px;
+            border: 1px solid #ccc;
+            text-decoration: none;
+        }
+
+        .event-link {
+            color: #17a2b8;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Events</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>모임 ID</th>
+        <th>모임명</th>
+        <th>모임 일시</th>
+        <th>중간 지점</th>
+        <th>모임 확정 장소</th>
+        <th>참여자 수</th>
+        <th>생성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="event : ${eventPages.content}">
+        <td th:text="${event.eventId}">01989e08-9eca-7cbb-a6ae-a93e21cadf6e</td>
+
+        <td>
+            <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
+               th:text="${event.eventName}">모이삼 MAU 1000만 기념 회식</a>
+        </td>
+
+        <td th:text="${#temporals.format(event.eventDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-24 12:00</td>
+
+        <td th:text="${event.meetingPoint}">강남</td>
+
+        <td th:text="${event.meetingPlace}">노벰버라운지 강남</td>
+
+        <td th:text="${event.participantCount} + '명'">8명</td>
+
+        <td th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-25 12:00</td>
+
+    </tr>
+    </tbody>
+</table>
+
+<div class="pagination" th:if="${eventPages.totalPages > 1}">
+
+    <th:block th:with="
+        currentPageNumber=${eventPages.number},
+        blockSize=5,
+        startPage=${(currentPageNumber / blockSize) * blockSize},
+        endPage=(${(startPage + blockSize - 1) < eventPages.totalPages ? (startPage + blockSize - 1) : eventPages.totalPages - 1})
+    ">
+
+        <a th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}">처음</a>
+
+        <a th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}">이전</a>
+
+        <span th:each="i : ${#numbers.sequence(startPage, endPage)}">
+        <a th:href="@{/admins/events(page=${i})}" th:text="${i + 1}"
+           th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
+    </span>
+
+        <a th:href="@{/admins/events(page=${endPage + 1})}" th:if="${endPage < eventPages.totalPages - 1}">다음</a>
+
+        <a th:href="@{/admins/events(page=${eventPages.totalPages - 1})}" th:if="${endPage < eventPages.totalPages - 1}">끝</a>
+
+    </th:block>
+</div>
+
+</body>
+</html>

@@ -5,6 +5,8 @@ import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,10 @@ public class EventReader {
     public Event read(UUID eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
+    }
+
+    public Page<Event> readAll(Pageable pageable) {
+        return eventRepository.findAll(pageable);
     }
 
     public List<Event> readEventsWithPlaceAtHour(int hour) {
