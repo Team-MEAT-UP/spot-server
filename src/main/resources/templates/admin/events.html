@@ -79,30 +79,48 @@
             background-color: #f9f9f9;
         }
 
-        /* 페이지네이션 스타일 */
         .pagination {
-            margin-top: 30px;
-            text-align: center;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
         }
 
-        .pagination a, .pagination span {
+        .pagination a {
             padding: 8px 14px;
             margin: 0 3px;
             border: 1px solid #ddd;
             text-decoration: none;
             border-radius: 4px;
             color: #007bff;
-            display: inline-block;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .pagination a.nav-btn {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: bold;
+            font-size: 1.1em;
+            line-height: 1;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #f1f1f1;
+            border-color: #ccc;
+        }
+
+        .pagination a.nav-btn:hover {
+            background-color: #e2e6ea;
+            color: #343a40;
         }
 
         .pagination .active {
             background-color: #007bff;
             color: white;
             border-color: #007bff;
-        }
-
-        .pagination a:hover:not(.active) {
-            background-color: #f1f1f1;
+            cursor: default;
         }
 
         .event-link {
@@ -128,7 +146,6 @@
             <span class="unit">개</span>
         </div>
     </div>
-
     <div class="stat-card">
         <span class="label">📅 금일 신규 참여자 수</span>
         <div class="value">
@@ -173,20 +190,21 @@
         startPage=${(currentPageNumber / blockSize) * blockSize},
         endPage=(${(startPage + blockSize - 1) < eventPages.totalPages ? (startPage + blockSize - 1) : eventPages.totalPages - 1})
     ">
-        <a th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}">처음</a>
+        <a class="nav-btn" th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}" title="처음">&laquo;</a>
 
-        <a th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}">이전</a>
+        <a class="nav-btn" th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}" title="이전">&lsaquo;</a>
 
-        <span th:each="i : ${#numbers.sequence(startPage, endPage)}">
-            <a th:href="@{/admins/events(page=${i})}" th:text="${i + 1}"
+        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <a th:href="@{/admins/events(page=${i})}"
+               th:text="${i + 1}"
                th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
-        </span>
+        </th:block>
 
-        <a th:href="@{/admins/events(page=${endPage + 1})}" th:if="${endPage < eventPages.totalPages - 1}">다음</a>
+        <a class="nav-btn" th:href="@{/admins/events(page=${endPage + 1})}"
+           th:if="${endPage < eventPages.totalPages - 1}" title="다음">&rsaquo;</a>
 
-        <a th:href="@{/admins/events(page=${eventPages.totalPages - 1})}"
-           th:if="${endPage < eventPages.totalPages - 1}">끝</a>
-
+        <a class="nav-btn" th:href="@{/admins/events(page=${eventPages.totalPages - 1})}"
+           th:if="${endPage < eventPages.totalPages - 1}" title="끝">&raquo;</a>
     </th:block>
 </div>
 
