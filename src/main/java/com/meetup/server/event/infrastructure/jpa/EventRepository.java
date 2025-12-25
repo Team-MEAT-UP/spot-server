@@ -24,4 +24,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query("SELECT e FROM Event e JOIN FETCH e.place WHERE e.eventDateTime = :eventDateTime")
     List<Event> findAllByEventDateTimeWithPlace(@Param("eventDateTime") LocalDateTime eventDateTime);
+
+    Long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }
