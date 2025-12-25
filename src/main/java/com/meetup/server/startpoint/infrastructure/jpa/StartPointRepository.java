@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,4 +30,6 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM StartPoint sp WHERE sp.user = :user")
     void deleteAllByUser(@Param("user") User user);
+
+    Long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }
