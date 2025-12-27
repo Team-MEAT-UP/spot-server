@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,5 +36,11 @@ public class EventReader {
                 .withSecond(0)
                 .withNano(0);
         return eventRepository.findAllByEventDateTimeWithPlace(targetTime);
+    }
+
+    public long readDailyEventCount(LocalDate todayDate) {
+        LocalDateTime startDateTime = todayDate.atStartOfDay();
+        LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
+        return eventRepository.countByCreatedAtBetween(startDateTime, endDateTime);
     }
 }

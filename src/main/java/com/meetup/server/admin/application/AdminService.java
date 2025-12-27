@@ -2,6 +2,7 @@ package com.meetup.server.admin.application;
 
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
 import com.meetup.server.admin.dto.response.AdminEventResponse;
+import com.meetup.server.admin.dto.response.DailyStatsResponse;
 import com.meetup.server.admin.implement.AdminValidator;
 import com.meetup.server.admin.implement.AdminWriter;
 import com.meetup.server.event.domain.Event;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -63,5 +65,13 @@ public class AdminService {
                 pageable,
                 events.getTotalElements()
         );
+    }
+
+    public DailyStatsResponse getDailyStats() {
+        LocalDate todayDate = LocalDate.now();
+        long dailyEventCount = eventReader.readDailyEventCount(todayDate);
+        long dailyParticipantCount = startPointReader.readDailyParticipantCount(todayDate);
+
+        return DailyStatsResponse.of(dailyEventCount, dailyParticipantCount);
     }
 }

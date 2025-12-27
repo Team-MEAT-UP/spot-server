@@ -4,6 +4,7 @@ import com.meetup.server.admin.application.AdminService;
 import com.meetup.server.admin.dto.request.AdminLoginRequest;
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
 import com.meetup.server.admin.dto.response.AdminEventResponse;
+import com.meetup.server.admin.dto.response.DailyStatsResponse;
 import com.meetup.server.admin.exception.AdminErrorType;
 import com.meetup.server.admin.exception.AdminException;
 import jakarta.validation.Valid;
@@ -73,6 +74,9 @@ public class AdminController {
         Page<AdminEventResponse> eventPages = adminService.getAllEvents(pageable);
         model.addAttribute("eventPages", eventPages);
         model.addAttribute("clientUrl", clientUrl);
+
+        DailyStatsResponse dailyStats = adminService.getDailyStats();
+        model.addAttribute("dailyStats", dailyStats);
         return "admin/events";
     }
 }

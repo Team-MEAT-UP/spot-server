@@ -11,6 +11,9 @@ import com.meetup.server.startpoint.infrastructure.querydsl.projection.Participa
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,5 +46,11 @@ public class StartPointReader {
 
     public List<StartPoint> readAllWithUserByEvent(Event event) {
         return startPointRepository.findAllWithUserByEvent(event);
+    }
+
+    public long readDailyParticipantCount(LocalDate todayDate) {
+        LocalDateTime startDateTime = todayDate.atStartOfDay();
+        LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
+        return startPointRepository.countByCreatedAtBetween(startDateTime, endDateTime);
     }
 }
