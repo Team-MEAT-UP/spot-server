@@ -69,8 +69,8 @@ public class AdminService {
 
     public DailyStatsResponse getDailyStats() {
         LocalDate todayDate = LocalDate.now();
-        Long dailyEventCount = eventReader.readDailyEventCount(todayDate);
-        Long dailyParticipantCount = startPointReader.readDailyParticipantCount(todayDate);
+        long dailyEventCount = eventReader.readDailyEventCount(todayDate);
+        long dailyParticipantCount = startPointReader.readDailyParticipantCount(todayDate);
 
         return DailyStatsResponse.of(dailyEventCount, dailyParticipantCount);
     }

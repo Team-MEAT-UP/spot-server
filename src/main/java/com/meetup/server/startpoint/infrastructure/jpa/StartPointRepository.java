@@ -31,5 +31,5 @@ public interface StartPointRepository extends JpaRepository<StartPoint, UUID>, S
     @Query("DELETE FROM StartPoint sp WHERE sp.user = :user")
     void deleteAllByUser(@Param("user") User user);
 
-    Long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

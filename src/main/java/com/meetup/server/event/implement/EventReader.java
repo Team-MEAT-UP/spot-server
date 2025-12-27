@@ -38,7 +38,7 @@ public class EventReader {
         return eventRepository.findAllByEventDateTimeWithPlace(targetTime);
     }
 
-    public Long readDailyEventCount(LocalDate todayDate) {
+    public long readDailyEventCount(LocalDate todayDate) {
         LocalDateTime startDateTime = todayDate.atStartOfDay();
         LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
         return eventRepository.countByCreatedAtBetween(startDateTime, endDateTime);

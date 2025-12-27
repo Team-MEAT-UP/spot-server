@@ -1,10 +1,10 @@
 package com.meetup.server.admin.dto.response;
 
 public record DailyStatsResponse(
-        Long dailyEventCount,
-        Long dailyParticipantCount
+        long dailyEventCount,
+        long dailyParticipantCount
 ) {
-    public static DailyStatsResponse of(Long dailyEventCount, Long dailyParticipantCount) {
+    public static DailyStatsResponse of(long dailyEventCount, long dailyParticipantCount) {
         return new DailyStatsResponse(dailyEventCount, dailyParticipantCount);
     }
 }

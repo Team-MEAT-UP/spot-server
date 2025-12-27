@@ -48,7 +48,7 @@ public class StartPointReader {
         return startPointRepository.findAllWithUserByEvent(event);
     }
 
-    public Long readDailyParticipantCount(LocalDate todayDate) {
+    public long readDailyParticipantCount(LocalDate todayDate) {
         LocalDateTime startDateTime = todayDate.atStartOfDay();
         LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
         return startPointRepository.countByCreatedAtBetween(startDateTime, endDateTime);
