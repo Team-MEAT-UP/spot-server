@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHan
         log.info("OAuth2 login failed: {}", exception.getMessage());
 
         String ipAddress = request.getRemoteAddr();
-        String userAgent = request.getHeader("User-Agent");
+        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         logUserLoginWriter.save(null, LoginStatus.FAILURE, ipAddress, userAgent, exception.getMessage());
 
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
