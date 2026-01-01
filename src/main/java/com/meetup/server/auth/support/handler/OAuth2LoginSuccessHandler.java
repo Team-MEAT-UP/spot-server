@@ -37,7 +37,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = request.getHeader("X-Real-IP");
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         logUserLoginWriter.save(oAuth2User.getUserId(), LoginStatus.SUCCESS, ipAddress, userAgent, null);
 

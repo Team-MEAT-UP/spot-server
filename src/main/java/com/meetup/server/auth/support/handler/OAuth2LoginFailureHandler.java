@@ -32,7 +32,7 @@ public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 
         log.info("OAuth2 login failed: {}", exception.getMessage());
 
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = request.getHeader("X-Real-IP");
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         logUserLoginWriter.save(null, LoginStatus.FAILURE, ipAddress, userAgent, exception.getMessage());
 
