@@ -3,6 +3,8 @@ package com.meetup.server.auth.support.handler;
 import com.meetup.server.auth.dto.CustomOAuth2User;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
+import com.meetup.server.user.domain.type.LoginStatus;
+import com.meetup.server.user.implement.LogUserLoginWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenProvider tokenProvider;
     private final CookieUtil cookieUtil;
+    private final LogUserLoginWriter logUserLoginWriter;
 
     @Value("${app.oauth2.successRedirectUri}")
     private String successRedirectUri;
@@ -32,6 +35,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     ) throws IOException {
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        logUserLoginWriter.save(oAuth2User.getUserId(), LoginStatus.SUCCESS, ipAddress, userAgent, null);
 
         String accessToken = tokenProvider.createAccessToken(oAuth2User);
         String refreshToken = tokenProvider.createRefreshToken(oAuth2User);

@@ -1,5 +1,7 @@
 package com.meetup.server.auth.support.handler;
 
+import com.meetup.server.user.domain.type.LoginStatus;
+import com.meetup.server.user.implement.LogUserLoginWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import java.io.IOException;
 @Component
 public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
+    private final LogUserLoginWriter logUserLoginWriter;
+
     @Value("${app.oauth2.failureRedirectUri}")
     private String redirectUri;
 
@@ -26,6 +30,10 @@ public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHan
     ) throws IOException {
 
         log.info("OAuth2 login failed: {}", exception.getMessage());
+
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        logUserLoginWriter.save(null, LoginStatus.FAILURE, ipAddress, userAgent, exception.getMessage());
 
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("error", exception.getLocalizedMessage())
