@@ -158,16 +158,28 @@
                 <th>개인정보 동의</th>
                 <th>마케팅 동의</th>
                 <th>가입일</th>
+                <th>상태</th>
+                <th>탈퇴일</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="user : ${userPages.content}">
+            <tr th:each="user : ${userPages.content}"
+                th:style="${user.deletedDateTime != null ? 'color: #adb5bd;' : ''}">
                 <td th:text="${user.userId}">ID</td>
                 <td th:text="${user.nickname}">닉네임</td>
                 <td th:text="${user.email}">이메일</td>
                 <td th:text="${user.isPersonalInfoAgreement ? '동의' : '미동의'}">동의여부</td>
                 <td th:text="${user.isMarketingAgreement ? '동의' : '미동의'}">동의여부</td>
                 <td th:text="${#temporals.format(user.createdDateTime, 'yyyy-MM-dd HH:mm')}">2026-01-01 12:00</td>
+                <td>
+                    <span th:if="${user.deletedDateTime == null}"
+                          style="color: #28a745; background: #e8f5e9; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: bold;">활성</span>
+                    <span th:if="${user.deletedDateTime != null}"
+                          style="color: #dc3545; background: #ffebee; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: bold;">탈퇴</span>
+                </td>
+                <td th:text="${user.deletedDateTime != null ? #temporals.format(user.deletedDateTime, 'yyyy-MM-dd HH:mm') : '-'}">
+                    -
+                </td>
             </tr>
             </tbody>
         </table>

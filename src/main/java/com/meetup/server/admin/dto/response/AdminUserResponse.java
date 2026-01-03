@@ -10,7 +10,8 @@ public record AdminUserResponse(
         String email,
         boolean isPersonalInfoAgreement,
         boolean isMarketingAgreement,
-        LocalDateTime createdDateTime
+        LocalDateTime createdDateTime,
+        LocalDateTime deletedDateTime
 ) {
     public static AdminUserResponse from(User user) {
         return new AdminUserResponse(
@@ -19,7 +20,8 @@ public record AdminUserResponse(
                 user.getEmail(),
                 user.isPersonalInfoAgreement(),
                 user.isMarketingAgreement(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getDeletedAt()
         );
     }
 }
