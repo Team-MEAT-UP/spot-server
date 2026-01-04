@@ -5,9 +5,15 @@
     <title>MOISAM Admin</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
-            padding: 20px;
-            color: #333;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #ffffff;
         }
 
         h2 {
@@ -24,13 +30,14 @@
         }
 
         .stat-card {
-            background-color: #f8f9fa;
+            background-color: #fff;
             border: 1px solid #dee2e6;
             border-left: 5px solid #17a2b8;
             padding: 15px 25px;
             border-radius: 6px;
             min-width: 220px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
 
         .stat-card.event {
@@ -57,11 +64,17 @@
             color: #495057;
         }
 
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
         /* 테이블 스타일 */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            background-color: #fff;
         }
 
         th, td {
@@ -136,76 +149,83 @@
 </head>
 <body>
 
-<h2>Events</h2>
+<div class="admin-wrapper">
+    <div th:replace="~{admin/fragments/common :: sidebar('events')}"></div>
 
-<div class="stats-container" th:if="${dailyStats != null}">
-    <div class="stat-card event">
-        <span class="label">📍 금일 신규 이벤트 수</span>
-        <div class="value">
-            <span th:text="${#numbers.formatInteger(dailyStats.dailyEventCount(), 0, 'COMMA')}">0</span>
-            <span class="unit">개</span>
+    <div class="main-content">
+        <h2>Events</h2>
+
+        <div class="stats-container" th:if="${dailyEventStats != null}">
+            <div class="stat-card event">
+                <span class="label">📍 금일 이벤트 수</span>
+                <div class="value">
+                    <span th:text="${#numbers.formatInteger(dailyEventStats.dailyEventCount(), 0, 'COMMA')}">0</span>
+                    <span class="unit">개</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="label">📅 금일 참여자 수</span>
+                <div class="value">
+                    <span th:text="${#numbers.formatInteger(dailyEventStats.dailyParticipantCount(), 0, 'COMMA')}">0</span>
+                    <span class="unit">명</span>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="stat-card">
-        <span class="label">📅 금일 신규 참여자 수</span>
-        <div class="value">
-            <span th:text="${#numbers.formatInteger(dailyStats.dailyParticipantCount(), 0, 'COMMA')}">0</span>
-            <span class="unit">명</span>
-        </div>
-    </div>
-</div>
 
-<table>
-    <thead>
-    <tr>
-        <th>모임 ID</th>
-        <th>모임명</th>
-        <th>모임 일시</th>
-        <th>중간 지점</th>
-        <th>모임 확정 장소</th>
-        <th>참여자 수</th>
-        <th>생성일</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="event : ${eventPages.content}">
-        <td th:text="${event.eventId}">ID</td>
-        <td>
-            <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
-               th:text="${event.eventName}">모임명</a>
-        </td>
-        <td th:text="${#temporals.format(event.eventDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-24 12:00</td>
-        <td th:text="${event.meetingPoint}">중간 지점</td>
-        <td th:text="${event.meetingPlace}">확정 장소</td>
-        <td th:text="${event.participantCount} + '명'">0명</td>
-        <td th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-25 12:00</td>
-    </tr>
-    </tbody>
-</table>
+        <table>
+            <thead>
+            <tr>
+                <th>모임 ID</th>
+                <th>모임명</th>
+                <th>모임 일시</th>
+                <th>중간 지점</th>
+                <th>모임 확정 장소</th>
+                <th>참여자 수</th>
+                <th>생성일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="event : ${eventPages.content}">
+                <td th:text="${event.eventId}">ID</td>
+                <td>
+                    <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
+                       th:text="${event.eventName}">모임명</a>
+                </td>
+                <td th:text="${#temporals.format(event.eventDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-24 12:00</td>
+                <td th:text="${event.meetingPoint}">중간 지점</td>
+                <td th:text="${event.meetingPlace}">확정 장소</td>
+                <td th:text="${event.participantCount} + '명'">0명</td>
+                <td th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-25 12:00</td>
+            </tr>
+            </tbody>
+        </table>
 
-<div class="pagination" th:if="${eventPages.totalPages > 1}">
-    <th:block th:with="
+        <div class="pagination" th:if="${eventPages.totalPages > 1}">
+            <th:block th:with="
         currentPageNumber=${eventPages.number},
         blockSize=5,
         startPage=${(currentPageNumber / blockSize) * blockSize},
         endPage=(${(startPage + blockSize - 1) < eventPages.totalPages ? (startPage + blockSize - 1) : eventPages.totalPages - 1})
     ">
-        <a class="nav-btn" th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}" title="처음">&laquo;</a>
+                <a class="nav-btn" th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}" title="처음">&laquo;</a>
 
-        <a class="nav-btn" th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}" title="이전">&lsaquo;</a>
+                <a class="nav-btn" th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}"
+                   title="이전">&lsaquo;</a>
 
-        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
-            <a th:href="@{/admins/events(page=${i})}"
-               th:text="${i + 1}"
-               th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
-        </th:block>
+                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                    <a th:href="@{/admins/events(page=${i})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
+                </th:block>
 
-        <a class="nav-btn" th:href="@{/admins/events(page=${endPage + 1})}"
-           th:if="${endPage < eventPages.totalPages - 1}" title="다음">&rsaquo;</a>
+                <a class="nav-btn" th:href="@{/admins/events(page=${endPage + 1})}"
+                   th:if="${endPage < eventPages.totalPages - 1}" title="다음">&rsaquo;</a>
 
-        <a class="nav-btn" th:href="@{/admins/events(page=${eventPages.totalPages - 1})}"
-           th:if="${endPage < eventPages.totalPages - 1}" title="끝">&raquo;</a>
-    </th:block>
+                <a class="nav-btn" th:href="@{/admins/events(page=${eventPages.totalPages - 1})}"
+                   th:if="${endPage < eventPages.totalPages - 1}" title="끝">&raquo;</a>
+            </th:block>
+        </div>
+    </div>
 </div>
 
 </body>

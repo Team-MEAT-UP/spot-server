@@ -4,7 +4,9 @@ import com.meetup.server.admin.application.AdminService;
 import com.meetup.server.admin.dto.request.AdminLoginRequest;
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
 import com.meetup.server.admin.dto.response.AdminEventResponse;
-import com.meetup.server.admin.dto.response.DailyStatsResponse;
+import com.meetup.server.admin.dto.response.AdminUserResponse;
+import com.meetup.server.admin.dto.response.DailyEventStatsResponse;
+import com.meetup.server.admin.dto.response.DailyUserStatsResponse;
 import com.meetup.server.admin.exception.AdminErrorType;
 import com.meetup.server.admin.exception.AdminException;
 import jakarta.validation.Valid;
@@ -72,11 +74,24 @@ public class AdminController {
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<AdminEventResponse> eventPages = adminService.getAllEvents(pageable);
+        DailyEventStatsResponse dailyEventStats = adminService.getDailyEventStats();
+
         model.addAttribute("eventPages", eventPages);
         model.addAttribute("clientUrl", clientUrl);
-
-        DailyStatsResponse dailyStats = adminService.getDailyStats();
-        model.addAttribute("dailyStats", dailyStats);
+        model.addAttribute("dailyEventStats", dailyEventStats);
         return "admin/events";
+    }
+
+    @GetMapping("/users")
+    public String getAllUsers(
+            Model model,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<AdminUserResponse> userPages = adminService.getAllUsers(pageable);
+        DailyUserStatsResponse dailyUserStats = adminService.getDailyUserStats();
+
+        model.addAttribute("userPages", userPages);
+        model.addAttribute("dailyUserStats", dailyUserStats);
+        return "admin/users";
     }
 }

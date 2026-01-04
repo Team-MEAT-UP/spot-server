@@ -2,13 +2,18 @@ package com.meetup.server.admin.application;
 
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
 import com.meetup.server.admin.dto.response.AdminEventResponse;
-import com.meetup.server.admin.dto.response.DailyStatsResponse;
+import com.meetup.server.admin.dto.response.AdminUserResponse;
+import com.meetup.server.admin.dto.response.DailyEventStatsResponse;
+import com.meetup.server.admin.dto.response.DailyUserStatsResponse;
 import com.meetup.server.admin.implement.AdminValidator;
 import com.meetup.server.admin.implement.AdminWriter;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
+import com.meetup.server.user.domain.User;
+import com.meetup.server.user.implement.LogUserLoginReader;
+import com.meetup.server.user.implement.UserReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +36,8 @@ public class AdminService {
     private final AdminWriter adminWriter;
     private final EventReader eventReader;
     private final StartPointReader startPointReader;
+    private final LogUserLoginReader logUserLoginReader;
+    private final UserReader userReader;
 
     @Transactional
     public void register(AdminRegisterRequest request) {
@@ -67,11 +74,33 @@ public class AdminService {
         );
     }
 
-    public DailyStatsResponse getDailyStats() {
+    public Page<AdminUserResponse> getAllUsers(Pageable pageable) {
+        Page<User> users = userReader.readAll(pageable);
+
+        List<AdminUserResponse> adminUserResponses = users.getContent().stream()
+                .map(AdminUserResponse::from)
+                .toList();
+
+        return new PageImpl<>(
+                adminUserResponses,
+                pageable,
+                users.getTotalElements()
+        );
+    }
+
+    public DailyEventStatsResponse getDailyEventStats() {
         LocalDate todayDate = LocalDate.now();
         long dailyEventCount = eventReader.readDailyEventCount(todayDate);
         long dailyParticipantCount = startPointReader.readDailyParticipantCount(todayDate);
 
-        return DailyStatsResponse.of(dailyEventCount, dailyParticipantCount);
+        return DailyEventStatsResponse.of(dailyEventCount, dailyParticipantCount);
+    }
+
+    public DailyUserStatsResponse getDailyUserStats() {
+        LocalDate todayDate = LocalDate.now();
+        long dailyLoginUserCount = logUserLoginReader.readDailyLoginUserCount(todayDate);
+        long dailyRegisterUserCount = userReader.readDailyRegisterUserCount(todayDate);
+
+        return DailyUserStatsResponse.of(dailyLoginUserCount, dailyRegisterUserCount);
     }
 }

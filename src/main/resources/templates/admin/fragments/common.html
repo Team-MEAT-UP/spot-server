@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="sidebar(activeMenu)">
+    <style>
+        :root {
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 70px;
+            --main-bg: #f4f6f9;
+            --sidebar-bg: #ffffff;
+            --border-color: #dee2e6;
+            --active-color: #007bff;
+        }
+
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            background-color: var(--main-bg);
+        }
+
+        /* 사이드바 스타일: 흰색 배경 + 우측 실선 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        /* 접혔을 때의 사이드바 너비 */
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            height: 60px;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--active-color);
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.collapsed .sidebar-header h3 {
+            opacity: 0;
+            width: 0;
+            pointer-events: none;
+        }
+
+        #toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px 8px;
+            color: #666;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .sidebar li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #555;
+            text-decoration: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .sidebar li a:hover {
+            background-color: #f8f9fa;
+            color: var(--active-color);
+        }
+
+        .sidebar li a.active {
+            color: var(--active-color);
+            background-color: #e7f1ff;
+            border-right: 4px solid var(--active-color);
+            font-weight: bold;
+        }
+
+        /* 아이콘 여백 */
+        .sidebar li a .icon {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 접혔을 때 텍스트 숨김 */
+        .sidebar.collapsed li a .text {
+            display: none;
+        }
+
+        /* 본문 영역 보정 */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-x: hidden;
+        }
+    </style>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>MOISAM Admin</h3>
+            <button id="toggle-btn" type="button">☰</button>
+        </div>
+        <ul>
+            <li>
+                <a th:href="@{/admins/events}" th:classappend="${activeMenu == 'events' ? 'active' : ''}">
+                    <span class="icon">📍</span>
+                    <span class="text">이벤트</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/admins/users}" th:classappend="${activeMenu == 'users' ? 'active' : ''}">
+                    <span class="icon">👤</span>
+                    <span class="text">사용자</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        document.getElementById('toggle-btn').addEventListener('click', function () {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+    </script>
+</div>
+
+</html>
