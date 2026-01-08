@@ -54,9 +54,14 @@ public class RouteAssembler {
     }
 
     private RouteResponse fetchWithRetry(StartPoint startPoint, Subway subway) {
+        RouteResponse route = null;
+
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-            RouteResponse route = routeFetcher.fetch(startPoint, subway);
-            if (isValid(route)) return route;
+            route = routeFetcher.fetch(startPoint, subway);
+
+            if (isValid(route)) {
+                return route;
+            }
 
             if (attempt < MAX_ATTEMPTS - 1) {
                 log.warn("[RouteAssembler] Route fetch failed for {}. Retrying... (Attempt {}/{})",
@@ -69,7 +74,9 @@ public class RouteAssembler {
                 }
             }
         }
-        return null;
+
+        log.warn("[RouteAssembler] All retry attempts failed. StartPoint: {}, Subway: {}", startPoint.getName(), subway.getName());
+        return route;
     }
 
     private boolean isValid(RouteResponse route) {
