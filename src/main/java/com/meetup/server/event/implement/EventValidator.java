@@ -48,10 +48,4 @@ public class EventValidator {
             throw new EventException(EventErrorType.NO_INTERMEDIATE_SUBWAYS_FOUND);
         }
     }
-
-    public void validateEventCacheExist(Cache.ValueWrapper eventCache) {
-        if (eventCache == null) {
-            throw new EventException(EventErrorType.CACHE_NOT_FOUND);
-        }
-    }
 }
