@@ -1,6 +1,6 @@
-package com.meetup.server.user.infrastructure.jpa;
+package com.meetup.server.log.infrastructure.jpa;
 
-import com.meetup.server.user.domain.LogUserLogin;
+import com.meetup.server.log.domain.LogUserLogin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

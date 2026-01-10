@@ -1,4 +1,4 @@
-package com.meetup.server.user.domain.type;
+package com.meetup.server.log.domain.type;
 
 public enum LoginStatus {
     SUCCESS,

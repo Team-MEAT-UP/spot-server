@@ -69,6 +69,10 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .stat-card.kakao {
+            border-left-color: #FEE500;
+        }
+
         /* 테이블 스타일 */
         table {
             width: 100%;
@@ -170,6 +174,13 @@
                     <span class="unit">명</span>
                 </div>
             </div>
+            <div class="stat-card kakao">
+                <span class="label">💬 금일 카카오 유입</span>
+                <div class="value">
+                    <span th:text="${#numbers.formatInteger(dailyEventStats.dailyKakaoInflowCount(), 0, 'COMMA')}">0</span>
+                    <span class="unit">건</span>
+                </div>
+            </div>
         </div>
 
         <table>
@@ -181,6 +192,7 @@
                 <th>중간 지점</th>
                 <th>모임 확정 장소</th>
                 <th>참여자 수</th>
+                <th>카카오 유입 수</th>
                 <th>생성일</th>
             </tr>
             </thead>
@@ -195,6 +207,7 @@
                 <td th:text="${event.meetingPoint}">중간 지점</td>
                 <td th:text="${event.meetingPlace}">확정 장소</td>
                 <td th:text="${event.participantCount} + '명'">0명</td>
+                <td th:text="${event.kakaoInflowCount} + '건'">1건</td>
                 <td th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-25 12:00</td>
             </tr>
             </tbody>

@@ -1,8 +1,8 @@
-package com.meetup.server.user.domain;
+package com.meetup.server.log.domain;
 
 import com.meetup.server.global.domain.BaseEntity;
 import com.meetup.server.global.util.StringUtil;
-import com.meetup.server.user.domain.type.LoginStatus;
+import com.meetup.server.log.domain.type.LoginStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

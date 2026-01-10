@@ -1,6 +1,6 @@
-package com.meetup.server.user.implement;
+package com.meetup.server.log.implement;
 
-import com.meetup.server.user.infrastructure.jpa.LogUserLoginRepository;
+import com.meetup.server.log.infrastructure.jpa.LogUserLoginRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

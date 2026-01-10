@@ -1,7 +1,7 @@
 package com.meetup.server.auth.support.handler;
 
-import com.meetup.server.user.domain.type.LoginStatus;
-import com.meetup.server.user.implement.LogUserLoginWriter;
+import com.meetup.server.log.domain.type.LoginStatus;
+import com.meetup.server.log.implement.LogUserLoginWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
