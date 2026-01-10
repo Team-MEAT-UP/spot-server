@@ -1,8 +1,8 @@
-package com.meetup.server.user.implement;
+package com.meetup.server.log.implement;
 
-import com.meetup.server.user.domain.LogUserLogin;
-import com.meetup.server.user.domain.type.LoginStatus;
-import com.meetup.server.user.infrastructure.jpa.LogUserLoginRepository;
+import com.meetup.server.log.domain.LogUserLogin;
+import com.meetup.server.log.domain.type.LoginStatus;
+import com.meetup.server.log.infrastructure.jpa.LogUserLoginRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
