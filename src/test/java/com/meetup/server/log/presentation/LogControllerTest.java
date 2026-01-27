@@ -60,7 +60,7 @@ class LogControllerTest extends ControllerTestSupport {
                                 resource(
                                         ResourceSnippetParameters.builder()
                                                 .tag("Log API")
-                                                .description("이밴트 유입 경로를 기록한다.")
+                                                .description("이벤트 유입 경로를 기록한다.")
                                                 .requestHeaders(
                                                         headerWithName(HttpHeaders.AUTHORIZATION).description("JWT Token").optional(),
                                                         headerWithName("X-Real-IP").description("Client IP").optional(),
