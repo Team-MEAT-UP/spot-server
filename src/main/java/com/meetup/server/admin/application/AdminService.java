@@ -9,7 +9,10 @@ import com.meetup.server.admin.implement.AdminValidator;
 import com.meetup.server.admin.implement.AdminWriter;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.log.domain.type.InflowType;
+import com.meetup.server.log.implement.LogEventInflowReader;
 import com.meetup.server.log.implement.LogUserLoginReader;
+import com.meetup.server.log.infrastructure.jpa.projection.EventInflowCount;
 import com.meetup.server.startpoint.implement.StartPointReader;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
 import com.meetup.server.user.domain.User;
@@ -38,6 +41,7 @@ public class AdminService {
     private final StartPointReader startPointReader;
     private final LogUserLoginReader logUserLoginReader;
     private final UserReader userReader;
+    private final LogEventInflowReader logEventInflowReader;
 
     @Transactional
     public void register(AdminRegisterRequest request) {
@@ -53,17 +57,24 @@ public class AdminService {
                 .toList();
 
         List<ParticipantCount> participantCounts = startPointReader.readParticipantCounts(eventIds);
-
         Map<UUID, Integer> eventParticipantCountMap = participantCounts.stream()
                 .collect(Collectors.toMap(
                         ParticipantCount::eventId,
                         participant -> participant.count().intValue()
                 ));
 
+        List<EventInflowCount> eventInflowCounts = logEventInflowReader.readEventInflowCountByEventIds(InflowType.KAKAO, eventIds);
+        Map<UUID, Integer> eventInflowCountMap = eventInflowCounts.stream()
+                .collect((Collectors.toMap(
+                        EventInflowCount::eventId,
+                        eventInflowCount -> eventInflowCount.inflowCount().intValue()
+                )));
+
         List<AdminEventResponse> adminEventResponses = events.getContent().stream()
                 .map(event -> {
-                    int count = eventParticipantCountMap.getOrDefault(event.getEventId(), 0);
-                    return AdminEventResponse.of(event, count);
+                    int participantCount = eventParticipantCountMap.getOrDefault(event.getEventId(), 0);
+                    int eventInflowCount = eventInflowCountMap.getOrDefault(event.getEventId(), 0);
+                    return AdminEventResponse.of(event, participantCount, eventInflowCount);
                 })
                 .toList();
 
@@ -92,8 +103,9 @@ public class AdminService {
         LocalDate todayDate = LocalDate.now();
         long dailyEventCount = eventReader.readDailyEventCount(todayDate);
         long dailyParticipantCount = startPointReader.readDailyParticipantCount(todayDate);
+        long dailyKakaoInflowCount = logEventInflowReader.readDailyEventInflowCount(InflowType.KAKAO, todayDate);
 
-        return DailyEventStatsResponse.of(dailyEventCount, dailyParticipantCount);
+        return DailyEventStatsResponse.of(dailyEventCount, dailyParticipantCount, dailyKakaoInflowCount);
     }
 
     public DailyUserStatsResponse getDailyUserStats() {
