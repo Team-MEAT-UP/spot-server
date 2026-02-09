@@ -15,9 +15,10 @@ public record AdminEventResponse(
         String meetingPoint,
         String meetingPlace,
         int participantCount,
+        int kakaoInflowCount,
         LocalDateTime createdDateTime
 ) {
-    public static AdminEventResponse of(Event event, int participantCount) {
+    public static AdminEventResponse of(Event event, int participantCount, int kakaoInflowCount) {
         return new AdminEventResponse(
                 event.getEventId(),
                 event.getEventName(),
@@ -25,6 +26,7 @@ public record AdminEventResponse(
                 Optional.ofNullable(event.getSubway()).map(Subway::getName).orElse(null),
                 Optional.ofNullable(event.getPlace()).map(Place::getName).orElse(null),
                 participantCount,
+                kakaoInflowCount,
                 event.getCreatedAt()
         );
     }
