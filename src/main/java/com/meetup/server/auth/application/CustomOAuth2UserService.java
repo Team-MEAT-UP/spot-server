@@ -49,20 +49,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private User getOrGenerateUser(OAuthAttributes attributes) {
         String socialId = attributes.oauth2UserInfo().getSocialId();
-        String email = attributes.oauth2UserInfo().getEmail();
 
         return userRepository.findBySocialId(socialId)
                 .map(user -> {
                     if (user.isDeleted()) {
-                        log.info("[Rejoin] 탈퇴 후 재가입 - Email: {}", email);
+                        log.info("[Rejoin] 탈퇴 후 재가입 - SocialId: {}, UserId: {}", socialId, user.getUserId());
                         user.rejoin(attributes.toEntity(attributes.oauth2UserInfo()));
                         return userRepository.save(user);
                     }
-                    log.info("[Login] 로그인 - UserId: {}, Email: {}", user.getUserId(), email);
+                    log.info("[Login] 로그인 - SocialId: {}, UserId: {}", socialId, user.getUserId());
                     return user;
                 })
                 .orElseGet(() -> {
-                    log.info("[Register] 회원가입 - Email: {}", email);
+                    log.info("[Register] 회원가입 - SocialId: {}", socialId);
                     User newUser = attributes.toEntity(attributes.oauth2UserInfo());
                     return userRepository.save(newUser);
                 });
