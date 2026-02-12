@@ -1,8 +1,6 @@
 package com.meetup.server.global.util;
 
 import com.meetup.server.global.support.error.ErrorType;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +21,11 @@ public class LoggingUtil {
         String path = request.getRequestURI();
         String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
         String requestBody = getRequestBody(request);
-        String cookies = getCookies(request);
 
         String msg = """
                 [Request] Method=%s, Path=%s
                 QueryString=%s
-                Body=%s
-                Cookies=%s""".formatted(method, path, queryString, requestBody, cookies);
-
+                Body=%s""".formatted(method, path, queryString, requestBody);
         log.info(msg);
     }
 
@@ -62,23 +57,6 @@ public class LoggingUtil {
                 Body=%s""".formatted(logTag, errorType.getStatus().value(), message, errorBody);
 
         log.error(logMsg, e);
-    }
-
-    public static String getCookies(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length == 0) {
-            return "[]";
-        }
-
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < cookies.length; i++) {
-            sb.append(String.format("{\"%s\":\"%s\"}", cookies[i].getName(), cookies[i].getValue()));
-            if (i < cookies.length - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
     }
 
     public static String getRequestBody(ContentCachingRequestWrapper request) {
