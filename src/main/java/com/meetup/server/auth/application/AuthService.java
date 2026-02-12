@@ -53,8 +53,8 @@ public class AuthService {
     }
 
     private String resolveToken(String token) {
-        log.info("accessToken check: {}", token);
-        log.info("resolveToken check: {}", token);
+        log.debug("accessToken check: {}", token);
+        log.debug("resolveToken check: {}", token);
 
         if (token == null) {
             throw new AuthException(AuthErrorType.INVALID_REFRESH_TOKEN);

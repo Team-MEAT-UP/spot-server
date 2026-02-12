@@ -27,7 +27,7 @@ public class PlaceDummy implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (placeRepository.count() > 0) {
-            log.info("[REVIEW]더미 데이터 존재");
+            log.debug("[REVIEW]더미 데이터 존재");
         } else {
             List<Place> placeList = new ArrayList<>();
 
