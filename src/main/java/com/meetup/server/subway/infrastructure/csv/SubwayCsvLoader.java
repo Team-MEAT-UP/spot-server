@@ -170,7 +170,7 @@ public class SubwayCsvLoader implements ApplicationRunner {
                 Subway toSubway = subwayRepository.findByCode(mapping.getToCode()).orElse(null);
 
                 if (fromSubway == null || toSubway == null) {
-                    log.warn("지하철 정보 없음 - from: {} (code: {}, line: {}) / to: {} (code: {}, line: {})",
+                    log.debug("지하철 정보 없음 - from: {} (code: {}, line: {}) / to: {} (code: {}, line: {})",
                             mapping.getFromName(), mapping.getFromCode(), mapping.getFromLine(),
                             mapping.getToName(), mapping.getToCode(), mapping.getToLine());
                     continue;
@@ -178,7 +178,7 @@ public class SubwayCsvLoader implements ApplicationRunner {
 
                 String key = fromSubway.getSubwayId() + "-" + toSubway.getSubwayId();
                 if (existingTransferKeys.contains(key)) {
-                    log.info("중복 환승 정보 무시됨 - from: {} / to: {}", fromSubway.getSubwayId(), toSubway.getSubwayId());
+                    log.debug("중복 환승 정보 무시됨 - from: {} / to: {}", fromSubway.getSubwayId(), toSubway.getSubwayId());
                     continue;
                 }
 

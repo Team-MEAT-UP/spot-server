@@ -25,7 +25,7 @@ public class UserDummy implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (userRepository.count() > 0) {
-            log.info("[USER]더미 데이터 존재");
+            log.debug("[USER]더미 데이터 존재");
         } else {
             ArrayList<User> userList = new ArrayList<>();
 

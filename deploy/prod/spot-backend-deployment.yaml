@@ -35,5 +35,13 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
+          volumeMounts:
+            - name: backend-log-volume
+              mountPath: /logs
+      volumes:
+        - name: backend-log-volume
+          hostPath:
+            path: /var/log/moisam
+            type: DirectoryOrCreate
       imagePullSecrets:
         - name: ncp-registry-secret

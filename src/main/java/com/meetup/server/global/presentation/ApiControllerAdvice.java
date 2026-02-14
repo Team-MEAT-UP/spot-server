@@ -4,6 +4,7 @@ import com.meetup.server.global.support.error.GlobalErrorType;
 import com.meetup.server.global.support.error.GlobalException;
 import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
 import com.meetup.server.global.support.response.ApiResponse;
+import com.meetup.server.global.util.LoggingUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +16,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
-public class ApiControllerAdvice{
+public class ApiControllerAdvice {
 
     private final DiscordAlarmSender discordAlarmSender;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
-        log.error("Exception : {}", e.getMessage(), e);
+        LoggingUtil.logError("[Exception]", GlobalErrorType.INTERNAL_ERROR, e);
         discordAlarmSender.sendErrorAlert(e);
         return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.INTERNAL_ERROR), GlobalErrorType.INTERNAL_ERROR.getStatus());
     }
@@ -33,19 +34,19 @@ public class ApiControllerAdvice{
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("MethodArgumentNotValidException : {}", e.getMessage(), e);
+        LoggingUtil.logError("[MethodArgumentNotValidException]", GlobalErrorType.FAILED_REQUEST_VALIDATION, e);
         return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.FAILED_REQUEST_VALIDATION), GlobalErrorType.FAILED_REQUEST_VALIDATION.getStatus());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("IllegalArgumentException : {}", e.getMessage(), e);
+        LoggingUtil.logError("[IllegalArgumentException]", GlobalErrorType.INVALID_REQUEST_ARGUMENT, e);
         return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.INVALID_REQUEST_ARGUMENT), GlobalErrorType.INVALID_REQUEST_ARGUMENT.getStatus());
     }
 
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<ApiResponse<?>> handleGlobalException(GlobalException e) {
-        log.error("GlobalException : {}", e.getMessage(), e);
+        LoggingUtil.logError(String.format("[%s]", e.getClass().getSimpleName()), e.getErrorType(), e);
         return new ResponseEntity<>(ApiResponse.error(e.getErrorType()), e.getErrorType().getStatus());
     }
 
