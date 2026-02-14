@@ -5,7 +5,6 @@ import com.meetup.server.auth.exception.AuthErrorType;
 import com.meetup.server.auth.exception.AuthException;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
-import com.meetup.server.user.application.UserService;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.implement.UserReader;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,9 +52,6 @@ public class AuthService {
     }
 
     private String resolveToken(String token) {
-        log.info("accessToken check: {}", token);
-        log.info("resolveToken check: {}", token);
-
         if (token == null) {
             throw new AuthException(AuthErrorType.INVALID_REFRESH_TOKEN);
         }

@@ -65,7 +65,7 @@ public class StartPointService {
 
             eventProcessor.deleteRoute(eventId);
             routeProcessor.deleteCache(eventId);
-            log.info("[DELETE ROUTE/CACHE] eventId: {}", eventId);
+            log.debug("[DELETE ROUTE/CACHE] eventId: {}", eventId);
 
             return EventStartPointResponse.of(event, startPoint);
         } finally {

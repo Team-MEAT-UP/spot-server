@@ -2,9 +2,11 @@ package com.meetup.server.auth.presentation.filter;
 
 import com.meetup.server.auth.application.AuthService;
 import com.meetup.server.auth.dto.response.ReissueTokenResponse;
+import com.meetup.server.auth.exception.AuthErrorType;
 import com.meetup.server.auth.support.AuthenticationUtil;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
+import com.meetup.server.global.util.LoggingUtil;
 import com.meetup.server.user.exception.UserException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -55,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 cookieUtil.setAccessTokenCookie(response, reissueTokenResponse.accessToken());
                 authenticationUtil.setAuthenticationFromRequest(request, reissueTokenResponse.accessToken());
             } catch (UserException e) {
-                log.error("Token is invalid, user check failed: {}", e.getMessage());
+                LoggingUtil.logError("[ReissueFailed]", AuthErrorType.INVALID_REFRESH_TOKEN, e);
                 cookieUtil.deleteAccessTokenCookie(response);
                 cookieUtil.deleteRefreshTokenCookie(response);
             }

@@ -23,7 +23,7 @@ public class ReviewTranslator {
 
     public String translate(String originalContent) {
         ClovaRequest request = createRequest(originalContent);
-        log.info("[Clova Studio] Request: {}", request);
+        log.debug("[Clova Studio] Request: {}", request);
 
         ClovaResponse response = clovaClient.sendRequest(request);
         if (response == null || response.result() == null || response.result().message() == null) {
@@ -32,7 +32,7 @@ public class ReviewTranslator {
         }
 
         String translated = response.result().message().content();
-        log.info("[Clova Studio] Translated: {}", translated);
+        log.debug("[Clova Studio] Translated: {}", translated);
         return translated;
     }
 

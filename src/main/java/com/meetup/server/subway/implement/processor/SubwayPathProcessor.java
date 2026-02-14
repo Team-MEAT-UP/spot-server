@@ -81,7 +81,7 @@ public class SubwayPathProcessor {
             }
 
             if (nodeCount >= MAX_NODES) {
-                log.warn("[SubwayPathProcessor] : 노드 수 제한 초과로 대체 경로 반환 (startSubwayId: {}, endSubwayId: {})", startSubwayId, endSubwayId);
+                log.debug("노드 수 제한 초과로 대체 경로 반환 (startSubwayId: {}, endSubwayId: {})", startSubwayId, endSubwayId);
                 return createFallbackPath(subwayMap, bestNode, startSubwayId, endSubwayId);
             }
 
@@ -124,7 +124,7 @@ public class SubwayPathProcessor {
             }
         }
 
-        log.warn("[SubwayPathProcessor] : 경로를 찾지 못해 대체 경로 반환 (startSubwayId: {}, endSubwayId: {})", startSubwayId, endSubwayId);
+        log.debug("경로를 찾지 못해 대체 경로 반환 (startSubwayId: {}, endSubwayId: {})", startSubwayId, endSubwayId);
         return createFallbackPath(subwayMap, bestNode, startSubwayId, endSubwayId);
     }
 
@@ -132,9 +132,9 @@ public class SubwayPathProcessor {
      * A* 알고리즘의 휴리스틱 함수.
      * 현재 역에서 도착역까지의 직선 거리 기반 예상 소요 시간(초) 계산.
      *
-     * @param subwayId     현재 역 ID
-     * @param endSubwayId  도착역 ID
-     * @param subwayMap    역 정보 맵
+     * @param subwayId    현재 역 ID
+     * @param endSubwayId 도착역 ID
+     * @param subwayMap   역 정보 맵
      * @return 예상 소요 시간 (초)
      */
     private double heuristic(int subwayId, int endSubwayId, Map<Integer, Subway> subwayMap) {
@@ -148,8 +148,8 @@ public class SubwayPathProcessor {
      * 최단 경로 탐색 실패 시 대체 경로 생성.
      * bestNode를 기반으로 경로를 만들고, 도착역 미도달 시 직선 거리 기반 시간 추가.
      *
-     * @param subwayMap    역 정보 맵
-     * @param bestNode     가장 유망한 노드 (최소 totalTime)
+     * @param subwayMap     역 정보 맵
+     * @param bestNode      가장 유망한 노드 (최소 totalTime)
      * @param startSubwayId 출발역 ID
      * @param endSubwayId   도착역 ID
      * @return 대체 경로 결과
@@ -174,7 +174,7 @@ public class SubwayPathProcessor {
         List<String> pathNames = path.stream()
                 .map(id -> subwayMap.get(id).getName())
                 .collect(Collectors.toList());
-        log.info("[SubwayPathProcessor] : 대체 경로 생성 - path: {}, totalTime: {}", path, estimatedTime);
+        log.debug("대체 경로 생성 - path: {}, totalTime: {}", path, estimatedTime);
         return new SubwayPathResult(estimatedTime, path, pathNames);
     }
 

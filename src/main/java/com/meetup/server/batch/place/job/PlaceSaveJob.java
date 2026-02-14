@@ -116,7 +116,7 @@ public class PlaceSaveJob {
             for (KakaoSearchResponse kakaoSearchResponse : kakaoLocalResponse.getKakaoSearchResponses()) {
                 try {
                     if (placeRepository.existsByKakaoPlaceId(kakaoSearchResponse.getId())) {
-                        log.info("이미 존재하는 장소, 건너뜀: {}", kakaoSearchResponse.getPlaceName());
+                        log.debug("이미 존재하는 장소, 건너뜀: {}", kakaoSearchResponse.getPlaceName());
                         continue;
                     }
 

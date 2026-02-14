@@ -1,5 +1,7 @@
 package com.meetup.server.auth.support.handler;
 
+import com.meetup.server.auth.exception.AuthErrorType;
+import com.meetup.server.global.util.LoggingUtil;
 import com.meetup.server.log.domain.type.LoginStatus;
 import com.meetup.server.log.implement.LogUserLoginWriter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,11 +32,11 @@ public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHan
             HttpServletRequest request, HttpServletResponse response, AuthenticationException exception
     ) throws IOException {
 
-        log.info("OAuth2 login failed: {}", exception.getMessage());
-
         String ipAddress = request.getHeader("X-Real-IP");
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         logUserLoginWriter.save(null, LoginStatus.FAILURE, ipAddress, userAgent, exception.getMessage());
+
+        LoggingUtil.logError("[OAuth2Failed]", AuthErrorType.FAILED_OAUTH_AUTHENTICATION, exception);
 
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("error", exception.getLocalizedMessage())

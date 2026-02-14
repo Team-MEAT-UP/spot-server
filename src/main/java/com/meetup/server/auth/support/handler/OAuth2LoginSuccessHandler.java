@@ -63,7 +63,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             redirectUrl = buildDefaultCallbackUrl(stateParams.eventId, stateParams.to);
         }
 
-        log.info("[Redirect URI] - {}", redirectUrl);
         return redirectUrl;
     }
 

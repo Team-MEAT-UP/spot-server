@@ -21,7 +21,7 @@ public class PerformanceAspect {
         } finally {
             long elapsed = System.currentTimeMillis() - start;
             String methodName = joinPoint.getSignature().toShortString();
-            log.info("[Performance] methodName : {}, executeTime : {} ms", methodName, elapsed);
+            log.debug("[Performance] methodName : {}, executeTime : {} ms", methodName, elapsed);
         }
     }
 }
