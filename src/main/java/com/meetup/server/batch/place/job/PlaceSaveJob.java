@@ -188,7 +188,7 @@ public class PlaceSaveJob {
                              GoogleSearchTextResponse.Place googlePlace,
                              String photoUri,
                              double longitude,
-                             double latitude) throws JsonProcessingException {
+                             double latitude) {
         return Place.builder()
                 .id(placeId)
                 .kakaoPlaceId(kakaoSearchResponse.getId())
@@ -211,7 +211,6 @@ public class PlaceSaveJob {
                 )
                 .location(Location.of(longitude, latitude))
                 .point(CoordinateUtil.createPoint(longitude, latitude))
-                .rawJson(objectMapper.writeValueAsString(googlePlace))
                 .build();
     }
 

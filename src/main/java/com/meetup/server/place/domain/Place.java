@@ -62,10 +62,6 @@ public class Place extends BaseEntity {
     @Column(columnDefinition = "geography(Point, 4326)")
     private Point point;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "JSONB")
-    private String rawJson;
-
     @PrePersist
     public void prePersist() {
         if (this.id == null) {
@@ -74,7 +70,7 @@ public class Place extends BaseEntity {
     }
 
     @Builder
-    public Place(UUID id, String kakaoPlaceId, String googlePlaceId, PlaceCategory category, String name, Double googleRating, List<Image> images, List<OpeningHour> openingHours, List<GoogleReview> googleReviews, Location location, Point point, String rawJson) {
+    public Place(UUID id, String kakaoPlaceId, String googlePlaceId, PlaceCategory category, String name, Double googleRating, List<Image> images, List<OpeningHour> openingHours, List<GoogleReview> googleReviews, Location location, Point point) {
         this.id = id;
         this.kakaoPlaceId = kakaoPlaceId;
         this.googlePlaceId = googlePlaceId;
@@ -86,7 +82,6 @@ public class Place extends BaseEntity {
         this.googleReviews = googleReviews;
         this.location = location;
         this.point = point;
-        this.rawJson = rawJson;
     }
 
     public boolean isSamePlace(Place place) {
