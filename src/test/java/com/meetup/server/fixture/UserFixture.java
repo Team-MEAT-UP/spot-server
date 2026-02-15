@@ -19,6 +19,16 @@ public class UserFixture {
     public static User getUser() {
         String uuid = UUID.randomUUID().toString();
         return User.builder()
+                .nickname("땡수팟")
+                .socialId("kakao" + uuid)
+                .email(uuid + "@spot.com")
+                .role(Role.USER)
+                .build();
+    }
+
+    public static User getUserWithId() {
+        String uuid = UUID.randomUUID().toString();
+        return User.builder()
                 .userId(USER_ID)
                 .nickname("땡수팟")
                 .socialId("kakao" + uuid)
@@ -53,7 +63,7 @@ public class UserFixture {
     }
 
     public static UserProfileInfoResponse getUserProfileInfoResponse() {
-        return UserProfileInfoResponse.from(getUser());
+        return UserProfileInfoResponse.from(getUserWithId());
     }
 
     public static UserAgreementRequest getUserAgreementRequest() {
