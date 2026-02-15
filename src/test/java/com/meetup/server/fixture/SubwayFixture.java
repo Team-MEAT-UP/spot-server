@@ -6,6 +6,8 @@ import com.meetup.server.subway.domain.Subway;
 
 public class SubwayFixture {
 
+    public static final int SUBWAY_ID = 1;
+
     public static Subway getSubway() {
         return Subway.builder()
                 .name("강남")
