@@ -4,9 +4,11 @@ import com.meetup.server.place.domain.value.GoogleReview;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Builder
 public record GoogleReviewResponse(
@@ -20,8 +22,8 @@ public record GoogleReviewResponse(
         return GoogleReviewResponse.builder()
                 .nickname(googleReview.author())
                 .profileImage(googleReview.authorProfileImage())
-                .date(googleReview.publishTime().toLocalDate())
-                .day(googleReview.publishTime().getDayOfWeek().getDisplayName(TextStyle.SHORT_STANDALONE, Locale.KOREAN))
+                .date(Optional.ofNullable(googleReview.publishTime()).map(LocalDateTime::toLocalDate).orElse(null))
+                .day(Optional.ofNullable(googleReview.publishTime()).map(LocalDateTime::getDayOfWeek).map(day -> day.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.KOREAN)).orElse(null))
                 .content(googleReview.content())
                 .build();
     }

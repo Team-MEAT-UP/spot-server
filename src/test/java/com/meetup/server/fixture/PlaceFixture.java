@@ -21,7 +21,6 @@ public class PlaceFixture {
                 .googleReviews(List.of())
                 .location(Location.of(37.5406181573079, 127.06798560729))
                 .point(CoordinateUtil.createPoint(127.06798560729, 37.5406181573079))
-                .rawJson(null)
                 .build();
     }
 }

@@ -40,7 +40,10 @@ public class PlaceSorter {
 
     public List<GoogleReview> sortGoogleReviewByNewest(List<GoogleReview> googleReviews) {
         return googleReviews.stream()
-                .sorted(Comparator.comparing(GoogleReview::publishTime).reversed())
+                .sorted(Comparator.comparing(
+                        GoogleReview::publishTime,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
                 .toList();
     }
 }
