@@ -6,6 +6,7 @@ import com.meetup.server.auth.application.AuthService;
 import com.meetup.server.fixture.AuthFixture;
 import com.meetup.server.fixture.UserFixture;
 import com.meetup.server.global.support.response.ResultType;
+import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ControllerTest(AuthController.class)
 class AuthControllerTest extends ControllerTestSupport {
 
     @MockitoBean

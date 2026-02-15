@@ -10,6 +10,7 @@ import com.meetup.server.global.support.response.ResultType;
 import com.meetup.server.place.application.PlaceService;
 import com.meetup.server.place.dto.response.PlaceDetailResponse;
 import com.meetup.server.place.dto.response.PlaceResponseList;
+import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ControllerTest(PlaceController.class)
 class PlaceControllerTest extends ControllerTestSupport {
 
     @MockitoBean

@@ -11,6 +11,7 @@ import com.meetup.server.global.clients.kakao.local.KakaoLocalResponse;
 import com.meetup.server.global.support.response.ResultType;
 import com.meetup.server.startpoint.application.StartPointService;
 import com.meetup.server.startpoint.dto.request.StartPointRequest;
+import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ControllerTest(StartPointController.class)
 class StartPointControllerTest extends ControllerTestSupport {
 
     @MockitoBean

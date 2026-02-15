@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ExtendWith(RestDocumentationExtension.class)
-public abstract class ControllerTestSupport extends IntegrationTestContainer {
+public abstract class ControllerTestSupport {
 
     protected MockMvc mockMvc;
 

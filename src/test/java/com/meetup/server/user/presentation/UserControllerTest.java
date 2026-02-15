@@ -5,6 +5,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.meetup.server.fixture.UserFixture;
 import com.meetup.server.global.support.response.ResultType;
+import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
 import com.meetup.server.user.application.UserService;
 import com.meetup.server.user.dto.request.UserAgreementRequest;
@@ -28,6 +29,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ControllerTest(UserController.class)
 class UserControllerTest extends ControllerTestSupport {
 
     @MockitoBean

@@ -7,6 +7,7 @@ import com.meetup.server.fixture.LogEventInflowFixture;
 import com.meetup.server.global.support.response.ResultType;
 import com.meetup.server.log.application.LogService;
 import com.meetup.server.log.dto.request.LogEventInflowRequest;
+import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ControllerTest(LogController.class)
 class LogControllerTest extends ControllerTestSupport {
 
     @MockitoBean
