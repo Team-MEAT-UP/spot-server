@@ -31,11 +31,11 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query(value = """
             SELECT
                 e.created_at::date as date,
-                COUNT(*) as total_events,
-                COUNT(e.place_id) as confirmed_events,
+                COUNT(*) as totalEvents,
+                COUNT(e.place_id) as confirmedEvents,
                 COUNT(CASE WHEN e.place_id IS NOT NULL AND EXISTS (
                     SELECT 1 FROM log_event_inflow l WHERE l.event_id = e.event_id AND l.inflow_type = 'KAKAO'
-                ) THEN 1 END) as confirmed_with_kakao
+                ) THEN 1 END) as confirmedEventsWithKakao
             FROM event e
             WHERE e.created_at BETWEEN :startDateTime AND :endDateTime
             GROUP BY date

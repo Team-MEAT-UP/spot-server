@@ -132,7 +132,7 @@ public class AdminService {
                                 p.getDate(),
                                 p.getTotalEvents(),
                                 p.getConfirmedEvents(),
-                                p.getConfirmedWithKakao()
+                                p.getConfirmedEventsWithKakao()
                         )
                 ));
 

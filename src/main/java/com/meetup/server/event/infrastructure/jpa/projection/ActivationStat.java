@@ -6,5 +6,5 @@ public interface ActivationStat {
     LocalDate getDate();
     Long getTotalEvents();
     Long getConfirmedEvents();
-    Long getConfirmedWithKakao();
+    Long getConfirmedEventsWithKakao();
 }
