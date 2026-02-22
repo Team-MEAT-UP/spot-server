@@ -232,7 +232,7 @@
     <div class="main-content">
         <h2>Statistics</h2>
 
-        <form class="date-filter" th:action="@{/admins/stats}" method="get">
+        <form class="date-filter" th:action="@{/admins/stats}" method="get" onsubmit="return validateDates()">
             <label for="startDate">시작일:</label>
             <input type="date" id="startDate" name="startDate" th:value="${startDate}">
 
@@ -240,6 +240,7 @@
             <input type="date" id="endDate" name="endDate" th:value="${endDate}">
 
             <button type="submit">조회</button>
+            <span id="dateError" style="color: red; margin-left: 10px; display: none;">시작일은 종료일보다 뒤일 수 없습니다.</span>
         </form>
 
         <div class="tabs">
@@ -358,6 +359,19 @@
 </div>
 
 <script th:inline="javascript">
+    function validateDates() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const errorSpan = document.getElementById('dateError');
+
+        if (startDate && endDate && startDate > endDate) {
+            errorSpan.style.display = 'inline';
+            return false;
+        }
+        errorSpan.style.display = 'none';
+        return true;
+    }
+
     function showTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
