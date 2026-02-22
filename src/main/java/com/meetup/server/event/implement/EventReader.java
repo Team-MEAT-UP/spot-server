@@ -4,6 +4,7 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
+import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,5 +43,9 @@ public class EventReader {
         LocalDateTime startDateTime = todayDate.atStartOfDay();
         LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
         return eventRepository.countByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+    public List<ActivationStat> readDailyActivationStats(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return eventRepository.findDailyActivationStats(startDateTime, endDateTime);
     }
 }
