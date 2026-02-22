@@ -2,6 +2,7 @@ package com.meetup.server.event.infrastructure.jpa;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
+import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +27,22 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findAllByEventDateTimeWithPlace(@Param("eventDateTime") LocalDateTime eventDateTime);
 
     long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    @Query(value = """
+            SELECT
+                e.created_at::date as date,
+                COUNT(*) as total_events,
+                COUNT(e.place_id) as confirmed_events,
+                COUNT(CASE WHEN e.place_id IS NOT NULL AND EXISTS (
+                    SELECT 1 FROM log_event_inflow l WHERE l.event_id = e.event_id AND l.inflow_type = 'KAKAO'
+                ) THEN 1 END) as confirmed_with_kakao
+            FROM event e
+            WHERE e.created_at BETWEEN :startDateTime AND :endDateTime
+            GROUP BY date
+            ORDER BY date
+            """, nativeQuery = true)
+    List<ActivationStat> findDailyActivationStats(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
 }
