@@ -135,6 +135,12 @@
                     <span class="text">사용자</span>
                 </a>
             </li>
+            <li>
+                <a th:href="@{/admins/stats}" th:classappend="${activeMenu == 'stats' ? 'active' : ''}">
+                    <span class="icon">📊</span>
+                    <span class="text">통계</span>
+                </a>
+            </li>
         </ul>
     </div>
 
