@@ -8,6 +8,7 @@ import com.meetup.server.startpoint.infrastructure.jpa.StartPointRepository;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.EventHistory;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.Participant;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
+import com.meetup.server.startpoint.infrastructure.jpa.projection.RetentionStat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -52,5 +53,9 @@ public class StartPointReader {
         LocalDateTime startDateTime = todayDate.atStartOfDay();
         LocalDateTime endDateTime = todayDate.atTime(LocalTime.MAX);
         return startPointRepository.countByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+    public List<RetentionStat> readDailyRetentionStats(LocalDateTime startDateTime, LocalDateTime endDateTime, LocalDateTime thirtyDaysAgo) {
+        return startPointRepository.findDailyRetentionStats(startDateTime, endDateTime, thirtyDaysAgo);
     }
 }

@@ -3,10 +3,7 @@ package com.meetup.server.admin.presentation;
 import com.meetup.server.admin.application.AdminService;
 import com.meetup.server.admin.dto.request.AdminLoginRequest;
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
-import com.meetup.server.admin.dto.response.AdminEventResponse;
-import com.meetup.server.admin.dto.response.AdminUserResponse;
-import com.meetup.server.admin.dto.response.DailyEventStatsResponse;
-import com.meetup.server.admin.dto.response.DailyUserStatsResponse;
+import com.meetup.server.admin.dto.response.*;
 import com.meetup.server.admin.exception.AdminErrorType;
 import com.meetup.server.admin.exception.AdminException;
 import jakarta.validation.Valid;
@@ -16,13 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -93,5 +90,26 @@ public class AdminController {
         model.addAttribute("userPages", userPages);
         model.addAttribute("dailyUserStats", dailyUserStats);
         return "admin/users";
+    }
+
+    @GetMapping("/stats")
+    public String getStats(
+            Model model,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        if (startDate == null) {
+            startDate = LocalDate.now().minusDays(30);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+
+        PeriodStatsResponse stats = adminService.getPeriodStats(startDate, endDate);
+
+        model.addAttribute("stats", stats);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        return "admin/stats";
     }
 }
