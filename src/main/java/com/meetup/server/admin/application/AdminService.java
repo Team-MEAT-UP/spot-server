@@ -1,19 +1,18 @@
 package com.meetup.server.admin.application;
 
 import com.meetup.server.admin.dto.request.AdminRegisterRequest;
-import com.meetup.server.admin.dto.response.AdminEventResponse;
-import com.meetup.server.admin.dto.response.AdminUserResponse;
-import com.meetup.server.admin.dto.response.DailyEventStatsResponse;
-import com.meetup.server.admin.dto.response.DailyUserStatsResponse;
+import com.meetup.server.admin.dto.response.*;
 import com.meetup.server.admin.implement.AdminValidator;
 import com.meetup.server.admin.implement.AdminWriter;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
+import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
 import com.meetup.server.log.domain.type.InflowType;
 import com.meetup.server.log.implement.LogEventInflowReader;
 import com.meetup.server.log.implement.LogUserLoginReader;
 import com.meetup.server.log.infrastructure.jpa.projection.EventInflowCount;
 import com.meetup.server.startpoint.implement.StartPointReader;
+import com.meetup.server.startpoint.infrastructure.jpa.projection.RetentionStat;
 import com.meetup.server.startpoint.infrastructure.querydsl.projection.ParticipantCount;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.implement.UserReader;
@@ -25,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +35,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminService {
+
+    private static final int RETENTION_PERIOD_DAYS = 30;
 
     private final AdminValidator adminValidator;
     private final AdminWriter adminWriter;
@@ -114,5 +117,45 @@ public class AdminService {
         long dailyRegisterUserCount = userReader.readDailyRegisterUserCount(todayDate);
 
         return DailyUserStatsResponse.of(dailyLoginUserCount, dailyRegisterUserCount);
+    }
+
+    public PeriodStatsResponse getPeriodStats(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+        LocalDateTime thirtyDaysAgo = startDate.minusDays(RETENTION_PERIOD_DAYS).atStartOfDay();
+
+        List<ActivationStat> activationProjections = eventReader.readDailyActivationStats(startDateTime, endDateTime);
+        Map<LocalDate, DailyActivationStatsResponse> activationMap = activationProjections.stream()
+                .collect(Collectors.toMap(
+                        ActivationStat::getDate,
+                        p -> DailyActivationStatsResponse.of(
+                                p.getDate(),
+                                p.getTotalEvents(),
+                                p.getConfirmedEvents(),
+                                p.getConfirmedWithKakao()
+                        )
+                ));
+
+        List<RetentionStat> retentionProjections = startPointReader.readDailyRetentionStats(startDateTime, endDateTime, thirtyDaysAgo);
+        Map<LocalDate, DailyRetentionStatsResponse> retentionMap = retentionProjections.stream()
+                .collect(Collectors.toMap(
+                        RetentionStat::getDate,
+                        p -> DailyRetentionStatsResponse.of(
+                                p.getDate(),
+                                p.getTotalUsers(),
+                                p.getRetainedUsers(),
+                                p.getRetainedUsersWithKakao()
+                        )
+                ));
+
+        List<DailyActivationStatsResponse> activationStats = startDate.datesUntil(endDate.plusDays(1))
+                .map(date -> activationMap.getOrDefault(date, DailyActivationStatsResponse.of(date, 0, 0, 0)))
+                .toList();
+
+        List<DailyRetentionStatsResponse> retentionStats = startDate.datesUntil(endDate.plusDays(1))
+                .map(date -> retentionMap.getOrDefault(date, DailyRetentionStatsResponse.of(date, 0, 0, 0)))
+                .toList();
+
+        return PeriodStatsResponse.of(activationStats, retentionStats);
     }
 }
