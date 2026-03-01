@@ -24,7 +24,7 @@ public class SubwayProcessor {
     private final SubwayReader subwayReader;
     private final SubwayPathProcessor subwayPathProcessor;
 
-    public List<Integer> findTopFairSubways(Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPaths) {
+    public List<Subway> findTopFairSubways(Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPaths) {
         Map<Integer, List<Integer>> destinationSubwayTimeMap = new HashMap<>();
 
         startPointToSubwayPaths.forEach((startPoint, subwayPaths) ->
@@ -51,7 +51,7 @@ public class SubwayProcessor {
 
         if (result.size() < MAX_SUBWAY_COUNT && !destinationSubwayTimeMap.isEmpty()) {
             int needCount = MAX_SUBWAY_COUNT - result.size();
-            log.info("[후보역 추가] 부족한 {}개 역 추가", needCount);
+            log.debug("[후보역 추가] 부족한 {}개 역 추가", needCount);
 
             List<Integer> additionalCandidates = destinationSubwayTimeMap.entrySet().stream()
                     .filter(entry -> entry.getValue().size() < MINIMUM_PEOPLE_REQUIRED)
@@ -67,11 +67,11 @@ public class SubwayProcessor {
         if (result.isEmpty()) {
             log.warn("[후보역 없음] 지하철로 도달 가능한 중간지점을 찾을 수 없습니다. | 전체 후보역ID={}",
                     destinationSubwayTimeMap.keySet());
+            return Collections.emptyList();
         } else {
-            log.info("[중간지점 확정] 최종 후보역 목록 생성 완료 | 후보군: {}", result);
+            log.debug("[중간지점 확정] 최종 후보역 목록 생성 완료 | 후보군: {}", result);
+            return subwayReader.readAllOrderByIds(result);
         }
-
-        return result;
     }
 
     /**

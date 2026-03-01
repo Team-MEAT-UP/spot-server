@@ -17,14 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -37,10 +33,9 @@ public class MeetingPointCalculator {
     private final SubwayReader subwayReader;
     private final EventValidator eventValidator;
 
-    @Transactional
     public List<MeetingPointResult> calculate(UUID eventId) {
         Event event = eventReader.read(eventId);
-        List<StartPoint> startPoints = startPointReader.readAll(event);
+        List<StartPoint> startPoints = startPointReader.readAllWithUserByEvent(event);
         eventValidator.validateMinimumStartPoints(startPoints);
 
         Map<StartPoint, Subway> startPointToSubwayMap = subwayProcessor.mapStartPointsToClosestSubway(startPoints);
@@ -52,11 +47,10 @@ public class MeetingPointCalculator {
 
         Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPathsMap = subwayProcessor.mapStartPointsToDestinationSubways(startPoints, startPointToSubwayMap, nearbySubways);
 
-        List<Integer> topFairSubwayIds = subwayProcessor.findTopFairSubways(startPointToSubwayPathsMap);
-        if (topFairSubwayIds.isEmpty()) {
+        List<Subway> topFairSubways = subwayProcessor.findTopFairSubways(startPointToSubwayPathsMap);
+        if (topFairSubways.isEmpty()) {
             throw new EventException(EventErrorType.PATH_CALCULATION_FAILED);
         }
-        List<Subway> topFairSubways = subwayReader.readAllOrderByIds(topFairSubwayIds);
 
         Subway firstSubway = topFairSubways.getFirst();
         event.updateSubway(firstSubway);
