@@ -12,8 +12,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CoordinateUtil {
 
-    private static final double EARTH_RADIUS_KM = 6371.0;
-
     public static Point createPoint(double longitude, double latitude) {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Coordinate coordinate = new Coordinate(longitude, latitude);
@@ -29,32 +27,52 @@ public class CoordinateUtil {
             return points.getFirst();
         }
 
-        double sumLongitude = 0.0;
-        double sumLatitude = 0.0;
+        // Weiszfeld 알고리즘을 사용
+        double medianLongitude = points.stream().mapToDouble(Point::getX).average().orElse(0);
+        double medianLatitude = points.stream().mapToDouble(Point::getY).average().orElse(0);
 
-        for (Point point : points) {
-            sumLongitude += point.getX();
-            sumLatitude += point.getY();
+        final int MAX_ITERATIONS = 100;
+        final double CONVERGENCE_THRESHOLD = 1e-7;
+
+        for (int iter = 0; iter < MAX_ITERATIONS; iter++) {
+            double weightSum = 0;
+            double weightedLongitude = 0;
+            double weightedLatitude = 0;
+
+            for (Point point : points) {
+                double dx = point.getX() - medianLongitude;
+                double dy = point.getY() - medianLatitude;
+                double distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < CONVERGENCE_THRESHOLD) {
+                    continue;
+                }
+
+                double weight = 1.0 / distance;
+                weightSum += weight;
+                weightedLongitude += weight * point.getX();
+                weightedLatitude += weight * point.getY();
+            }
+
+            if (weightSum == 0) {
+                break;
+            }
+
+            double newLongitude = weightedLongitude / weightSum;
+            double newLatitude = weightedLatitude / weightSum;
+
+            double shift = Math.sqrt(
+                    Math.pow(newLongitude - medianLongitude, 2) + Math.pow(newLatitude - medianLatitude, 2)
+            );
+
+            medianLongitude = newLongitude;
+            medianLatitude = newLatitude;
+
+            if (shift < CONVERGENCE_THRESHOLD) {
+                break;
+            }
         }
 
-        double avgLongitude = sumLongitude / points.size();
-        double avgLatitude = sumLatitude / points.size();
-
-        return createPoint(avgLongitude, avgLatitude);
-    }
-
-    public static double calculateDistance(Point start, Point end) {
-        double startLongitude = Math.toRadians(start.getX());
-        double startLatitude = Math.toRadians(start.getY());
-        double endLongitude = Math.toRadians(end.getX());
-        double endLatitude = Math.toRadians(end.getY());
-
-        double deltaLongitude = endLongitude - startLongitude;
-        double deltaLatitude = endLatitude - startLatitude;
-
-        double a = Math.sin(deltaLatitude / 2) * Math.sin(deltaLatitude / 2) +
-                Math.cos(startLatitude) * Math.cos(endLatitude) * Math.sin(deltaLongitude / 2) * Math.sin(deltaLongitude / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS_KM * c;
+        return createPoint(medianLongitude, medianLatitude);
     }
 }

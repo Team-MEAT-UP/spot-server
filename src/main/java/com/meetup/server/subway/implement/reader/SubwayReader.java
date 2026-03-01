@@ -16,8 +16,9 @@ import java.util.List;
 public class SubwayReader {
 
     private static final double NEAREST_SUBWAY_RADIUS_M = 1500;
-    private static final double MAX_SEARCH_RADIUS_M = 5000;
+    private static final double MAX_SEARCH_RADIUS_M = 10000;
     private static final double RADIUS_INCREMENT_M = 500;
+    private static final int MIN_CANDIDATE_COUNT = 5;
 
     private final SubwayRepository subwayRepository;
 
@@ -45,7 +46,7 @@ public class SubwayReader {
         while (radius <= MAX_SEARCH_RADIUS_M) {
             nearbySubways = readAllWithinRadius(centerPoint, radius);
 
-            if (!nearbySubways.isEmpty()) {
+            if (nearbySubways.size() >= MIN_CANDIDATE_COUNT) {
                 break;
             }
 
