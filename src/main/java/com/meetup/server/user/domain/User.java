@@ -20,29 +20,29 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "nickname", length = 255, nullable = true)
+    @Column(name = "nickname", length = 30)
     private String nickname;
 
-    @Column(name = "profile_image", length = 255, nullable = true)
+    @Column(name = "profile_image")
     private String profileImage;
 
-    @Column(name = "social_id", length = 255, nullable = false, unique = true)
+    @Column(name = "social_id", length = 20, nullable = false, unique = true)
     private String socialId;
 
-    @Column(name = "email", length = 255, nullable = false, unique = true)
+    @Column(name = "email", length = 50, nullable = false, unique = true)
     private String email;
 
     @Column(name = "personal_info_agreement", nullable = false)
     private boolean personalInfoAgreement;
 
-    @Column(name = "marketing_agreement", nullable = true)
+    @Column(name = "marketing_agreement")
     private boolean marketingAgreement;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", length = 10, nullable = false)
     private Role role;
 
-    @Column(name = "deleted_at", nullable = true)
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
