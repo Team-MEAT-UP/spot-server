@@ -29,10 +29,10 @@ public class StartPoint extends BaseEntity {
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "start_point_name", nullable = false)
+    @Column(name = "start_point_name", length = 50, nullable = false)
     private String name;
 
     @Column(name = "is_user", nullable = false)
@@ -41,7 +41,7 @@ public class StartPoint extends BaseEntity {
     @Column(name = "is_transit", nullable = false)
     private boolean isTransit;
 
-    @Column(name = "non_user_name", length = 255, nullable = true)
+    @Column(name = "non_user_name", length = 5)
     private String nonUserName;
 
     @Embedded
