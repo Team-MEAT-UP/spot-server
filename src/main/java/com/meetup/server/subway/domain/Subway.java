@@ -21,13 +21,13 @@ public class Subway extends BaseEntity {
     @Column(name = "subway_id")
     private Integer subwayId;
 
-    @Column(name = "subway_name", length = 50, nullable = false)
+    @Column(name = "subway_name", length = 20, nullable = false)
     private String name;
 
-    @Column(name = "subway_code", nullable = false, unique = true)
+    @Column(name = "subway_code", length = 5, nullable = false, unique = true)
     private String code;
 
-    @Column(name = "subway_line", nullable = false)
+    @Column(name = "subway_line", length = 10, nullable = false)
     private String line;
 
     @Embedded
