@@ -58,21 +58,10 @@ public class MeetingPointCalculator {
         }
         List<Subway> topFairSubways = subwayReader.readAllOrderByIds(topFairSubwayIds);
 
-        List<Subway> filteredSubways = topFairSubways.stream()
-                .collect(Collectors.toMap(
-                        Subway::getName,
-                        Function.identity(),
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ))
-                .values()
-                .stream()
-                .toList();
-
-        Subway firstSubway = filteredSubways.getFirst();
+        Subway firstSubway = topFairSubways.getFirst();
         event.updateSubway(firstSubway);
 
-        return filteredSubways.stream()
+        return topFairSubways.stream()
                 .map(subway -> MeetingPointResult.of(event, startPoints, subway))
                 .toList();
     }

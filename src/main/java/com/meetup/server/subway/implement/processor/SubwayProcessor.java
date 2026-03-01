@@ -36,9 +36,15 @@ public class SubwayProcessor {
                 })
         );
 
+        List<Subway> allSubways = subwayReader.readAllOrderByIds(new ArrayList<>(destinationSubwayTimeMap.keySet()));
+        Map<Integer, String> subwayNames = allSubways.stream()
+                .collect(Collectors.toMap(Subway::getSubwayId, Subway::getName));
+
+        Set<String> selectedNames = new HashSet<>();
         List<Integer> result = destinationSubwayTimeMap.entrySet().stream()
                 .filter(entry -> entry.getValue().size() >= MINIMUM_PEOPLE_REQUIRED)
                 .sorted(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
+                .filter(entry -> selectedNames.add(subwayNames.get(entry.getKey())))
                 .limit(MAX_SUBWAY_COUNT)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
@@ -50,6 +56,7 @@ public class SubwayProcessor {
             List<Integer> additionalCandidates = destinationSubwayTimeMap.entrySet().stream()
                     .filter(entry -> entry.getValue().size() < MINIMUM_PEOPLE_REQUIRED)
                     .sorted(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
+                    .filter(entry -> selectedNames.add(subwayNames.get(entry.getKey())))
                     .limit(needCount)
                     .map(Map.Entry::getKey)
                     .toList();
