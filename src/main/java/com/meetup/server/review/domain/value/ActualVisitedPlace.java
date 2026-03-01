@@ -15,7 +15,7 @@ import org.locationtech.jts.geom.Point;
 @Builder
 public class ActualVisitedPlace {
 
-    @Column(name = "actual_visited_place_name", nullable = false)
+    @Column(name = "actual_visited_place_name", length = 50, nullable = false)
     private String name;
 
     @Embedded
