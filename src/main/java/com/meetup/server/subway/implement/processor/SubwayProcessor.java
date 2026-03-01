@@ -43,14 +43,18 @@ public class SubwayProcessor {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        if (result.isEmpty() && !destinationSubwayTimeMap.isEmpty()) {
-            log.info("[검색 조건 완화] 최소 참여 인원({}) 미달 -> 전체 {}개 후보역 대상으로 중간지점 산출", MINIMUM_PEOPLE_REQUIRED, destinationSubwayTimeMap.size());
+        if (result.size() < MAX_SUBWAY_COUNT && !destinationSubwayTimeMap.isEmpty()) {
+            int needCount = MAX_SUBWAY_COUNT - result.size();
+            log.info("[후보역 추가] 부족한 {}개 역 추가", needCount);
 
-            result = destinationSubwayTimeMap.entrySet().stream()
-                    .sorted((e1, e2) -> Double.compare(calculateFairnessScore(e1.getValue()), calculateFairnessScore(e2.getValue())))
-                    .limit(MAX_SUBWAY_COUNT)
+            List<Integer> additionalCandidates = destinationSubwayTimeMap.entrySet().stream()
+                    .filter(entry -> entry.getValue().size() < MINIMUM_PEOPLE_REQUIRED)
+                    .sorted(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
+                    .limit(needCount)
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
+
+            result.addAll(additionalCandidates);
         }
 
         if (result.isEmpty()) {
