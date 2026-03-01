@@ -25,7 +25,7 @@ public class Event extends BaseEntity {
     @Column(name = "event_id")
     private UUID eventId;
 
-    @Column(name = "event_name", nullable = false)
+    @Column(name = "event_name", length = 50, nullable = false)
     private String eventName;
 
     @Column(name = "event_date_time", nullable = false)
@@ -36,11 +36,11 @@ public class Event extends BaseEntity {
     private MeetingPointRouteGroups routes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subway_id", nullable = true)
+    @JoinColumn(name = "subway_id")
     private Subway subway;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id", nullable = true)
+    @JoinColumn(name = "place_id")
     private Place place;
 
     @PrePersist
