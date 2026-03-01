@@ -28,7 +28,7 @@ public class Place extends BaseEntity {
     @Column(name = "place_id")
     private UUID id;
 
-    @Column(name = "kakao_place_id", nullable = false)
+    @Column(name = "kakao_place_id", length = 20, nullable = false)
     private String kakaoPlaceId;
 
     @Column(name = "google_place_id", nullable = false)
@@ -38,7 +38,7 @@ public class Place extends BaseEntity {
     @Column(name = "category", nullable = false)
     private PlaceCategory category;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
     @Column(name = "google_rating")

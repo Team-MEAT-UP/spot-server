@@ -25,7 +25,7 @@ public class SubwayConnection extends BaseEntity {
     @JoinColumn(name = "to_subway_id", nullable = false)
     private Subway toSubway;
 
-    @Column(name = "subway_line", nullable = false)
+    @Column(name = "subway_line", length = 10, nullable = false)
     private String line;
 
     @Column(name = "section_time_sec", nullable = false)

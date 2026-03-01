@@ -17,32 +17,32 @@ public class UserFixture {
     public static final String NEW_NICKNAME = "새닉네임";
 
     public static User getUser() {
-        String uuid = UUID.randomUUID().toString();
+        String shortUuid = UUID.randomUUID().toString().substring(0, 8);
         return User.builder()
                 .nickname("땡수팟")
-                .socialId("kakao" + uuid)
-                .email(uuid + "@spot.com")
+                .socialId("kakao" + shortUuid)
+                .email(shortUuid + "@spot.com")
                 .role(Role.USER)
                 .build();
     }
 
     public static User getUserWithId() {
-        String uuid = UUID.randomUUID().toString();
+        String shortUuid = UUID.randomUUID().toString().substring(0, 8);
         return User.builder()
                 .userId(USER_ID)
                 .nickname("땡수팟")
-                .socialId("kakao" + uuid)
-                .email(uuid + "@spot.com")
+                .socialId("kakao" + shortUuid)
+                .email(shortUuid + "@spot.com")
                 .role(Role.USER)
                 .build();
     }
 
     public static User getNewUser() {
-        String uuid = UUID.randomUUID().toString();
+        String shortUuid = UUID.randomUUID().toString().substring(0, 8);
         return User.builder()
                 .nickname("김아무개")
-                .socialId("kakao" + uuid)
-                .email(uuid + "@spot.com")
+                .socialId("kakao" + shortUuid)
+                .email(shortUuid + "@spot.com")
                 .role(Role.USER)
                 .personalInfoAgreement(true)
                 .marketingAgreement(true)
@@ -50,11 +50,11 @@ public class UserFixture {
     }
 
     public static User getWithdrawnUser() {
-        String uuid = UUID.randomUUID().toString();
+        String shortUuid = UUID.randomUUID().toString().substring(0, 8);
         return User.builder()
                 .nickname("탈퇴한 사용자")
-                .socialId("kakao" + uuid)
-                .email(uuid + "@spot.com")
+                .socialId("kakao" + shortUuid)
+                .email(shortUuid + "@spot.com")
                 .role(Role.WITHDRAWN)
                 .personalInfoAgreement(false)
                 .marketingAgreement(false)
