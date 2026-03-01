@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Address {
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address", length = 50, nullable = false)
     private String address;
 
-    @Column(name = "road_address", nullable = true)
+    @Column(name = "road_address", length = 50)
     private String roadAddress;
 
     public static Address of(String address, String roadAddress) {
