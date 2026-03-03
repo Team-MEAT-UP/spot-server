@@ -7,7 +7,6 @@ import com.meetup.server.subway.domain.Subway;
 import com.meetup.server.subway.domain.SubwayConnection;
 import com.meetup.server.subway.domain.TransferInfo;
 import com.meetup.server.subway.infrastructure.csv.mapping.SubwayCsvMapping;
-import com.meetup.server.subway.infrastructure.csv.mapping.TransferInfoMapping;
 import com.meetup.server.subway.infrastructure.jpa.SubwayConnectionRepository;
 import com.meetup.server.subway.infrastructure.jpa.SubwayRepository;
 import com.meetup.server.subway.infrastructure.jpa.TransferInfoRepository;
@@ -24,13 +23,10 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,18 +41,36 @@ public class SubwayCsvLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (subwayRepository.count() == 0 || subwayConnectionRepository.count() == 0 || transferInfoRepository.count() == 0) {
-            subwayConnectionRepository.deleteAll();
-            transferInfoRepository.deleteAll();
-            subwayRepository.deleteAll();
+        long subwayCount = subwayRepository.count();
+        long connCount = subwayConnectionRepository.count();
+        long transferCount = transferInfoRepository.count();
 
-            subwayRepository.saveAll(parseSubwayCsv());
-            subwayConnectionRepository.saveAll(parseSectionTimeCsv());
-            transferInfoRepository.saveAll(parseTransferInfoCsv());
+        if (subwayCount == 0 && connCount == 0 && transferCount == 0) {
+            log.info("지하철 데이터가 모두 비어있어 초기화를 시작합니다.");
+
+            Map<String, Subway> subwayCodeMap = loadAndSaveSubways();
+
+            List<SubwayConnection> connections = parseSectionTimeCsv(subwayCodeMap);
+            subwayConnectionRepository.saveAll(connections);
+
+            List<TransferInfo> transferInfos = generateTransferInfo(subwayCodeMap.values());
+            transferInfoRepository.saveAll(transferInfos);
+
+            log.info("지하철 데이터 적재 완료 - 역: {}, 구간: {}, 환승: {}",
+                    subwayCodeMap.size(), connections.size(), transferInfos.size());
         }
     }
 
-    private Set<Subway> parseSubwayCsv() throws IOException {
+    private String normalizeCode(String code) {
+        if (code == null || code.isBlank()) return null;
+        try {
+            return String.valueOf(Integer.parseInt(code.trim()));
+        } catch (NumberFormatException e) {
+            return code.trim();
+        }
+    }
+
+    private Map<String, Subway> loadAndSaveSubways() throws IOException {
         ClassPathResource resource = new ClassPathResource("csv/SPOT_지하철역_정보.csv");
 
         try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), StandardCharsets.UTF_8)) {
@@ -69,36 +83,46 @@ public class SubwayCsvLoader implements ApplicationRunner {
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
-            Set<Subway> subways = new HashSet<>();
-
+            Map<String, Subway> subwayCodeMap = new HashMap<>();
             for (SubwayCsvMapping csvLine : csvToBean.parse()) {
                 String line = csvLine.getLine();
 
-                Subway fromSubway = Subway.builder()
-                        .name(csvLine.getFromName())
-                        .code(csvLine.getFromCode())
-                        .line(line)
-                        .location(Location.of(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
-                        .point(CoordinateUtil.createPoint(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
-                        .build();
+                String fromCode = normalizeCode(csvLine.getFromCode());
+                if (!subwayCodeMap.containsKey(fromCode)) {
+                    Subway fromSubway = Subway.builder()
+                            .name(csvLine.getFromName())
+                            .code(fromCode)
+                            .line(line)
+                            .location(Location.of(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
+                            .point(CoordinateUtil.createPoint(csvLine.getFromLongitude(), csvLine.getFromLatitude()))
+                            .build();
+                    subwayCodeMap.put(fromCode, fromSubway);
+                }
 
-                Subway toSubway = Subway.builder()
-                        .name(csvLine.getToName())
-                        .code(csvLine.getToCode())
-                        .line(line)
-                        .location(Location.of(csvLine.getToLongitude(), csvLine.getToLatitude()))
-                        .point(CoordinateUtil.createPoint(csvLine.getToLongitude(), csvLine.getToLatitude()))
-                        .build();
-
-                subways.add(fromSubway);
-                subways.add(toSubway);
+                String toCode = normalizeCode(csvLine.getToCode());
+                if (!subwayCodeMap.containsKey(toCode)) {
+                    Subway toSubway = Subway.builder()
+                            .name(csvLine.getToName())
+                            .code(toCode)
+                            .line(line)
+                            .location(Location.of(csvLine.getToLongitude(), csvLine.getToLatitude()))
+                            .point(CoordinateUtil.createPoint(csvLine.getToLongitude(), csvLine.getToLatitude()))
+                            .build();
+                    subwayCodeMap.put(toCode, toSubway);
+                }
             }
 
-            return subways;
+            List<Subway> savedSubways = subwayRepository.saveAll(subwayCodeMap.values());
+
+            Map<String, Subway> savedSubwayMap = new HashMap<>();
+            for (Subway s : savedSubways) {
+                savedSubwayMap.put(s.getCode(), s);
+            }
+            return savedSubwayMap;
         }
     }
 
-    private List<SubwayConnection> parseSectionTimeCsv() throws IOException {
+    private List<SubwayConnection> parseSectionTimeCsv(Map<String, Subway> subwayCodeMap) throws IOException {
         ClassPathResource resource = new ClassPathResource("csv/SPOT_지하철역_정보.csv");
 
         try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), StandardCharsets.UTF_8)) {
@@ -115,84 +139,68 @@ public class SubwayCsvLoader implements ApplicationRunner {
             List<SubwayConnection> connections = new ArrayList<>();
 
             for (SubwayCsvMapping record : records) {
-                Subway fromSubway = subwayRepository.findByCode(record.getFromCode()).orElse(null);
-                Subway toSubway = subwayRepository.findByCode(record.getToCode()).orElse(null);
+                Subway fromSubway = subwayCodeMap.get(normalizeCode(record.getFromCode()));
+                Subway toSubway = subwayCodeMap.get(normalizeCode(record.getToCode()));
 
                 if (fromSubway == null || toSubway == null) {
-                    log.warn("지하철 정보 없음 - from: {} (code: {}) / to: {} (code: {})",
+                    log.warn("지하철 구간 연결 누락 - from: {} (code: {}) / to: {} (code: {})",
                             record.getFromName(), record.getFromCode(), record.getToName(), record.getToCode());
                     continue;
                 }
 
                 int sectionTimeSec = record.getSectionTime() * 60;
 
-                SubwayConnection connectionAB = SubwayConnection.builder()
+                connections.add(SubwayConnection.builder()
                         .fromSubway(fromSubway)
                         .toSubway(toSubway)
                         .line(record.getLine())
                         .sectionTimeSec(sectionTimeSec)
-                        .build();
-                connections.add(connectionAB);
+                        .build());
 
-                SubwayConnection connectionBA = SubwayConnection.builder()
+                connections.add(SubwayConnection.builder()
                         .fromSubway(toSubway)
                         .toSubway(fromSubway)
                         .line(record.getLine())
                         .sectionTimeSec(sectionTimeSec)
-                        .build();
-                connections.add(connectionBA);
+                        .build());
             }
 
             return connections;
         }
     }
 
-    private List<TransferInfo> parseTransferInfoCsv() throws IOException {
-        ClassPathResource resource = new ClassPathResource("csv/서울교통공사_서울 도시철도 환승정보_20250319.csv");
+    private List<TransferInfo> generateTransferInfo(Collection<Subway> allSubways) {
+        Map<String, List<Subway>> subwaysByName = allSubways.stream()
+                .collect(Collectors.groupingBy(Subway::getName));
 
-        try (Reader reader = Files.newBufferedReader(resource.getFile().toPath(), Charset.forName("EUC-KR"))) {
-            HeaderColumnNameMappingStrategy<TransferInfoMapping> strategy = new HeaderColumnNameMappingStrategy<>();
-            strategy.setType(TransferInfoMapping.class);
+        Set<String> existingKeys = new HashSet<>();
+        List<TransferInfo> transferInfos = new ArrayList<>();
 
-            CsvToBean<TransferInfoMapping> csvToBean = new CsvToBeanBuilder<TransferInfoMapping>(reader)
-                    .withMappingStrategy(strategy)
-                    .withIgnoreEmptyLine(true)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
+        for (List<Subway> sameNameSubways : subwaysByName.values()) {
+            if (sameNameSubways.size() < 2) continue;
 
-            List<TransferInfoMapping> transferInfoMappings = csvToBean.parse();
+            for (int i = 0; i < sameNameSubways.size(); i++) {
+                for (int j = i + 1; j < sameNameSubways.size(); j++) {
+                    Subway from = sameNameSubways.get(i);
+                    Subway to = sameNameSubways.get(j);
 
-            Set<String> existingTransferKeys = new HashSet<>();
-            List<TransferInfo> transferInfos = new ArrayList<>();
+                    String keyAB = from.getSubwayId() + "-" + to.getSubwayId();
+                    String keyBA = to.getSubwayId() + "-" + from.getSubwayId();
 
-            for (TransferInfoMapping mapping : transferInfoMappings) {
-                Subway fromSubway = subwayRepository.findByCode(mapping.getFromCode()).orElse(null);
-                Subway toSubway = subwayRepository.findByCode(mapping.getToCode()).orElse(null);
-
-                if (fromSubway == null || toSubway == null) {
-                    log.debug("지하철 정보 없음 - from: {} (code: {}, line: {}) / to: {} (code: {}, line: {})",
-                            mapping.getFromName(), mapping.getFromCode(), mapping.getFromLine(),
-                            mapping.getToName(), mapping.getToCode(), mapping.getToLine());
-                    continue;
+                    if (!existingKeys.contains(keyAB)) {
+                        existingKeys.add(keyAB);
+                        transferInfos.add(TransferInfo.builder()
+                                .fromSubway(from).toSubway(to).build());
+                    }
+                    if (!existingKeys.contains(keyBA)) {
+                        existingKeys.add(keyBA);
+                        transferInfos.add(TransferInfo.builder()
+                                .fromSubway(to).toSubway(from).build());
+                    }
                 }
-
-                String key = fromSubway.getSubwayId() + "-" + toSubway.getSubwayId();
-                if (existingTransferKeys.contains(key)) {
-                    log.debug("중복 환승 정보 무시됨 - from: {} / to: {}", fromSubway.getSubwayId(), toSubway.getSubwayId());
-                    continue;
-                }
-
-                existingTransferKeys.add(key);
-
-                TransferInfo transferInfo = TransferInfo.builder()
-                        .fromSubway(fromSubway)
-                        .toSubway(toSubway)
-                        .build();
-
-                transferInfos.add(transferInfo);
             }
-
-            return transferInfos;
         }
+
+        return transferInfos;
     }
 }

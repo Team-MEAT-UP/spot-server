@@ -59,7 +59,7 @@ public class EventService {
         List<MeetingPointRouteGroup> meetingPointRouteGroups = getRouteGroups(eventId);
 
         Event event = eventReader.read(eventId);
-        List<StartPoint> startPoints = startPointReader.readAll(event);
+        List<StartPoint> startPoints = startPointReader.readAllWithUserByEvent(event);
 
         for (MeetingPointRouteGroup group : meetingPointRouteGroups) {
             routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
