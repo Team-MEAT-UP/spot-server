@@ -9,6 +9,7 @@ import com.meetup.server.fixture.SubwayFixture;
 import com.meetup.server.global.support.response.ResultType;
 import com.meetup.server.place.application.PlaceService;
 import com.meetup.server.place.dto.response.PlaceDetailResponse;
+import com.meetup.server.place.dto.response.PlaceImageResponse;
 import com.meetup.server.place.dto.response.PlaceResponseList;
 import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
@@ -262,5 +263,74 @@ class PlaceControllerTest extends ControllerTestSupport {
                                                 .build())
                         )
                 );
+    }
+
+    @DisplayName("중간지점 주변 장소 사진 1장을 조회한다.")
+    @Test
+    void getPlaceImage_Success() throws Exception {
+        // given
+        int subwayId = SubwayFixture.SUBWAY_ID;
+        PlaceImageResponse response = PlaceFixture.getPlaceImageResponse();
+
+        // when
+        Mockito.when(placeService.getPlaceImage(anyInt()))
+                .thenReturn(response);
+
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.get("/places/image")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .queryParam("subwayId", String.valueOf(subwayId))
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value(ResultType.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.imageUrl").value("https://example.com/image.jpg"))
+                .andDo(
+                        MockMvcRestDocumentationWrapper.document("place/get-image",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                resource(
+                                        ResourceSnippetParameters.builder()
+                                                .tag("Place API")
+                                                .description("중간지점 주변 장소 사진 1장을 조회한다.")
+                                                .queryParameters(
+                                                        parameterWithName("subwayId").description("지하철 ID")
+                                                )
+                                                .responseFields(
+                                                        fieldWithPath("result").type(JsonFieldType.STRING).description("API 호출 결과"),
+                                                        fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터").optional(),
+                                                        fieldWithPath("data.imageUrl").type(JsonFieldType.STRING).description("장소 이미지 URL").optional(),
+
+                                                        fieldWithPath("error").type(JsonFieldType.OBJECT).description("API 호출 에러").optional(),
+                                                        fieldWithPath("error.code").type(JsonFieldType.STRING).description("에러 코드").optional(),
+                                                        fieldWithPath("error.message").type(JsonFieldType.STRING).description("에러 메시지").optional()
+                                                )
+                                                .responseSchema(Schema.schema("PlaceImageResponse"))
+                                                .build())
+                        )
+                );
+    }
+
+    @DisplayName("중간지점 주변에 사진이 있는 장소가 없으면 null 응답 데이터를 반환한다.")
+    @Test
+    void getPlaceImage_Null() throws Exception {
+        // given
+        int subwayId = SubwayFixture.SUBWAY_ID;
+
+        // when
+        Mockito.when(placeService.getPlaceImage(anyInt()))
+                .thenReturn(null);
+
+        // then
+        mockMvc.perform(
+                        RestDocumentationRequestBuilders.get("/places/image")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .queryParam("subwayId", String.valueOf(subwayId))
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value(ResultType.SUCCESS.name()))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 }

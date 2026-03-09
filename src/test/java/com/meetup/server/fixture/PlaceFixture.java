@@ -4,6 +4,7 @@ import com.meetup.server.global.util.CoordinateUtil;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.type.PlaceCategory;
 import com.meetup.server.place.dto.response.PlaceDetailResponse;
+import com.meetup.server.place.dto.response.PlaceImageResponse;
 import com.meetup.server.place.dto.response.PlaceResponse;
 import com.meetup.server.place.dto.response.PlaceResponseList;
 import com.meetup.server.review.domain.value.PlaceScore;
@@ -87,5 +88,9 @@ public class PlaceFixture {
                 .isConfirmed(true)
                 .isChanged(false)
                 .build();
+    }
+
+    public static PlaceImageResponse getPlaceImageResponse() {
+        return PlaceImageResponse.from("https://example.com/image.jpg");
     }
 }
