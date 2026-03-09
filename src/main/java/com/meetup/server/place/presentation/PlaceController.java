@@ -3,6 +3,7 @@ package com.meetup.server.place.presentation;
 import com.meetup.server.global.support.response.ApiResponse;
 import com.meetup.server.place.application.PlaceService;
 import com.meetup.server.place.dto.response.PlaceDetailResponse;
+import com.meetup.server.place.dto.response.PlaceImageResponse;
 import com.meetup.server.place.dto.response.PlaceResponseList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +37,10 @@ public class PlaceController {
     @GetMapping("/review")
     public ApiResponse<PlaceResponseList> getPlaceForReview(@RequestParam UUID eventId) {
         return ApiResponse.success(placeService.getPlaceForReview(eventId));
+    }
+
+    @GetMapping("/image")
+    public ApiResponse<PlaceImageResponse> getPlaceImage(@RequestParam int subwayId) {
+        return ApiResponse.success(placeService.getPlaceImage(subwayId));
     }
 }

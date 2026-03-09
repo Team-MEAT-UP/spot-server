@@ -90,4 +90,18 @@ public class PlaceService {
         PlaceWithRating placeWithRating = reviewReader.readPlaceRatingsAsMap(List.of(place.getId())).get(place);
         return PlaceResponseList.of(event, subway, PlaceResponse.of(placeWithDistance, placeWithRating), null);
     }
+
+    public PlaceImageResponse getPlaceImage(int subwayId) {
+        Subway subway = subwayReader.read(subwayId);
+        List<PlaceWithDistance> nearbyPlaces = placeReader.readAllWithinRadius(subway.getPoint(), RADIUS);
+
+        return nearbyPlaces.stream()
+                .map(PlaceWithDistance::place)
+                .filter(place -> place.getImages() != null && !place.getImages().isEmpty())
+                .map(place -> place.getImages().getFirst().photoUri())
+                .filter(uri -> uri != null && !uri.isBlank())
+                .findFirst()
+                .map(PlaceImageResponse::from)
+                .orElse(null);
+    }
 }
