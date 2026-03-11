@@ -1,9 +1,9 @@
 package com.meetup.server.place.dto.response;
 
 public record PlaceImageResponse(
-        String imageUrl
+        String image
 ) {
-    public static PlaceImageResponse from(String imageUrl) {
-        return new PlaceImageResponse(imageUrl);
+    public static PlaceImageResponse from(String image) {
+        return new PlaceImageResponse(image);
     }
 }

@@ -300,7 +300,7 @@ class PlaceControllerTest extends ControllerTestSupport {
                                                 .responseFields(
                                                         fieldWithPath("result").type(JsonFieldType.STRING).description("API 호출 결과"),
                                                         fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터").optional(),
-                                                        fieldWithPath("data.imageUrl").type(JsonFieldType.STRING).description("장소 이미지 URL").optional(),
+                                                        fieldWithPath("data.image").type(JsonFieldType.STRING).description("장소 이미지 URL").optional(),
 
                                                         fieldWithPath("error").type(JsonFieldType.OBJECT).description("API 호출 에러").optional(),
                                                         fieldWithPath("error.code").type(JsonFieldType.STRING).description("에러 코드").optional(),

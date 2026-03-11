@@ -99,7 +99,7 @@ public class PlaceService {
                 .map(PlaceWithDistance::place)
                 .filter(place -> place.getImages() != null && !place.getImages().isEmpty())
                 .map(place -> place.getImages().getFirst().photoUri())
-                .filter(uri -> uri != null && !uri.isBlank())
+                .filter(image -> image != null && !image.isBlank())
                 .findFirst()
                 .map(PlaceImageResponse::from)
                 .orElse(null);
