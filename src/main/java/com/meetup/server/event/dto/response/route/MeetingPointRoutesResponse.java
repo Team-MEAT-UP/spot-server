@@ -44,6 +44,7 @@ public record MeetingPointRoutesResponse(
     private static String extractPlaceImage(Event event) {
         return Optional.ofNullable(event.getPlace())
                 .map(Place::getImages)
+                .filter(images -> !images.isEmpty())
                 .map(List::getFirst)
                 .map(Image::photoUri)
                 .orElse(null);
