@@ -4,9 +4,9 @@ import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.util.UsernameExtractor;
 import com.meetup.server.global.util.TimeUtil;
 import com.meetup.server.place.domain.Place;
+import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.startpoint.domain.StartPoint;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +17,7 @@ public record MeetingPointRoutesResponse(
         String eventTime,
         String eventMaker,
         String placeName,
+        String placeImage,
         int peopleCount,
         List<MeetingPointRouteGroup> meetingPointRouteGroups
 ) {
@@ -28,6 +29,7 @@ public record MeetingPointRoutesResponse(
                 TimeUtil.formatAsTime(event.getEventDateTime()),
                 extractEventMaker(startPoints),
                 extractPlaceName(event),
+                extractPlaceImage(event),
                 startPoints.size(),
                 meetingPointRouteGroups
         );
@@ -39,22 +41,18 @@ public record MeetingPointRoutesResponse(
                 .orElse(null);
     }
 
+    private static String extractPlaceImage(Event event) {
+        return Optional.ofNullable(event.getPlace())
+                .map(Place::getImages)
+                .map(List::getFirst)
+                .map(Image::photoUri)
+                .orElse(null);
+    }
+
     private static String extractEventMaker(List<StartPoint> startPoints) {
         return startPoints.stream()
                 .min(Comparator.comparing(StartPoint::getCreatedAt))
                 .map(UsernameExtractor::extractDisplayName)
                 .orElse(null);
-    }
-
-    public MeetingPointRoutesResponse withEvent(String eventName, LocalDateTime eventDateTime) {
-        return new MeetingPointRoutesResponse(
-                eventName,
-                TimeUtil.formatAsDashDate(eventDateTime),
-                TimeUtil.formatAsTime(eventDateTime),
-                this.eventMaker(),
-                this.placeName(),
-                this.peopleCount(),
-                this.meetingPointRouteGroups()
-        );
     }
 }
