@@ -285,7 +285,7 @@ class PlaceControllerTest extends ControllerTestSupport {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(ResultType.SUCCESS.name()))
-                .andExpect(jsonPath("$.data.imageUrl").value("https://example.com/image.jpg"))
+                .andExpect(jsonPath("$.data.image").value("https://example.com/place-image.jpg"))
                 .andDo(
                         MockMvcRestDocumentationWrapper.document("place/get-image",
                                 preprocessRequest(prettyPrint()),
