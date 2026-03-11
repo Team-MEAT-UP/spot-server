@@ -53,17 +53,25 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private String createRedirectUrlWithTokens(HttpServletRequest request) {
         StateParams stateParams = parseState(request.getParameter("state"));
+        String baseUrl = resolveBaseUrl(stateParams);
 
         String redirectUrl;
         if ("visited".equals(stateParams.to) && stateParams.eventId != null && stateParams.placeId != null) {
-            redirectUrl = buildVisitedRedirectUrl(stateParams.eventId, stateParams.placeId);
+            redirectUrl = buildVisitedRedirectUrl(baseUrl, stateParams.eventId, stateParams.placeId);
         } else if ("notvisited".equals(stateParams.to) && stateParams.eventId != null && stateParams.placeId != null) {
-            redirectUrl = buildNotVisitedRedirectUrl(stateParams.eventId, stateParams.placeId);
+            redirectUrl = buildNotVisitedRedirectUrl(baseUrl, stateParams.eventId, stateParams.placeId);
         } else {
-            redirectUrl = buildDefaultCallbackUrl(stateParams.eventId, stateParams.to);
+            redirectUrl = buildDefaultCallbackUrl(baseUrl, stateParams.eventId, stateParams.to);
         }
 
         return redirectUrl;
+    }
+
+    private String resolveBaseUrl(StateParams stateParams) {
+        if ("local".equals(stateParams.env)) {
+            return "http://localhost:5173";
+        }
+        return successRedirectUri;
     }
 
     private StateParams parseState(String state) {
@@ -80,14 +88,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     case "to" -> params.to = keyValue[1];
                     case "eventId" -> params.eventId = keyValue[1];
                     case "placeId" -> params.placeId = keyValue[1];
+                    case "env" -> params.env = keyValue[1];
                 }
             }
         }
         return params;
     }
 
-    private String buildDefaultCallbackUrl(String eventId, String to) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(successRedirectUri).pathSegment("oauth", "kakao", "callback");
+    private String buildDefaultCallbackUrl(String baseUrl, String eventId, String to) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(baseUrl).pathSegment("oauth", "kakao", "callback");
         if (eventId != null && !eventId.isBlank()) {
             uriBuilder.queryParam("eventId", eventId);
         }
@@ -97,15 +106,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         return uriBuilder.build().toUriString();
     }
 
-    private String buildVisitedRedirectUrl(String eventId, String placeId) {
-        return UriComponentsBuilder.fromUriString(successRedirectUri)
+    private String buildVisitedRedirectUrl(String baseUrl, String eventId, String placeId) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
                 .pathSegment("visited", eventId, placeId)
                 .build()
                 .toUriString();
     }
 
-    private String buildNotVisitedRedirectUrl(String eventId, String placeId) {
-        return UriComponentsBuilder.fromUriString(successRedirectUri)
+    private String buildNotVisitedRedirectUrl(String baseUrl, String eventId, String placeId) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
                 .pathSegment("notvisited", eventId, placeId)
                 .build()
                 .toUriString();
@@ -115,5 +124,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String to;
         String eventId;
         String placeId;
+        String env;
     }
 }
