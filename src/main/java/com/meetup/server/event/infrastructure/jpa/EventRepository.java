@@ -37,6 +37,12 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                     SELECT 1 FROM log_event_inflow l WHERE l.event_id = e.event_id AND l.inflow_type = 'KAKAO'
                 ) THEN 1 END) as confirmedEventsWithKakao
             FROM event e
+            JOIN (
+                SELECT event_id
+                FROM start_point
+                GROUP BY event_id
+                HAVING COUNT(*) >= 2
+            ) active_events ON e.event_id = active_events.event_id
             WHERE e.created_at BETWEEN :startDateTime AND :endDateTime
             GROUP BY date
             ORDER BY date
