@@ -3,6 +3,7 @@ package com.meetup.server.auth.support.handler;
 import com.meetup.server.auth.dto.CustomOAuth2User;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
+import com.meetup.server.global.util.ProfileUtil;
 import com.meetup.server.log.domain.type.LoginStatus;
 import com.meetup.server.log.implement.LogUserLoginWriter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final JwtTokenProvider tokenProvider;
     private final CookieUtil cookieUtil;
     private final LogUserLoginWriter logUserLoginWriter;
+    private final ProfileUtil profileUtil;
 
     @Value("${app.oauth2.successRedirectUri}")
     private String successRedirectUri;
@@ -68,7 +70,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private String resolveBaseUrl(StateParams stateParams) {
-        if ("local".equals(stateParams.env)) {
+        if ("local".equals(stateParams.env) && profileUtil.isStg()) {
             return "http://localhost:5173";
         }
         return successRedirectUri;
