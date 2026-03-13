@@ -24,7 +24,7 @@ public class DiscordAlarmSender {
     private final ProfileUtil profileUtil;
 
     public void sendErrorAlert(Exception exception) {
-        if (profileUtil.isLocal()) {
+        if (!(profileUtil.isProd() || profileUtil.isStg())) {
             return;
         }
 
