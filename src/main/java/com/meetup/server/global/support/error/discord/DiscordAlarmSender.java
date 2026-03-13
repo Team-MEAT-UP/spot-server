@@ -1,16 +1,15 @@
 package com.meetup.server.global.support.error.discord;
 
+import com.meetup.server.global.util.ProfileUtil;
 import com.meetup.server.global.util.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -22,15 +21,14 @@ public class DiscordAlarmSender {
 
     private static final RestClient restClient = RestClient.create();
 
-    private final Environment environment;
+    private final ProfileUtil profileUtil;
 
     public void sendErrorAlert(Exception exception) {
-        String env = getEnvironment();
-        if (!List.of("PROD", "STG").contains(env)) {
+        if (profileUtil.isLocal()) {
             return;
         }
 
-        String content = ":rotating_light: [" + getEnvironment() + "] 서버 예외 발생";
+        String content = ":rotating_light: [" + profileUtil.getActiveProfile() + "] 서버 예외 발생";
         List<DiscordRequest.Embed> embeds = List.of(
                 DiscordRequest.Embed.of("Exception", exception.getClass().getSimpleName()),
                 DiscordRequest.Embed.of("Message", exception.getMessage()),
@@ -49,10 +47,6 @@ public class DiscordAlarmSender {
         } catch (Exception e) {
             log.warn("[DiscordAlarmSender] Discord 메시지 전송 실패: {}", e.getMessage());
         }
-    }
-
-    private String getEnvironment() {
-        return Optional.ofNullable(environment.getActiveProfiles()[0]).map(String::toUpperCase).orElse("-");
     }
 
     private String parseStackTrace(Exception exception) {
