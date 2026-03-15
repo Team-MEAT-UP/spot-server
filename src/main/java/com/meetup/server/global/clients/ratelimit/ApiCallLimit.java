@@ -27,10 +27,10 @@ public class ApiCallLimit {
     private LocalDate callDate;
 
     @Column(name = "call_count", nullable = false)
-    private Integer count = 0;
+    private int count = 0;
 
     @Builder
-    public ApiCallLimit(String apiName, LocalDate callDate, Integer count) {
+    public ApiCallLimit(String apiName, LocalDate callDate, int count) {
         this.apiName = apiName;
         this.callDate = callDate;
         this.count = count;
