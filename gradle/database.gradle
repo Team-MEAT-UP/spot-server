@@ -2,7 +2,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.postgresql:postgresql:42.6.0'
     implementation 'org.hibernate:hibernate-spatial:6.4.1.Final'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
 
     //UUID Creator
     implementation 'com.github.f4b6a3:uuid-creator:5.3.2'
@@ -21,7 +22,7 @@ dependencies {
     }
 
     sourceSets {
-        main.java.srcDirs += [ generated ]
+        main.java.srcDirs += [generated]
     }
 
     clean {
