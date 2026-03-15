@@ -1,6 +1,7 @@
 package com.meetup.server.event.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.RouteCache;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
@@ -8,7 +9,6 @@ import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.implement.route.RouteReader;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
-import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.UserFixture;
 import com.meetup.server.place.infrastructure.jpa.PlaceRepository;
@@ -47,7 +47,7 @@ class EventServiceTest extends IntegrationTestContainer {
     private PlaceRepository placeRepository;
 
     @Autowired
-    private CachedRouteRepository cachedRouteRepository;
+    private RouteCache routeCache;
 
     @Autowired
     private RouteReader routeReader;
@@ -125,7 +125,7 @@ class EventServiceTest extends IntegrationTestContainer {
     @Transactional
     void 모임_수정_후_캐시와_모임경로데이터_검증() {
         //given
-        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+        routeCache.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
 
         //when
         eventService.updateEvent(eventWithRoute.getEventId(), updateEventRequest);
@@ -143,7 +143,7 @@ class EventServiceTest extends IntegrationTestContainer {
     @Transactional
     void 모임_삭제_후_캐시와_모임경로데이터_검증() {
         //given
-        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+        routeCache.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
 
         Cache cache = cacheManager.getCache("routeDetails");
         assertThat(cache.get(eventWithRoute.getEventId())).isNotNull();

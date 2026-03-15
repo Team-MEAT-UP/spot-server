@@ -1,5 +1,6 @@
 package com.meetup.server.event.implement.route;
 
+import com.meetup.server.event.domain.RouteCache;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.route.MeetingPointResult;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
@@ -7,7 +8,6 @@ import com.meetup.server.event.dto.response.route.RouteResponse;
 import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.implement.EventProcessor;
-import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 public class RouteProcessor {
 
     private final RouteAssembler routeAssembler;
-    private final CachedRouteRepository cachedRouteRepository;
     private final EventProcessor eventProcessor;
+    private final RouteCache routeCache;
 
     public List<MeetingPointRouteGroup> buildRouteGroups(List<MeetingPointResult> meetingPointResults) {
         List<CompletableFuture<MeetingPointRouteGroup>> routeGroupFutures = meetingPointResults.stream()
@@ -60,7 +60,7 @@ public class RouteProcessor {
     public void saveRouteGroups(UUID eventId, List<MeetingPointRouteGroup> routeGroups) {
         MeetingPointRouteGroups groupedRoutes = new MeetingPointRouteGroups(routeGroups);
         eventProcessor.saveRoute(eventId, groupedRoutes);
-        cachedRouteRepository.save(eventId, groupedRoutes);
+        routeCache.save(eventId, groupedRoutes);
     }
 
     public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {
@@ -76,6 +76,6 @@ public class RouteProcessor {
     }
 
     public void deleteCache(UUID eventId) {
-        cachedRouteRepository.delete(eventId);
+        routeCache.delete(eventId);
     }
 }

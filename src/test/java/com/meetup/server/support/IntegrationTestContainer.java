@@ -3,7 +3,6 @@ package com.meetup.server.support;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -17,9 +16,4 @@ public abstract class IntegrationTestContainer {
     static PostgreSQLContainer<?> postgis = new PostgreSQLContainer<>(
             DockerImageName.parse("postgis/postgis:17-3.5-alpine").asCompatibleSubstituteFor("postgres")
     );
-
-    @ServiceConnection
-    static GenericContainer<?> redis = new GenericContainer<>(
-            DockerImageName.parse("redis:7.4-alpine").asCompatibleSubstituteFor("redis")
-    ).withExposedPorts(6379);
 }

@@ -1,11 +1,11 @@
 package com.meetup.server.startpoint.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.RouteCache;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
-import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import com.meetup.server.fixture.EventFixture;
 import com.meetup.server.fixture.StartPointFixture;
 import com.meetup.server.fixture.UserFixture;
@@ -47,7 +47,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
     private PlaceRepository placeRepository;
 
     @Autowired
-    private CachedRouteRepository cachedRouteRepository;
+    private RouteCache routeCache;
 
     @Autowired
     private CacheManager cacheManager;
@@ -79,7 +79,7 @@ class StartPointServiceTest extends IntegrationTestContainer {
         eventWithRoute = eventRepository.save(eventWithRoute);
         meetingPointRouteGroups = EventFixture.getMeetingPointRouteGroups();
         startPoint = startPointRepository.save(StartPointFixture.getStartPoint(eventWithRoute, newUser));
-        cachedRouteRepository.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
+        routeCache.save(eventWithRoute.getEventId(), meetingPointRouteGroups);
     }
 
     @Test

@@ -1,13 +1,15 @@
 package com.meetup.server.global.clients.ratelimit;
 
+import com.meetup.server.global.util.TimeUtil;
 import com.meetup.server.support.IntegrationTestContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.lang.annotation.Annotation;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,14 +17,14 @@ import java.util.concurrent.Executors;
 class RateLimiterTest extends IntegrationTestContainer {
 
     @Autowired
-    RedisTemplate<String, String> redisRateLimitTemplate;
+    ApiCallLimitRepository apiCallLimitRepository;
 
     @Autowired
     RateLimiter rateLimiter;
 
     @BeforeEach
     void resetKeys() {
-        redisRateLimitTemplate.delete("test");
+        apiCallLimitRepository.deleteAll();
     }
 
     @Test
@@ -49,8 +51,11 @@ class RateLimiterTest extends IntegrationTestContainer {
             rateLimiter.tryApiCall(annotation);
         }
 
-        Long count = Long.valueOf(redisRateLimitTemplate.opsForValue().get("test"));
-        Assertions.assertEquals(5L, count);
+        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
+        int count = apiCallLimitRepository.findByApiNameAndCallDate("test", today)
+                .map(ApiCallLimit::getCount)
+                .orElse(0);
+        Assertions.assertEquals(5, count);
     }
 
     @Test
@@ -86,8 +91,11 @@ class RateLimiterTest extends IntegrationTestContainer {
         latch.await();
         executorService.shutdown();
 
-        Long count = Long.valueOf(redisRateLimitTemplate.opsForValue().get("test"));
-        Assertions.assertEquals(10L, count);
+        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
+        int count = apiCallLimitRepository.findByApiNameAndCallDate("test", today)
+                .map(ApiCallLimit::getCount)
+                .orElse(0);
+        Assertions.assertEquals(10, count);
     }
 
 }
