@@ -5,20 +5,6 @@ services:
     container_name: spot-backend
     ports:
       - "8080:8080"
-    depends_on:
-      - redis
     restart: always
     environment:
       TZ: Asia/Seoul
-
-  redis:
-    image: redis:7.4
-    container_name: spot-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    restart: always
-
-volumes:
-  redis-data:
