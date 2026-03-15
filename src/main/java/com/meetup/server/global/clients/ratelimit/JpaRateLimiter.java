@@ -1,12 +1,11 @@
 package com.meetup.server.global.clients.ratelimit;
 
 import com.meetup.server.global.clients.exception.ClientErrorType;
-import com.meetup.server.global.clients.exception.ClientException;
 import com.meetup.server.global.support.error.GlobalErrorType;
-import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
 import com.meetup.server.global.util.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,7 @@ import java.time.ZonedDateTime;
 public class JpaRateLimiter implements RateLimiter {
 
     private final ApiCallLimitRepository apiCallLimitRepository;
-    private final DiscordAlarmSender discordAlarmSender;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String ODSAY_TRANSIT = "odsay-transit";
     private static final String KAKAO_MOBILITY = "kakao-mobility";
@@ -56,18 +55,18 @@ public class JpaRateLimiter implements RateLimiter {
     private void sendRateLimitExceedAlert(String key) {
         switch (key) {
             case ODSAY_TRANSIT ->
-                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_EXCEED_RATE_LIMIT_PER_DAY));
+                    eventPublisher.publishEvent(new RateLimitAlertEvent(ClientErrorType.ODSAY_EXCEED_RATE_LIMIT_PER_DAY));
             case KAKAO_MOBILITY ->
-                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_EXCEED_RATE_LIMIT_PER_DAY));
+                    eventPublisher.publishEvent(new RateLimitAlertEvent(ClientErrorType.KAKAO_MOBILITY_EXCEED_RATE_LIMIT_PER_DAY));
         }
     }
 
     private void sendRateLimitWarningAlert(String key) {
         switch (key) {
             case ODSAY_TRANSIT ->
-                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.ODSAY_WARNING_RATE_LIMIT_PER_DAY));
+                    eventPublisher.publishEvent(new RateLimitAlertEvent(ClientErrorType.ODSAY_WARNING_RATE_LIMIT_PER_DAY));
             case KAKAO_MOBILITY ->
-                    discordAlarmSender.sendErrorAlert(new ClientException(ClientErrorType.KAKAO_MOBILITY_WARNING_RATE_LIMIT_PER_DAY));
+                    eventPublisher.publishEvent(new RateLimitAlertEvent(ClientErrorType.KAKAO_MOBILITY_WARNING_RATE_LIMIT_PER_DAY));
         }
     }
 }
