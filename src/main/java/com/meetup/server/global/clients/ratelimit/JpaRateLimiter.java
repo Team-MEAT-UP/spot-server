@@ -31,18 +31,22 @@ public class JpaRateLimiter implements RateLimiter {
         String key = limitRequestPerDay.key();
         int limitCount = limitRequestPerDay.count();
         LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
-        
+
         apiCallLimitRepository.initApiCallLimit(key, today);
 
         ApiCallLimit apiCallLimit = apiCallLimitRepository.findWithLockByApiNameAndCallDate(key, today)
                 .orElseThrow(() -> new RuntimeException(GlobalErrorType.INTERNAL_ERROR.getMessage()));
 
         if (apiCallLimit.getCount() >= limitCount) {
-            sendRateLimitExceedAlert(key);
             return;
         }
 
         apiCallLimit.increment();
+
+        if (apiCallLimit.getCount() == limitCount) {
+            sendRateLimitExceedAlert(key);
+            return;
+        }
 
         if (apiCallLimit.getCount() == limitCount - RATE_LIMIT_WARNING_THRESHOLD) {
             sendRateLimitWarningAlert(key);
