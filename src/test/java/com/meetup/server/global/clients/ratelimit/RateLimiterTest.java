@@ -30,6 +30,7 @@ class RateLimiterTest extends IntegrationTestContainer {
     @Test
     void 싱글스레드에서_최대요청수만큼만_허용한다() {
         // given
+        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
         LimitRequestPerDay annotation = new LimitRequestPerDay() {
             @Override
             public String key() {
@@ -51,7 +52,6 @@ class RateLimiterTest extends IntegrationTestContainer {
             rateLimiter.tryApiCall(annotation);
         }
 
-        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
         int count = apiCallLimitRepository.findByApiNameAndCallDate("test", today)
                 .map(ApiCallLimit::getCount)
                 .orElse(0);
@@ -60,6 +60,7 @@ class RateLimiterTest extends IntegrationTestContainer {
 
     @Test
     void 동시_요청_상황에서도_요청제한을_보장한다() throws InterruptedException {
+        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
         LimitRequestPerDay annotation = new LimitRequestPerDay() {
             @Override
             public String key() {
@@ -91,7 +92,6 @@ class RateLimiterTest extends IntegrationTestContainer {
         latch.await();
         executorService.shutdown();
 
-        LocalDate today = ZonedDateTime.now(TimeUtil.KST_ZONE_ID).toLocalDate();
         int count = apiCallLimitRepository.findByApiNameAndCallDate("test", today)
                 .map(ApiCallLimit::getCount)
                 .orElse(0);
