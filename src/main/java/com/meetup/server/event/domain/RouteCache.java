@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public interface RouteCache {
     Optional<MeetingPointRouteGroups> getByEventId(UUID eventId);
-    void save(UUID eventId, MeetingPointRouteGroups cached);
+
+    void save(UUID eventId, MeetingPointRouteGroups routeGroups);
+
     void delete(UUID eventId);
 }

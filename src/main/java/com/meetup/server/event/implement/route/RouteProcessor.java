@@ -48,7 +48,7 @@ public class RouteProcessor {
                             .collect(Collectors.toList()))
                     .get();
 
-            if (routeGroups == null || routeGroups.isEmpty()) {
+            if (routeGroups.isEmpty()) {
                 throw new EventException(EventErrorType.ROUTE_FETCH_FAILED);
             }
             return routeGroups;
@@ -63,14 +63,14 @@ public class RouteProcessor {
         routeCache.save(eventId, groupedRoutes);
     }
 
-    public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routeList) {
-        routeList.forEach(route -> {
+    public void prioritizeMyRoute(Long userId, UUID guestId, List<RouteResponse> routes) {
+        routes.forEach(route -> {
             boolean isMine = (userId != null && userId.equals(route.getUserId()))
                     || (guestId != null && guestId.equals(route.getGuestId()));
             route.updateIsMe(isMine);
         });
 
-        routeList.sort(Comparator.comparing((RouteResponse route) -> route.getTotalTime() == 0)
+        routes.sort(Comparator.comparing((RouteResponse route) -> route.getTotalTime() == 0)
                 .thenComparing(RouteResponse::getIsMe, Comparator.reverseOrder())
         );
     }

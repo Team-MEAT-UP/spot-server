@@ -18,10 +18,6 @@ public class InMemoryRouteCache implements RouteCache {
 
     private final CacheManager cacheManager;
 
-    private Cache getCache() {
-        return cacheManager.getCache(ROUTE_DETAILS_CACHE);
-    }
-
     @Override
     public Optional<MeetingPointRouteGroups> getByEventId(UUID eventId) {
         return Optional.ofNullable(getCache())
@@ -29,10 +25,10 @@ public class InMemoryRouteCache implements RouteCache {
     }
 
     @Override
-    public void save(UUID eventId, MeetingPointRouteGroups cached) {
+    public void save(UUID eventId, MeetingPointRouteGroups routeGroups) {
         Cache cache = getCache();
         if (cache != null) {
-            cache.put(eventId, cached);
+            cache.put(eventId, routeGroups);
         }
     }
 
@@ -42,5 +38,9 @@ public class InMemoryRouteCache implements RouteCache {
         if (cache != null) {
             cache.evict(eventId);
         }
+    }
+
+    private Cache getCache() {
+        return cacheManager.getCache(ROUTE_DETAILS_CACHE);
     }
 }
