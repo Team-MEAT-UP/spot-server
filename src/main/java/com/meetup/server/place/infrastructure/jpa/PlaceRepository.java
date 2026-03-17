@@ -8,11 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PlaceRepository extends JpaRepository<Place, UUID> {
 
     boolean existsByKakaoPlaceId(String kakaoPlaceId);
+
+    Optional<Place> findByGooglePlaceId(String googlePlaceId);
 
     @Query("""
                 SELECT new com.meetup.server.place.infrastructure.jpa.projection.PlaceWithDistance(

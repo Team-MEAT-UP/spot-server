@@ -95,11 +95,7 @@ public class Place extends BaseEntity {
         this.googleReviews = googleReviews;
     }
 
-    public void updateImage(String imageUri) {
-        if (imageUri == null || imageUri.isBlank()) {
-            this.images = List.of();
-        } else {
-            this.images = List.of(Image.from(imageUri));
-        }
+    public void updateImages(List<Image> images) {
+        this.images = images != null ? images : List.of();
     }
 }
