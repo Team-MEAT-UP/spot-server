@@ -242,6 +242,7 @@ class EventControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data.eventTime").value("10:00"))
                 .andExpect(jsonPath("$.data.eventMaker").value("땡수팟"))
                 .andExpect(jsonPath("$.data.placeName").value("놀숲 건대점"))
+                .andExpect(jsonPath("$.data.placeImage").value("https://example.com/place-image.jpg"))
                 .andExpect(jsonPath("$.data.peopleCount").value(1))
                 .andExpect(jsonPath("$.data.meetingPointRouteGroups[0].subwayId").value(240))
                 .andExpect(jsonPath("$.data.meetingPointRouteGroups[0].averageTime").value(0))
@@ -311,7 +312,8 @@ class EventControllerTest extends ControllerTestSupport {
                                                         fieldWithPath("data.eventDate").type(JsonFieldType.STRING).description("모임 날짜 (YYYY-MM-DD)"),
                                                         fieldWithPath("data.eventTime").type(JsonFieldType.STRING).description("모임 시간 (HH:MM)"),
                                                         fieldWithPath("data.eventMaker").type(JsonFieldType.STRING).description("모임 생성자"),
-                                                        fieldWithPath("data.placeName").type(JsonFieldType.STRING).description("장소 이름"),
+                                                        fieldWithPath("data.placeName").type(JsonFieldType.STRING).description("장소 이름").optional(),
+                                                        fieldWithPath("data.placeImage").type(JsonFieldType.STRING).description("장소 이미지").optional(),
                                                         fieldWithPath("data.peopleCount").type(JsonFieldType.NUMBER).description("모임 참여자 수"),
 
                                                         fieldWithPath("data.meetingPointRouteGroups").type(JsonFieldType.ARRAY).description("중간 지점별 경로 그룹 목록"),

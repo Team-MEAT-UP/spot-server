@@ -37,12 +37,19 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         String to = request.getParameter("to");
         String eventId = request.getParameter("eventId");
         String placeId = request.getParameter("placeId");
+        String env = request.getParameter("env");
 
-        if (to == null && eventId == null && placeId == null) {
+        if (to == null && eventId == null && placeId == null && env == null) {
             return req;
         }
 
-        String stateValue = "to=" + to + "&eventId=" + eventId + "&placeId=" + placeId;
+        StringBuilder stateBuilder = new StringBuilder();
+        if (to != null) stateBuilder.append("to=").append(to).append("&");
+        if (eventId != null) stateBuilder.append("eventId=").append(eventId).append("&");
+        if (placeId != null) stateBuilder.append("placeId=").append(placeId).append("&");
+        if (env != null) stateBuilder.append("env=").append(env);
+
+        String stateValue = stateBuilder.toString().replaceAll("&$", "");
         stateValue = URLEncoder.encode(stateValue, StandardCharsets.UTF_8);
 
         return OAuth2AuthorizationRequest.from(req)

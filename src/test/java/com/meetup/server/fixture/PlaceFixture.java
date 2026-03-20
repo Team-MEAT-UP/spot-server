@@ -3,7 +3,9 @@ package com.meetup.server.fixture;
 import com.meetup.server.global.util.CoordinateUtil;
 import com.meetup.server.place.domain.Place;
 import com.meetup.server.place.domain.type.PlaceCategory;
+import com.meetup.server.place.domain.value.Image;
 import com.meetup.server.place.dto.response.PlaceDetailResponse;
+import com.meetup.server.place.dto.response.PlaceImageResponse;
 import com.meetup.server.place.dto.response.PlaceResponse;
 import com.meetup.server.place.dto.response.PlaceResponseList;
 import com.meetup.server.review.domain.value.PlaceScore;
@@ -17,6 +19,7 @@ public class PlaceFixture {
 
     public static final UUID PLACE_ID = UUID.fromString("019c5b90-7e80-7875-857a-51bcf5db482a");
     public static final String PLACE_NAME = "스타벅스 선정릉역점";
+    public static final String PLACE_IMAGE_URL = "https://example.com/place-image.jpg";
     public static final PlaceCategory PLACE_CATEGORY = PlaceCategory.CAFE;
     public static final int DISTANCE = 250;
     public static final double AVERAGE_RATING = 4.3;
@@ -31,7 +34,7 @@ public class PlaceFixture {
                 .category(PlaceCategory.CAFE)
                 .name("놀숲 건대점")
                 .googleRating(null)
-                .images(List.of())
+                .images(List.of(Image.from(PLACE_IMAGE_URL)))
                 .openingHours(List.of())
                 .googleReviews(List.of())
                 .location(Location.of(37.5406181573079, 127.06798560729))
@@ -44,7 +47,7 @@ public class PlaceFixture {
                 .id(PLACE_ID)
                 .category(PLACE_CATEGORY)
                 .name(PLACE_NAME)
-                .image("https://example.com/image.jpg")
+                .image(PLACE_IMAGE_URL)
                 .openTime(OPEN_TIME)
                 .closeTime(CLOSE_TIME)
                 .distance(DISTANCE)
@@ -78,7 +81,7 @@ public class PlaceFixture {
                 .kakaoPlaceId("1337065720")
                 .category(PLACE_CATEGORY)
                 .name(PLACE_NAME)
-                .images(List.of("https://example.com/image.jpg"))
+                .images(List.of(PLACE_IMAGE_URL))
                 .openTime(OPEN_TIME)
                 .closeTime(CLOSE_TIME)
                 .distance(DISTANCE)
@@ -87,5 +90,9 @@ public class PlaceFixture {
                 .isConfirmed(true)
                 .isChanged(false)
                 .build();
+    }
+
+    public static PlaceImageResponse getPlaceImageResponse() {
+        return PlaceImageResponse.from(PLACE_IMAGE_URL);
     }
 }
