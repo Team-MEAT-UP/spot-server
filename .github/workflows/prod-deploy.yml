@@ -2,17 +2,20 @@ name: Prod Deploy
 
 on:
   push:
-    branches: [ "prod" ]
+    branches: [ prod ]
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: moisam-server
 
 jobs:
   build:
+    name: Build and Push
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
+    outputs:
+      image: ${{ steps.set-image.outputs.image }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
           token: ${{ secrets.GH_TOKEN }}
@@ -22,13 +25,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Cache Gradle
-        uses: actions/cache@v4.2.3
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: gradle-
+          cache: 'gradle'
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
@@ -36,65 +33,73 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: move jar file to deploy
-        run: mv ./build/libs/*.jar ./deploy
-
-      - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v3.10.0
-
-      - name: Login to NCP Container Registry
-        uses: docker/login-action@v3.4.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          registry: ${{ secrets.NCP_CONTAINER_REGISTRY }}
-          username: ${{ secrets.NCP_ACCESS_KEY }}
-          password: ${{ secrets.NCP_SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v6.15.0
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        id: build-image
+        uses: docker/build-push-action@v6
         with:
-          context: ./deploy
+          context: .
+          file: ./deploy/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ${{ secrets.NCP_CONTAINER_REGISTRY }}/spot-backend:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            JAR_FILE=build/libs/*.jar
+
+      - name: Set image output
+        id: set-image
+        run: echo "image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   deploy:
+    name: Deploy to ECS
     needs: build
-    name: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          submodules: true
-          token: ${{ secrets.GH_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set IMAGE variable
-        run: echo "IMAGE=${{ secrets.NCP_CONTAINER_REGISTRY }}/spot-backend:${{ github.sha }}" >> $GITHUB_ENV
-
-      - name: Substitute image tag in deployment.yaml
+      - name: Download Task Definition
         run: |
-          sed -i "s|__IMAGE__|${IMAGE}|g" deploy/prod/spot-backend-deployment.yaml
+          aws ecs describe-task-definition \
+            --task-definition "moisam-prod" \
+            --query taskDefinition > task-definition.json
+          
+          tmp=$(mktemp)
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' task-definition.json > "$tmp" && mv "$tmp" task-definition.json
 
-      - name: Copy deployment.yaml to server
-        uses: appleboy/scp-action@master
+      - name: Render Task Definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          password: ${{ secrets.NCP_PASSWORD }}
-          source: deploy/prod/
-          target: /home/ubuntu/deploy/prod
-          strip_components: 2
+          task-definition: task-definition.json
+          container-name: moisam-spring-boot
+          image: ${{ needs.build.outputs.image }}
 
-      - name: Deploy to K3s via kubectl
-        uses: appleboy/ssh-action@master
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          password: ${{ secrets.NCP_PASSWORD }}
-          port: ${{ secrets.NCP_PORT }}
-          script: |
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl apply -f /home/ubuntu/deploy/prod/
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: moisam-prod-service
+          cluster: moisam-cluster
+          wait-for-service-stability: true
