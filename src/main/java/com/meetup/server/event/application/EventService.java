@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 
 @Slf4j
 @Service
@@ -79,9 +79,8 @@ public class EventService {
     }
 
     private List<MeetingPointRouteGroup> calculateAndSaveRouteGroups(UUID eventId) {
-        ReentrantLock reentrantLock = eventLockManager.getLock(eventId);
-
-        reentrantLock.lock();
+        Lock lock = eventLockManager.getLock(eventId);
+        lock.lock();
         try {
             List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
 
@@ -95,7 +94,7 @@ public class EventService {
 
             return meetingPointRouteGroups;
         } finally {
-            reentrantLock.unlock();
+            lock.unlock();
         }
     }
 

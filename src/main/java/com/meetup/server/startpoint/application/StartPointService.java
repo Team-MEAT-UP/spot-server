@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 
 @Slf4j
 @Service
@@ -42,7 +42,7 @@ public class StartPointService {
     @Performance
     @Transactional
     public EventStartPointResponse createStartPoint(UUID eventId, Long userId, UUID guestId, StartPointRequest startPointRequest) {
-        ReentrantLock lock = eventLockManager.getLock(eventId);
+        Lock lock = eventLockManager.getLock(eventId);
         StartPoint startPoint;
         Event event;
 

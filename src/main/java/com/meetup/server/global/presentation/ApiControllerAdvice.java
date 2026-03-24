@@ -12,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.redisson.client.RedisConnectionException;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,6 +27,13 @@ public class ApiControllerAdvice {
         LoggingUtil.logError("[Exception]", GlobalErrorType.INTERNAL_ERROR, e);
         discordAlarmSender.sendErrorAlert(e);
         return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.INTERNAL_ERROR), GlobalErrorType.INTERNAL_ERROR.getStatus());
+    }
+
+    @ExceptionHandler({RedisConnectionFailureException.class, RedisConnectionException.class})
+    public ResponseEntity<ApiResponse<?>> handleRedisConnectionException(Exception e) {
+        LoggingUtil.logError("[RedisConnectionException]", GlobalErrorType.REDIS_CONNECTION_ERROR, e);
+        discordAlarmSender.sendErrorAlert(e);
+        return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.REDIS_CONNECTION_ERROR), GlobalErrorType.REDIS_CONNECTION_ERROR.getStatus());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
