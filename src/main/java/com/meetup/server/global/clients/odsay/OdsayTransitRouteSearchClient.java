@@ -8,6 +8,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,6 +21,9 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class OdsayTransitRouteSearchClient {
+
+    @Value("${server-url}")
+    private String serverUrl;
 
     private final RestClient odsayRestClient;
     private final OdsayProperties odsayProperties;
@@ -46,6 +51,7 @@ public class OdsayTransitRouteSearchClient {
         return odsayRestClient
                 .get()
                 .uri(uri)
+                .header(HttpHeaders.REFERER, serverUrl)
                 .retrieve()
                 .body(OdsayTransitRouteSearchResponse.class);
     }

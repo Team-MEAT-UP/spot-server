@@ -12,15 +12,14 @@
 
     <springProfile name="stg">
         <root level="info">
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_CONSOLE"/>
         </root>
         <logger name="com.meetup.server" level="debug"/>
     </springProfile>
 
     <springProfile name="prod">
         <root level="info">
-            <appender-ref ref="ROLLING"/>
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_CONSOLE"/>
         </root>
     </springProfile>
 </configuration>

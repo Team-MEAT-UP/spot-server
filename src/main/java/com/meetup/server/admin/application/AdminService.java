@@ -7,6 +7,7 @@ import com.meetup.server.admin.implement.AdminWriter;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
+import com.meetup.server.event.infrastructure.jpa.projection.ParticipantCountDistribution;
 import com.meetup.server.log.domain.type.InflowType;
 import com.meetup.server.log.implement.LogEventInflowReader;
 import com.meetup.server.log.implement.LogUserLoginReader;
@@ -52,22 +53,25 @@ public class AdminService {
         adminWriter.save(request.name(), request.username(), request.password());
     }
 
-    public Page<AdminEventResponse> getAllEvents(Pageable pageable) {
-        Page<Event> events = eventReader.readAll(pageable);
+    public Page<AdminEventResponse> getFilteredEvents(LocalDate startDate, LocalDate endDate, Integer participantCountFilter, Pageable pageable) {
+        LocalDateTime startDateTime = toStartOfDay(startDate);
+        LocalDateTime endDateTime = toEndOfDay(endDate);
+
+        Page<Event> events = eventReader.readFilteredEvents(startDateTime, endDateTime, participantCountFilter, pageable);
 
         List<UUID> eventIds = events.stream()
                 .map(Event::getEventId)
                 .toList();
 
         List<ParticipantCount> participantCounts = startPointReader.readParticipantCounts(eventIds);
-        Map<UUID, Integer> eventParticipantCountMap = participantCounts.stream()
+        Map<UUID, Integer> eventToParticipantCount = participantCounts.stream()
                 .collect(Collectors.toMap(
                         ParticipantCount::eventId,
                         participant -> participant.count().intValue()
                 ));
 
         List<EventInflowCount> eventInflowCounts = logEventInflowReader.readEventInflowCountByEventIds(InflowType.KAKAO, eventIds);
-        Map<UUID, Integer> eventInflowCountMap = eventInflowCounts.stream()
+        Map<UUID, Integer> eventToKakaoInflowCount = eventInflowCounts.stream()
                 .collect((Collectors.toMap(
                         EventInflowCount::eventId,
                         eventInflowCount -> eventInflowCount.inflowCount().intValue()
@@ -75,9 +79,9 @@ public class AdminService {
 
         List<AdminEventResponse> adminEventResponses = events.getContent().stream()
                 .map(event -> {
-                    int participantCount = eventParticipantCountMap.getOrDefault(event.getEventId(), 0);
-                    int eventInflowCount = eventInflowCountMap.getOrDefault(event.getEventId(), 0);
-                    return AdminEventResponse.of(event, participantCount, eventInflowCount);
+                    int participantCount = eventToParticipantCount.getOrDefault(event.getEventId(), 0);
+                    int kakaoInflowCount = eventToKakaoInflowCount.getOrDefault(event.getEventId(), 0);
+                    return AdminEventResponse.of(event, participantCount, kakaoInflowCount);
                 })
                 .toList();
 
@@ -88,7 +92,17 @@ public class AdminService {
         );
     }
 
-    public Page<AdminUserResponse> getAllUsers(Pageable pageable) {
+    public Map<Integer, Long> getEventCountByParticipantCount(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = toStartOfDay(startDate);
+        LocalDateTime endDateTime = toEndOfDay(endDate);
+        return eventReader.readEventCountByParticipantCount(startDateTime, endDateTime).stream()
+                .collect(Collectors.toMap(
+                        d -> d.getParticipantCount().intValue(),
+                        ParticipantCountDistribution::getEventCount
+                ));
+    }
+
+    public Page<AdminUserResponse> getUsers(Pageable pageable) {
         Page<User> users = userReader.readAll(pageable);
 
         List<AdminUserResponse> adminUserResponses = users.getContent().stream()
@@ -157,5 +171,13 @@ public class AdminService {
                 .toList();
 
         return PeriodStatsResponse.of(activationStats, retentionStats);
+    }
+
+    private LocalDateTime toStartOfDay(LocalDate date) {
+        return date != null ? date.atStartOfDay() : null;
+    }
+
+    private LocalDateTime toEndOfDay(LocalDate date) {
+        return date != null ? date.atTime(LocalTime.MAX) : null;
     }
 }

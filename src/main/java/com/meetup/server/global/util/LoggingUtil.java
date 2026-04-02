@@ -22,10 +22,8 @@ public class LoggingUtil {
         String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
         String requestBody = getRequestBody(request);
 
-        String msg = """
-                [Request] Method=%s, Path=%s
-                QueryString=%s
-                Body=%s""".formatted(method, path, queryString, requestBody);
+        String msg = "[Request] Method=%s, Path=%s, QueryString=%s, Body=%s"
+                .formatted(method, path, queryString, requestBody);
         log.info(msg);
     }
 
@@ -44,17 +42,11 @@ public class LoggingUtil {
         String message = errorType.getMessage();
         String exceptionType = e.getClass().getSimpleName();
 
-        String errorBody = """
-                {
-                  "errorCode": "%s",
-                  "message": "%s",
-                  "type": "%s"
-                }""".formatted(errorCode, message, exceptionType);
+        String errorBody = "{\"errorCode\": \"%s\", \"message\": \"%s\", \"type\": \"%s\"}"
+                .formatted(errorCode, message, exceptionType);
 
-        String logMsg = """
-                %s ErrorCode=%d
-                Message=%s
-                Body=%s""".formatted(logTag, errorType.getStatus().value(), message, errorBody);
+        String logMsg = "%s ErrorCode=%d, Message=%s, Body=%s"
+                .formatted(logTag, errorType.getStatus().value(), message, errorBody);
 
         log.error(logMsg, e);
     }
