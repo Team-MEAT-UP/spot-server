@@ -1,5 +1,9 @@
 <configuration>
-    <include resource="logback-appenders.xml"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{TRACE_ID}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
     <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="OFF"/>
     <springProfile name="local">
@@ -19,7 +23,6 @@
 
     <springProfile name="prod">
         <root level="info">
-            <appender-ref ref="ROLLING"/>
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
