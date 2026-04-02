@@ -2,97 +2,154 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>MOISAM Admin</title>
+    <title>MOISAM Admin - 통계</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
+        :root {
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f5;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
         }
 
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            background-color: #ffffff;
+            background-color: var(--bg-color);
         }
 
         h2 {
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            font-weight: 700;
         }
 
-        .date-filter {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
+        /* 필터 컨트롤 */
+        .filter-controls {
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
         }
 
-        .date-filter label {
-            font-weight: bold;
+        .filter-section-title {
+            font-size: 15px;
+            font-weight: 700;
             color: #495057;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
         }
 
-        .date-filter input {
-            padding: 8px 12px;
+        .date-picker-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-picker-wrap input[type="text"] {
+            padding: 10px 15px;
             border: 1px solid #ced4da;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
+            width: 260px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #fff;
         }
 
-        .date-filter button {
-            padding: 8px 20px;
-            background-color: #007bff;
-            color: white;
+        .date-picker-wrap input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+
+        .action-button {
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .date-filter button:hover {
-            background-color: #0056b3;
+        .btn-search {
+            background-color: var(--primary);
+            color: white;
         }
 
+        .btn-search:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background-color: #e9ecef;
+            color: #495057;
+            margin-left: 8px;
+        }
+
+        .btn-clear:hover {
+            background-color: #dee2e6;
+            color: #212529;
+        }
+
+        /* 탭 */
         .tabs {
             display: flex;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 25px;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            width: fit-content;
         }
 
         .tab-btn {
-            padding: 12px 25px;
-            background: none;
+            padding: 10px 28px;
+            background: transparent;
             border: none;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
-            color: #6c757d;
+            color: var(--text-muted);
+            border-radius: 8px;
+            transition: all 0.25s ease;
             position: relative;
-            transition: color 0.2s;
         }
 
         .tab-btn:hover {
-            color: #007bff;
+            color: var(--primary);
+            background: #f0f4ff;
         }
 
         .tab-btn.active {
-            color: #007bff;
-        }
-
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #007bff;
+            color: #ffffff;
+            background: linear-gradient(135deg, #4f6ef7 0%, #3b5de7 100%);
+            box-shadow: 0 2px 8px rgba(79, 110, 247, 0.3);
         }
 
         .tab-content {
@@ -101,22 +158,37 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 통계 카드 */
         .stats-container {
             display: flex;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background-color: #fff;
-            border: 1px solid #dee2e6;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-left: 5px solid #17a2b8;
-            padding: 15px 25px;
-            border-radius: 6px;
-            min-width: 180px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 20px 25px;
+            border-radius: 8px;
+            min-width: 220px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            flex: 1;
         }
 
         .stat-card.activation {
@@ -137,46 +209,54 @@
 
         .stat-card .label {
             display: block;
-            font-size: 0.85em;
-            color: #6c757d;
+            font-size: 0.9em;
+            color: var(--text-muted);
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .stat-card .value {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: #212529;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-dark);
         }
 
         .stat-card .unit {
             font-size: 0.6em;
             margin-left: 4px;
             color: #495057;
+            font-weight: 500;
         }
 
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 차트 */
         .chart-container {
             display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: 24px;
+            margin-bottom: 24px;
         }
 
         .chart-box {
             flex: 1;
-            background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .chart-box h3 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             color: #343a40;
-            font-size: 1.1em;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
         }
 
         .chart-wrapper {
@@ -184,70 +264,122 @@
             height: 300px;
         }
 
+        /* 테이블 */
         .table-container {
-            margin-top: 30px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 24px;
         }
 
-        .table-container h3 {
-            padding: 15px;
-            margin: 0;
+        .table-container .table-header {
+            padding: 16px 20px;
             background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 15px;
+            font-weight: 700;
+            color: #343a40;
+        }
+
+        .table-scroll {
+            max-height: 360px;
+            overflow-y: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #fff;
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
+            padding: 14px 20px;
             text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             position: sticky;
             top: 0;
             z-index: 1;
         }
 
+        td {
+            font-size: 14px;
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
         tr:hover {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
+        }
+
+        /* 비율 뱃지 */
+        .rate-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .rate-high {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .rate-mid {
+            background-color: #fff8e1;
+            color: #f57f17;
+        }
+
+        .rate-low {
+            background-color: #fce4ec;
+            color: #c62828;
         }
     </style>
 </head>
 <body>
 
-<div class="admin-wrapper">
+<div class="admin-wrapper" style="display: flex; min-height: 100vh;">
     <div th:replace="~{admin/fragments/common :: sidebar('stats')}"></div>
 
     <div class="main-content">
         <h2>Statistics</h2>
 
-        <form class="date-filter" th:action="@{/admins/stats}" method="get" onsubmit="return validateDates()">
-            <label for="startDate">시작일:</label>
-            <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+        <!-- 날짜 필터 -->
+        <div class="filter-controls">
+            <form th:action="@{/admins/stats}" method="get" id="statsFilterForm">
+                <input type="hidden" name="startDate" id="startDateInput" th:value="${startDate}">
+                <input type="hidden" name="endDate" id="endDateInput" th:value="${endDate}">
 
-            <label for="endDate">종료일:</label>
-            <input type="date" id="endDate" name="endDate" th:value="${endDate}">
-
-            <button type="submit">조회</button>
-            <span id="dateError" style="color: red; margin-left: 10px; display: none;">시작일은 종료일보다 뒤일 수 없습니다.</span>
-        </form>
-
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('activation')">Activation</button>
-            <button class="tab-btn" onclick="showTab('retention')">Retention</button>
+                <div class="filter-section-title">📅 조회 기간</div>
+                <div class="date-picker-wrap">
+                    <input type="text" id="dateRange" placeholder="조회할 날짜/기간을 선택하세요" readonly>
+                    <button type="submit" class="action-button btn-search">검색</button>
+                    <a href="/admins/stats" class="action-button btn-clear">초기화</a>
+                </div>
+            </form>
         </div>
 
+        <!-- 탭 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('activation')">📊 Activation</button>
+            <button class="tab-btn" onclick="showTab('retention')">🔄 Retention</button>
+        </div>
+
+        <!-- Activation 탭 -->
         <div id="activation-tab" class="tab-content active" th:if="${stats != null}">
             <div class="stats-container">
                 <div class="stat-card activation">
@@ -276,32 +408,43 @@
             </div>
 
             <div class="table-container">
-                <h3>Activation 상세 데이터</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>날짜</th>
-                        <th>전체 모임 수</th>
-                        <th>장소 확정</th>
-                        <th>장소 확정 (+카카오 유입)</th>
-                        <th>확정률 (%)</th>
-                        <th>확정+유입률 (%)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="activation : ${stats.activationStats()}">
-                        <td th:text="${activation.date()}">2025-01-01</td>
-                        <td th:text="${activation.totalEvents()}">0</td>
-                        <td th:text="${activation.confirmedPlaceEvents()}">0</td>
-                        <td th:text="${activation.confirmedEventsWithKakao()}">0</td>
-                        <td th:text="${activation.activationRate()}">0</td>
-                        <td th:text="${activation.activationRateWithKakao()}">0</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="table-header">Activation 상세 데이터</div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>전체 모임 수</th>
+                            <th>장소 확정</th>
+                            <th>장소 확정 (+카카오)</th>
+                            <th>확정률</th>
+                            <th>확정+유입률</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="activation : ${stats.activationStats()}">
+                            <td th:text="${activation.date()}" style="font-weight: 500;">2025-01-01</td>
+                            <td th:text="${activation.totalEvents()}">0</td>
+                            <td th:text="${activation.confirmedPlaceEvents()}">0</td>
+                            <td th:text="${activation.confirmedEventsWithKakao()}">0</td>
+                            <td>
+                                <span class="rate-badge"
+                                      th:classappend="${activation.activationRate() >= 50 ? 'rate-high' : (activation.activationRate() >= 20 ? 'rate-mid' : 'rate-low')}"
+                                      th:text="${activation.activationRate()} + '%'">0%</span>
+                            </td>
+                            <td>
+                                <span class="rate-badge"
+                                      th:classappend="${activation.activationRateWithKakao() >= 50 ? 'rate-high' : (activation.activationRateWithKakao() >= 20 ? 'rate-mid' : 'rate-low')}"
+                                      th:text="${activation.activationRateWithKakao()} + '%'">0%</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- Retention 탭 -->
         <div id="retention-tab" class="tab-content" th:if="${stats != null}">
             <div class="stats-container">
                 <div class="stat-card retention">
@@ -330,47 +473,80 @@
             </div>
 
             <div class="table-container">
-                <h3>Retention 상세 데이터</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>날짜</th>
-                        <th>방문 유저 수</th>
-                        <th>확정 재경험 유저</th>
-                        <th>확정 재경험 (카카오)</th>
-                        <th>재경험률 (%)</th>
-                        <th>카카오 재경험률 (%)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="retention : ${stats.retentionStats()}">
-                        <td th:text="${retention.date()}">2026-02-22</td>
-                        <td th:text="${retention.totalUsersWithEvents()}">0</td>
-                        <td th:text="${retention.retainedUsers()}">0</td>
-                        <td th:text="${retention.retainedUsersWithKakao()}">0</td>
-                        <td th:text="${retention.retentionRate()}">0</td>
-                        <td th:text="${retention.retentionRateWithKakao()}">0</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="table-header">Retention 상세 데이터</div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>방문 유저 수</th>
+                            <th>확정 재경험 유저</th>
+                            <th>확정 재경험 (카카오)</th>
+                            <th>재경험률</th>
+                            <th>카카오 재경험률</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="retention : ${stats.retentionStats()}">
+                            <td th:text="${retention.date()}" style="font-weight: 500;">2026-02-22</td>
+                            <td th:text="${retention.totalUsersWithEvents()}">0</td>
+                            <td th:text="${retention.retainedUsers()}">0</td>
+                            <td th:text="${retention.retainedUsersWithKakao()}">0</td>
+                            <td>
+                                <span class="rate-badge"
+                                      th:classappend="${retention.retentionRate() >= 50 ? 'rate-high' : (retention.retentionRate() >= 20 ? 'rate-mid' : 'rate-low')}"
+                                      th:text="${retention.retentionRate()} + '%'">0%</span>
+                            </td>
+                            <td>
+                                <span class="rate-badge"
+                                      th:classappend="${retention.retentionRateWithKakao() >= 50 ? 'rate-high' : (retention.retentionRateWithKakao() >= 20 ? 'rate-mid' : 'rate-low')}"
+                                      th:text="${retention.retentionRateWithKakao()} + '%'">0%</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script th:inline="javascript">
-    function validateDates() {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const errorSpan = document.getElementById('dateError');
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 
-        if (startDate && endDate && startDate > endDate) {
-            errorSpan.style.display = 'inline';
-            return false;
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Flatpickr
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+
+        let initialDates = [];
+        if (startDateInput.value && endDateInput.value) {
+            initialDates = [startDateInput.value, endDateInput.value];
+        } else if (startDateInput.value) {
+            initialDates = [startDateInput.value];
         }
-        errorSpan.style.display = 'none';
-        return true;
-    }
+
+        flatpickr("#dateRange", {
+            mode: "range",
+            locale: "ko",
+            dateFormat: "Y-m-d",
+            defaultDate: initialDates,
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    startDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    endDateInput.value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                } else if (selectedDates.length === 1) {
+                    startDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    endDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                } else {
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                }
+            }
+        });
+    });
 
     function showTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -392,6 +568,59 @@
     const retentionData = retentionStats.map(s => s.retentionRate);
     const retentionRateWithKakaoData = retentionStats.map(s => s.retentionRateWithKakao);
 
+    // Chart.js global defaults
+    Chart.defaults.font.family = "'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif";
+    Chart.defaults.color = '#6c757d';
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyleWidth: 10,
+                    font: {size: 13, weight: '500'}
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(33, 37, 41, 0.9)',
+                padding: 12,
+                titleFont: {size: 13, weight: '600'},
+                bodyFont: {size: 13},
+                cornerRadius: 8,
+                callbacks: {
+                    label: function (context) {
+                        return ' ' + context.dataset.label + ': ' + context.parsed.y + '%';
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: {display: false},
+                ticks: {font: {size: 12}, maxRotation: 45, minRotation: 0}
+            },
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {color: 'rgba(0,0,0,0.05)'},
+                ticks: {
+                    font: {size: 12},
+                    callback: function (value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    };
+
     const activationCtx = document.getElementById('activationChart').getContext('2d');
     new Chart(activationCtx, {
         type: 'line',
@@ -399,42 +628,32 @@
             labels: labels,
             datasets: [
                 {
-                    label: '장소 확정률 (%)',
+                    label: '장소 확정률',
                     data: activationData,
                     borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.08)',
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.35,
+                    borderWidth: 2.5,
                     pointRadius: labels.length > 15 ? 2 : 4,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#28a745'
                 },
                 {
-                    label: '장소 확정률 (카카오 포함) (%)',
+                    label: '장소 확정률 (카카오 포함)',
                     data: activationRateWithKakaoData,
-                    borderColor: '#FEE500',
-                    backgroundColor: 'rgba(254, 229, 0, 0.1)',
+                    borderColor: '#f59f00',
+                    backgroundColor: 'rgba(245, 159, 0, 0.08)',
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.35,
+                    borderWidth: 2.5,
                     pointRadius: labels.length > 15 ? 2 : 4,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#f59f00'
                 }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function (value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
+        options: chartOptions
     });
 
     const retentionCtx = document.getElementById('retentionChart').getContext('2d');
@@ -444,42 +663,32 @@
             labels: labels,
             datasets: [
                 {
-                    label: '장소 확정 재경험률 (%)',
+                    label: '장소 확정 재경험률',
                     data: retentionData,
                     borderColor: '#ffc107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    backgroundColor: 'rgba(255, 193, 7, 0.08)',
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.35,
+                    borderWidth: 2.5,
                     pointRadius: labels.length > 15 ? 2 : 4,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ffc107'
                 },
                 {
-                    label: '장소 확정 재경험률 (카카오 포함) (%)',
+                    label: '장소 확정 재경험률 (카카오 포함)',
                     data: retentionRateWithKakaoData,
-                    borderColor: '#faa2c1',
-                    backgroundColor: 'rgba(250, 162, 193, 0.1)',
+                    borderColor: '#e64980',
+                    backgroundColor: 'rgba(230, 73, 128, 0.08)',
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.35,
+                    borderWidth: 2.5,
                     pointRadius: labels.length > 15 ? 2 : 4,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#e64980'
                 }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function (value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
+        options: chartOptions
     });
     /*]]>*/
 </script>
