@@ -3,6 +3,9 @@ package com.meetup.server.event.infrastructure.jpa;
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
+import com.meetup.server.event.infrastructure.jpa.projection.ParticipantCountDistribution;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +30,55 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findAllByEventDateTimeWithPlace(@Param("eventDateTime") LocalDateTime eventDateTime);
 
     long countByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    @Query(value = """
+            SELECT e.* FROM event e
+            LEFT JOIN (
+                SELECT sp.event_id, count(*) as sp_count
+                FROM start_point sp
+                GROUP BY sp.event_id
+            ) pc ON pc.event_id = e.event_id
+            WHERE (cast(:startDateTime as timestamp) IS NULL OR e.created_at >= cast(:startDateTime as timestamp))
+              AND (cast(:endDateTime as timestamp) IS NULL OR e.created_at <= cast(:endDateTime as timestamp))
+              AND (:participantCount IS NULL OR pc.sp_count = :participantCount)
+            """,
+            countQuery = """
+            SELECT count(*) FROM event e
+            LEFT JOIN (
+                SELECT sp.event_id, count(*) as sp_count
+                FROM start_point sp
+                GROUP BY sp.event_id
+            ) pc ON pc.event_id = e.event_id
+            WHERE (cast(:startDateTime as timestamp) IS NULL OR e.created_at >= cast(:startDateTime as timestamp))
+              AND (cast(:endDateTime as timestamp) IS NULL OR e.created_at <= cast(:endDateTime as timestamp))
+              AND (:participantCount IS NULL OR pc.sp_count = :participantCount)
+            """,
+            nativeQuery = true)
+    Page<Event> findFilteredEvents(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            @Param("participantCount") Integer participantCount,
+            Pageable pageable);
+
+    @Query(value = """
+            SELECT
+                participant_count as participantCount,
+                COUNT(*) as eventCount
+            FROM (
+                SELECT e.event_id, count(sp.start_point_id) as participant_count
+                FROM event e
+                LEFT JOIN start_point sp ON sp.event_id = e.event_id
+                WHERE (cast(:startDateTime as timestamp) IS NULL OR e.created_at >= cast(:startDateTime as timestamp))
+                  AND (cast(:endDateTime as timestamp) IS NULL OR e.created_at <= cast(:endDateTime as timestamp))
+                GROUP BY e.event_id
+            ) subquery
+            GROUP BY participant_count
+            ORDER BY participant_count
+            """, nativeQuery = true)
+    List<ParticipantCountDistribution> findEventCountByParticipantCount(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
 
     @Query(value = """
             SELECT

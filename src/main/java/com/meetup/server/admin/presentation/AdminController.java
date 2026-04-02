@@ -20,6 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -66,28 +67,36 @@ public class AdminController {
     }
 
     @GetMapping("/events")
-    public String getAllEvents(
+    public String getEvents(
             Model model,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Integer participantCount,
+            @PageableDefault(size = 20, sort = "created_at", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<AdminEventResponse> eventPages = adminService.getAllEvents(pageable);
+        Page<AdminEventResponse> eventPage = adminService.getFilteredEvents(startDate, endDate, participantCount, pageable);
+        Map<Integer, Long> eventCountByParticipantCount = adminService.getEventCountByParticipantCount(startDate, endDate);
         DailyEventStatsResponse dailyEventStats = adminService.getDailyEventStats();
 
-        model.addAttribute("eventPages", eventPages);
+        model.addAttribute("eventPage", eventPage);
+        model.addAttribute("eventCountByParticipantCount", eventCountByParticipantCount);
         model.addAttribute("clientUrl", clientUrl);
         model.addAttribute("dailyEventStats", dailyEventStats);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("participantCount", participantCount);
         return "admin/events";
     }
 
     @GetMapping("/users")
-    public String getAllUsers(
+    public String getUsers(
             Model model,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<AdminUserResponse> userPages = adminService.getAllUsers(pageable);
+        Page<AdminUserResponse> userPage = adminService.getUsers(pageable);
         DailyUserStatsResponse dailyUserStats = adminService.getDailyUserStats();
 
-        model.addAttribute("userPages", userPages);
+        model.addAttribute("userPage", userPage);
         model.addAttribute("dailyUserStats", dailyUserStats);
         return "admin/users";
     }

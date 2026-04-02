@@ -5,6 +5,7 @@ import com.meetup.server.event.exception.EventErrorType;
 import com.meetup.server.event.exception.EventException;
 import com.meetup.server.event.infrastructure.jpa.EventRepository;
 import com.meetup.server.event.infrastructure.jpa.projection.ActivationStat;
+import com.meetup.server.event.infrastructure.jpa.projection.ParticipantCountDistribution;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +28,12 @@ public class EventReader {
                 .orElseThrow(() -> new EventException(EventErrorType.EVENT_NOT_FOUND));
     }
 
-    public Page<Event> readAll(Pageable pageable) {
-        return eventRepository.findAll(pageable);
+    public Page<Event> readFilteredEvents(LocalDateTime startDateTime, LocalDateTime endDateTime, Integer participantCount, Pageable pageable) {
+        return eventRepository.findFilteredEvents(startDateTime, endDateTime, participantCount, pageable);
+    }
+
+    public List<ParticipantCountDistribution> readEventCountByParticipantCount(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return eventRepository.findEventCountByParticipantCount(startDateTime, endDateTime);
     }
 
     public List<Event> readEventsWithPlaceAtHour(int hour) {
