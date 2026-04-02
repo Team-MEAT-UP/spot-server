@@ -1,9 +1,5 @@
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{TRACE_ID}] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+    <include resource="logback-appenders.xml"/>
 
     <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="OFF"/>
     <springProfile name="local">
@@ -16,14 +12,14 @@
 
     <springProfile name="stg">
         <root level="info">
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_CONSOLE"/>
         </root>
         <logger name="com.meetup.server" level="debug"/>
     </springProfile>
 
     <springProfile name="prod">
         <root level="info">
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_CONSOLE"/>
         </root>
     </springProfile>
 </configuration>
