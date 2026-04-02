@@ -25,6 +25,12 @@ public class ResponseContextFilter extends OncePerRequestFilter {
     private final CookieUtil cookieUtil;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/admins");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             @NonNull HttpServletResponse response,

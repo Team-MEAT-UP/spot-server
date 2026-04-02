@@ -32,6 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthService authService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/admins");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             @NonNull HttpServletResponse response,
