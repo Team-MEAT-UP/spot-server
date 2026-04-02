@@ -163,7 +163,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="user : ${userPages.content}"
+            <tr th:each="user : ${userPage.content}"
                 th:style="${user.deletedDateTime != null ? 'color: #adb5bd;' : ''}">
                 <td th:text="${user.userId}">ID</td>
                 <td th:text="${user.nickname}">닉네임</td>
@@ -184,21 +184,21 @@
             </tbody>
         </table>
 
-        <div class="pagination" th:if="${userPages.totalPages > 1}">
+        <div class="pagination" th:if="${userPage.totalPages > 1}">
             <th:block th:with="
-                currentPageNumber=${userPages.number},
+                currentPageNumber=${userPage.number},
                 blockSize=5,
                 startPage=${(currentPageNumber / blockSize) * blockSize},
-                endPage=(${(startPage + blockSize - 1) < userPages.totalPages ? (startPage + blockSize - 1) : userPages.totalPages - 1})
+                endPage=(${(startPage + blockSize - 1) < userPage.totalPages ? (startPage + blockSize - 1) : userPage.totalPages - 1})
             ">
                 <a th:href="@{/admins/users(page=0)}" th:if="${startPage > 0}">&laquo;</a>
                 <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
                     <a th:href="@{/admins/users(page=${i})}"
                        th:text="${i + 1}"
-                       th:classappend="${i == userPages.number ? 'active' : ''}">1</a>
+                       th:classappend="${i == userPage.number ? 'active' : ''}">1</a>
                 </th:block>
-                <a th:href="@{/admins/users(page=${userPages.totalPages - 1})}"
-                   th:if="${endPage < userPages.totalPages - 1}">&raquo;</a>
+                <a th:href="@{/admins/users(page=${userPage.totalPages - 1})}"
+                   th:if="${endPage < userPage.totalPages - 1}">&raquo;</a>
             </th:block>
         </div>
     </div>

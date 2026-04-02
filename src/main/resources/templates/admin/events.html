@@ -2,163 +2,406 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>MOISAM Admin</title>
+    <title>MOISAM Admin - 이벤트 현황</title>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
+        :root {
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f5;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
         }
 
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            background-color: #ffffff;
+            background-color: var(--bg-color);
         }
 
         h2 {
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            font-weight: 700;
         }
 
         /* 통계 컨테이너 */
         .stats-container {
             display: flex;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background-color: #fff;
-            border: 1px solid #dee2e6;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-left: 5px solid #17a2b8;
-            padding: 15px 25px;
-            border-radius: 6px;
+            padding: 20px 25px;
+            border-radius: 8px;
             min-width: 220px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all 0.3s ease;
+            flex: 1;
         }
 
         .stat-card.event {
             border-left-color: #28a745;
         }
 
+        .stat-card.kakao {
+            border-left-color: #FEE500;
+        }
+
         .stat-card .label {
             display: block;
-            font-size: 0.85em;
-            color: #6c757d;
+            font-size: 0.9em;
+            color: var(--text-muted);
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .stat-card .value {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: #212529;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-dark);
         }
 
         .stat-card .unit {
             font-size: 0.6em;
             margin-left: 4px;
             color: #495057;
+            font-weight: 500;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
         }
 
-        .stat-card.kakao {
-            border-left-color: #FEE500;
+        /* 필터 컨트롤 */
+        .filter-controls {
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
         }
 
-        /* 테이블 스타일 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        .filter-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-controls .date-picker-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .filter-controls input[type="text"] {
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 260px;
+            transition: border-color 0.2s, box-shadow 0.2s;
             background-color: #fff;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+        .filter-controls input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
         }
 
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .pagination {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .pagination a {
-            padding: 8px 14px;
-            margin: 0 3px;
-            border: 1px solid #ddd;
-            text-decoration: none;
-            border-radius: 4px;
-            color: #007bff;
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .pagination a.nav-btn {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            font-weight: bold;
-            font-size: 1.1em;
+        .btn-search {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-search:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background-color: #e9ecef;
+            color: #495057;
+            margin-left: 8px;
+        }
+
+        .btn-clear:hover {
+            background-color: #dee2e6;
+            color: #212529;
+        }
+
+        /* 참여자 수 필터 — Chip Bar Design */
+        .participant-filter-wrap {
+            margin-top: 4px;
+        }
+
+        .participant-chips {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .p-chip {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 8px 12px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-right: 1px solid #e2e8f0;
+            background: transparent;
+            min-width: 0;
+        }
+
+        .p-chip:last-child {
+            border-right: none;
+        }
+
+        .p-chip:hover {
+            background: #eef2ff;
+        }
+
+        .p-chip.active {
+            background: linear-gradient(135deg, #4f6ef7 0%, #3b5de7 100%);
+            box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .p-chip.all-chip {
+            max-width: 72px;
+            min-width: 72px;
+            background: #f1f5f9;
+            border-right: 2px solid #cbd5e1;
+        }
+
+        .p-chip.all-chip:hover {
+            background: #e2e8f0;
+        }
+
+        .p-chip.all-chip.active {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+
+        .p-chip .p-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            line-height: 1;
+            letter-spacing: -0.01em;
+            transition: color 0.2s;
+        }
+
+        .p-chip.active .p-label {
+            color: #ffffff;
+        }
+
+        .p-chip .p-bar-wrap {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+            transition: background 0.2s;
+        }
+
+        .p-chip.active .p-bar-wrap {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .p-chip .p-bar {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #4f6ef7, #818cf8);
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            min-width: 0;
+        }
+
+        .p-chip.active .p-bar {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.9));
+        }
+
+        .p-chip .p-count-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 6px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .p-chip.active .p-count-badge {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .p-chip .p-all-icon {
+            font-size: 15px;
+            margin-bottom: 2px;
             line-height: 1;
         }
 
-        .pagination a:hover:not(.active) {
-            background-color: #f1f1f1;
-            border-color: #ccc;
+        /* 테이블 스타일 */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 20px;
         }
 
-        .pagination a.nav-btn:hover {
-            background-color: #e2e6ea;
-            color: #343a40;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .pagination .active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-            cursor: default;
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 14px;
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
         }
 
         .event-link {
-            color: #17a2b8;
+            color: var(--primary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
         }
 
         .event-link:hover {
             text-decoration: underline;
+            color: var(--primary-hover);
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 15px;
+            background-color: #fff;
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 30px;
+            padding-bottom: 40px;
+        }
+
+        .pagination a {
+            padding: 8px 14px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            color: var(--primary);
+            text-decoration: none;
+            background-color: #fff;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 14px;
+            min-width: 14px;
+            text-align: center;
+        }
+
+        .pagination a.nav-btn {
+            color: #6c757d;
+            background-color: #f8f9fa;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            color: #0056b3;
+        }
+
+        .pagination .active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            cursor: default;
         }
     </style>
 </head>
 <body>
 
-<div class="admin-wrapper">
+<div class="admin-wrapper" style="display: flex; min-height: 100vh;">
     <div th:replace="~{admin/fragments/common :: sidebar('events')}"></div>
 
     <div class="main-content">
         <h2>Events</h2>
 
+        <!-- 통계 -->
         <div class="stats-container" th:if="${dailyEventStats != null}">
             <div class="stat-card event">
                 <span class="label">📍 금일 이벤트 수</span>
@@ -183,63 +426,226 @@
             </div>
         </div>
 
-        <table>
-            <thead>
-            <tr>
-                <th>모임 ID</th>
-                <th>모임명</th>
-                <th>모임 일시</th>
-                <th>중간 지점</th>
-                <th>모임 확정 장소</th>
-                <th>참여자 수</th>
-                <th>카카오 유입 수</th>
-                <th>생성일</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="event : ${eventPages.content}">
-                <td th:text="${event.eventId}">ID</td>
-                <td>
-                    <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
-                       th:text="${event.eventName}">모임명</a>
-                </td>
-                <td th:text="${#temporals.format(event.eventDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-24 12:00</td>
-                <td th:text="${event.meetingPoint}">중간 지점</td>
-                <td th:text="${event.meetingPlace}">확정 장소</td>
-                <td th:text="${event.participantCount} + '명'">0명</td>
-                <td th:text="${event.kakaoInflowCount} + '건'">1건</td>
-                <td th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">2025-12-25 12:00</td>
-            </tr>
-            </tbody>
-        </table>
+        <!-- 필터 컨트롤 -->
+        <div class="filter-controls">
+            <form action="/admins/events" method="get" id="filterForm">
+                <input type="hidden" name="participantCount" id="participantCountInput" th:value="${participantCount}">
+                <input type="hidden" name="startDate" id="startDateInput" th:value="${startDate}">
+                <input type="hidden" name="endDate" id="endDateInput" th:value="${endDate}">
 
-        <div class="pagination" th:if="${eventPages.totalPages > 1}">
+                <div class="filter-section-title">📅 생성일 기간 필터</div>
+                <div class="date-picker-wrap">
+                    <input type="text" id="dateRange" placeholder="조회할 날짜/기간을 선택하세요" readonly>
+                    <button type="submit" class="action-button btn-search">검색</button>
+                    <a href="/admins/events" class="action-button btn-clear">초기화</a>
+                </div>
+
+                <div class="filter-section-title" style="margin-bottom: 14px;">
+                    📍 출발지(참여자) 수 필터
+                    <span style="font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 8px;">
+                        클릭하여 필터링 · 다시 클릭하면 해제
+                    </span>
+                </div>
+                <div class="participant-filter-wrap">
+                    <div class="participant-chips" id="participantChips">
+                        <!-- 전체 (All) chip -->
+                        <div class="p-chip all-chip"
+                             th:classappend="${participantCount == null || participantCount == 0 ? 'active' : ''}"
+                             data-count="0"
+                             onclick="selectParticipantCount(this)">
+                            <span class="p-all-icon">🔍</span>
+                            <span class="p-label">전체</span>
+                        </div>
+                        <!-- 1~8명 chips -->
+                        <th:block th:each="i : ${#numbers.sequence(1, 8)}">
+                            <div class="p-chip"
+                                 th:classappend="${participantCount == i ? 'active' : ''}"
+                                 th:attr="data-count=${i},data-value=${eventCountByParticipantCount.containsKey(i) ? eventCountByParticipantCount.get(i) : 0}"
+                                 onclick="selectParticipantCount(this)">
+                                <span class="p-label" th:text="${i} + '명'"></span>
+                                <div class="p-bar-wrap">
+                                    <div class="p-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="p-count-badge"
+                                      th:text="${(eventCountByParticipantCount.containsKey(i) ? eventCountByParticipantCount.get(i) : 0)} + '건'">0건</span>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 테이블 목록 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>모임명 (생성일)</th>
+                    <th>모임 일시</th>
+                    <th>중간 지점</th>
+                    <th>확정 장소</th>
+                    <th>참여자</th>
+                    <th>카카오 유입</th>
+                </tr>
+                </thead>
+                <tbody th:if="${!eventPage.content.isEmpty()}">
+                <tr th:each="event : ${eventPage.content}">
+                    <td th:text="${event.eventId}" style="font-family: monospace; font-size: 12px; color: #6c757d;">ID
+                    </td>
+                    <td>
+                        <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
+                           th:text="${event.eventName}">모임명</a>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                            <span th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">생성일</span>
+                        </div>
+                    </td>
+                    <td th:text="${#temporals.format(event.eventDateTime, 'yyyy-MM-dd HH:mm')}"
+                        style="font-weight: 500;">모임일
+                    </td>
+                    <td th:text="${event.meetingPoint}">지점</td>
+                    <td>
+                        <span th:if="${event.meetingPlace != null}" th:text="${event.meetingPlace}">장소</span>
+                        <span th:unless="${event.meetingPlace != null}"
+                              style="color: #adb5bd; font-style: italic;">미정</span>
+                    </td>
+                    <td>
+                        <span style="background-color: #eef5ff; color: var(--primary); padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 12px;"
+                              th:text="${event.participantCount} + '명'">0명</span>
+                    </td>
+                    <td>
+                        <span th:if="${event.kakaoInflowCount > 0}"
+                              style="background-color: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 12px;"
+                              th:text="${event.kakaoInflowCount} + '건'"></span>
+                        <span th:unless="${event.kakaoInflowCount > 0}" style="color: #adb5bd;">0건</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${eventPage.content.isEmpty()}" class="empty-state">
+                <div style="font-size: 24px; margin-bottom: 12px;">📭</div>
+                해당하는 모임 목록이 없습니다.<br>
+                <small style="margin-top: 8px; display: block; color: #adb5bd;">다른 날짜나 참여자 수를 선택해보세요.</small>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" th:if="${eventPage.totalPages > 1}">
             <th:block th:with="
-        currentPageNumber=${eventPages.number},
-        blockSize=5,
-        startPage=${(currentPageNumber / blockSize) * blockSize},
-        endPage=(${(startPage + blockSize - 1) < eventPages.totalPages ? (startPage + blockSize - 1) : eventPages.totalPages - 1})
-    ">
-                <a class="nav-btn" th:href="@{/admins/events(page=0)}" th:if="${startPage > 0}" title="처음">&laquo;</a>
+                currentPageNumber=${eventPage.number},
+                blockSize=5,
+                startPage=${(currentPageNumber / blockSize) * blockSize},
+                endPage=(${(startPage + blockSize - 1) < eventPage.totalPages ? (startPage + blockSize - 1) : eventPage.totalPages - 1})
+            ">
+                <!-- Use URL building parameters to maintain state across pages -->
+                <a class="nav-btn"
+                   th:href="@{/admins/events(page=0, startDate=${startDate}, endDate=${endDate}, participantCount=${participantCount})}"
+                   th:if="${startPage > 0}" title="처음">&laquo;</a>
 
-                <a class="nav-btn" th:href="@{/admins/events(page=${startPage - 1})}" th:if="${startPage > 0}"
-                   title="이전">&lsaquo;</a>
+                <a class="nav-btn"
+                   th:href="@{/admins/events(page=${startPage - 1}, startDate=${startDate}, endDate=${endDate}, participantCount=${participantCount})}"
+                   th:if="${startPage > 0}" title="이전">&lsaquo;</a>
 
                 <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
-                    <a th:href="@{/admins/events(page=${i})}"
+                    <a th:href="@{/admins/events(page=${i}, startDate=${startDate}, endDate=${endDate}, participantCount=${participantCount})}"
                        th:text="${i + 1}"
-                       th:classappend="${i == eventPages.number ? 'active' : ''}">1</a>
+                       th:classappend="${i == eventPage.number ? 'active' : ''}">1</a>
                 </th:block>
 
-                <a class="nav-btn" th:href="@{/admins/events(page=${endPage + 1})}"
-                   th:if="${endPage < eventPages.totalPages - 1}" title="다음">&rsaquo;</a>
+                <a class="nav-btn"
+                   th:href="@{/admins/events(page=${endPage + 1}, startDate=${startDate}, endDate=${endDate}, participantCount=${participantCount})}"
+                   th:if="${endPage < eventPage.totalPages - 1}" title="다음">&rsaquo;</a>
 
-                <a class="nav-btn" th:href="@{/admins/events(page=${eventPages.totalPages - 1})}"
-                   th:if="${endPage < eventPages.totalPages - 1}" title="끝">&raquo;</a>
+                <a class="nav-btn"
+                   th:href="@{/admins/events(page=${eventPage.totalPages - 1}, startDate=${startDate}, endDate=${endDate}, participantCount=${participantCount})}"
+                   th:if="${endPage < eventPage.totalPages - 1}" title="끝">&raquo;</a>
             </th:block>
         </div>
     </div>
 </div>
 
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Flatpickr
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+
+        let initialDates = [];
+        if (startDateInput.value && endDateInput.value) {
+            initialDates = [startDateInput.value, endDateInput.value];
+        } else if (startDateInput.value) {
+            initialDates = [startDateInput.value];
+        }
+
+        const fp = flatpickr("#dateRange", {
+            mode: "range",
+            locale: "ko",
+            dateFormat: "Y-m-d",
+            defaultDate: initialDates,
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    startDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    endDateInput.value = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                } else if (selectedDates.length === 1) {
+                    startDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    endDateInput.value = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                } else {
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                }
+            }
+        });
+
+        // Animate distribution bars
+        animateDistributionBars();
+    });
+
+    function animateDistributionBars() {
+        const chips = document.querySelectorAll('.p-chip[data-value]');
+        let maxValue = 0;
+        chips.forEach(chip => {
+            const val = parseInt(chip.getAttribute('data-value')) || 0;
+            if (val > maxValue) maxValue = val;
+        });
+
+        if (maxValue === 0) return;
+
+        // Slight delay for entrance animation feel
+        setTimeout(() => {
+            chips.forEach(chip => {
+                const val = parseInt(chip.getAttribute('data-value')) || 0;
+                const pct = Math.max((val / maxValue) * 100, val > 0 ? 6 : 0);
+                const bar = chip.querySelector('.p-bar');
+                if (bar) {
+                    bar.style.width = pct + '%';
+                }
+            });
+        }, 100);
+    }
+
+    function selectParticipantCount(element) {
+        const selectedCount = element.getAttribute('data-count');
+        const input = document.getElementById('participantCountInput');
+
+        // "전체" chip or toggling off current selection → clear
+        if (selectedCount === '0' || input.value === selectedCount) {
+            input.value = '';
+            document.querySelectorAll('.p-chip').forEach(c => c.classList.remove('active'));
+            document.querySelector('.p-chip.all-chip').classList.add('active');
+        } else {
+            input.value = selectedCount;
+            document.querySelectorAll('.p-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Auto submit the form
+        document.getElementById('filterForm').submit();
+    }
+</script>
 </body>
 </html>
+
