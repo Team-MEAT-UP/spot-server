@@ -23,6 +23,9 @@ public class RedisConfig {
     @Value("${spring.data.redis.time-to-live}")
     private long timeToLive;
 
+    @Value("${spring.data.redis.key-prefix:}")
+    private String keyPrefix;
+
     @Bean
     public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
@@ -31,6 +34,10 @@ public class RedisConfig {
                 .serializeValuesWith(RedisSerializationContext
                         .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .entryTtl(Duration.ofMinutes(timeToLive));
+
+        if (keyPrefix != null && !keyPrefix.isEmpty()) {
+            redisCacheConfiguration = redisCacheConfiguration.computePrefixWith(cacheName -> keyPrefix + cacheName + "::");
+        }
 
         return new LoggingRedisCacheManager(
                 RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory),
