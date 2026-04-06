@@ -6,15 +6,18 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: moisam-server
+
 jobs:
   build:
+    name: Build and Push
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
+    outputs:
+      image: ${{ steps.set-image.outputs.image }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
           token: ${{ secrets.GH_TOKEN }}
@@ -24,13 +27,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Cache Gradle
-        uses: actions/cache@v4.2.3
-        with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: gradle-
+          cache: 'gradle'
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
@@ -38,65 +35,67 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: move jar file to deploy
-        run: mv ./build/libs/*.jar ./deploy
-
-      - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v3.10.0
-
-      - name: Login to NCP Container Registry
-        uses: docker/login-action@v3.4.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          registry: ${{ secrets.NCP_CONTAINER_REGISTRY }}
-          username: ${{ secrets.NCP_ACCESS_KEY }}
-          password: ${{ secrets.NCP_SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v6.15.0
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        id: build-image
+        uses: docker/build-push-action@v6
         with:
-          context: ./deploy
+          context: .
+          file: ./deploy/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ${{ secrets.NCP_CONTAINER_REGISTRY }}/spot-backend:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:stg-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            JAR_FILE=build/libs/*.jar
+
+      - name: Set image output
+        id: set-image
+        run: echo "image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:stg-${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   deploy:
+    name: Deploy to EC2
     needs: build
-    name: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Set IMAGE variable
-        run: echo "IMAGE=${{ secrets.NCP_CONTAINER_REGISTRY }}/spot-backend:${{ github.sha }}" >> $GITHUB_ENV
-
-      - name: Substitute image tag in deployment.yaml
-        run: |
-          sed -i "s|__IMAGE__|${IMAGE}|g" deploy/stg/spot-backend-deployment.yaml
-
-      - name: Copy deployment.yaml to server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          password: ${{ secrets.NCP_PASSWORD }}
-          source: deploy/stg/
-          target: /home/ubuntu/deploy/stg
-          strip_components: 2
-
-      - name: Deploy to K3s via kubectl
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@master
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          password: ${{ secrets.NCP_PASSWORD }}
-          port: ${{ secrets.NCP_PORT }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl apply -f /home/ubuntu/deploy/stg/
+            # 1. ECR 로그인
+            ECR_URL=$(echo ${{ needs.build.outputs.image }} | cut -d/ -f1)
+            aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin $ECR_URL
+            
+            # 2. 기존 컨테이너 중지
+            sudo docker stop moisam-server-stg || true
+            sudo docker rm moisam-server-stg || true # 이전 배포의 잔여물 제거를 위해 하위 호환성 유지
+            
+            # 3. 새로운 컨테이너 실행
+            sudo docker run -d --rm --name moisam-server-stg \
+              -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=stg \
+              ${{ needs.build.outputs.image }}
+            
+            # 4. 사용하지 않는 구버전 이미지 정리
+            sudo docker image prune -a -f
