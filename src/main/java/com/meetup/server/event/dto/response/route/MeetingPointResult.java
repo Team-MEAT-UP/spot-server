@@ -20,5 +20,12 @@ public record MeetingPointResult(
                 .subway(subway)
                 .build();
     }
+
+    public boolean isSameSubway(Subway other) {
+        if (other == null || this.subway == null) {
+            return false;
+        }
+        return this.subway.getSubwayId().equals(other.getSubwayId());
+    }
 }
 
