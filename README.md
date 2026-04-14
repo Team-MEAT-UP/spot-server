@@ -1,4 +1,4 @@
-# 📍 모두를 위한 하나의 SPOT
+# 📍 [모이삼] 모두에게 딱 맞는 중간 장소 찾기
 
 > 🔗 **배포 주소** : https://www.moisam.kr
 
@@ -8,11 +8,11 @@
 
 ## 🏛️ System Architecture
 
-<img width="1391" height="892" alt="Frame 3" src="https://github.com/user-attachments/assets/431655a6-87c2-480f-9833-dfcff609707a" />
+<img width="1391" height="892" alt="Frame 3" src="https://github.com/user-attachments/assets/86192fb4-c8fe-4aca-850d-ed16041a8d05" />
 
 ## 📊 ERD
 
-![erd](https://github.com/user-attachments/assets/433d9a1d-4738-478a-bfb3-c0f61ba6ca1c)
+![erd](https://github.com/user-attachments/assets/8e69fc76-4fb5-4e8d-ba61-0577e4a30008)
 
 # 🚀 Backend
 
@@ -146,26 +146,3 @@
 | `test` | 테스트 코드 추가 및 수정, 삭제 |
 | `refactor` | 코드 리팩토링 |
 | `ci/cd` | CICD 설정 |
-
-## 성능 최적화
-
-> **무한 스크롤 쿼리 최적화**
-
-- slice 방식의 무한 스크롤 방식과 쿼리 작성 시 fetch join 을 통해서 쿼리 발생을 감소 시켰습니다
-- 이 과정에서 QueryDSL 사용을 통해 복잡한 조건의 동적 쿼리를 쉽게 구성하였습니다
-
-> **Redis 기반 실시간 캐싱 처리**
-
-- 외부 API를 활용한 실시간 경로 조회 및 중간 지점 계산 시, 디스크 기반 DB 접근(I/O)을 줄이기 위해 **인메모리 NoSQL인
-  Redis**를 도입하였습니다.
-- 외부 API 응답을 Redis에 캐싱하고, **TTL(Time To Live)** 을 적용하여 **멱등성 보장 및 중복 호출 방지**를
-  실현하였습니다. 이를 통해 **외부 API 호출 횟수 제한 정책에 유연하게 대응**할 수 있도록 구성하였습니다.
-
-> **주소 파싱 시 불필요한 Pattern 객체 생성 제거**
-
-- 기존에는 `address.split(" ")`을 사용하여 첫 번째 지역명을 추출했지만, 이는 내부적으로 `Pattern.compile()`을 통해
-  정규표현식 객체를 생성하게 됩니다.
-- 이를 `substring()`과 `indexOf()`기반으로 변경함으로써 **Pattern 객체 생성을 방지**하고, **GC 부담을 줄여 문자열 처리
-  성능을 확보**하였습니다.
-  
-![performance](https://github.com/user-attachments/assets/79001665-0321-48df-89b2-f3d4c34e16cc)
