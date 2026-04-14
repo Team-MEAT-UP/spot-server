@@ -1,11 +1,12 @@
 package com.meetup.server.event.application;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.dto.request.EventRequest;
 import com.meetup.server.event.dto.request.UpdateEventRequest;
 import com.meetup.server.event.dto.request.UpdatePlaceRequest;
 import com.meetup.server.event.dto.response.EventStartPointResponse;
-import com.meetup.server.event.dto.response.route.MeetingPointResult;
+import com.meetup.server.event.dto.response.route.CategorizedMeetingPointResult;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
 import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
 import com.meetup.server.event.implement.EventLockManager;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -56,46 +58,46 @@ public class EventService {
 
     @Performance
     public MeetingPointRoutesResponse getMeetingPointRoutes(UUID eventId, Long userId, UUID guestId) {
-        List<MeetingPointRouteGroup> meetingPointRouteGroups = getRouteGroups(eventId);
+        MeetingPointRouteGroups meetingPointRoutes = getRouteGroups(eventId);
 
         Event event = eventReader.read(eventId);
         List<StartPoint> startPoints = startPointReader.readAllWithUserByEvent(event);
 
-        for (MeetingPointRouteGroup group : meetingPointRouteGroups) {
-            routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
-        }
+        Stream.of(meetingPointRoutes.byCoordinate(), meetingPointRoutes.byPopularity())
+                .forEach(group -> prioritizeRouteGroup(group, userId, guestId));
 
-        return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRouteGroups);
+        return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRoutes);
     }
 
-    private List<MeetingPointRouteGroup> getRouteGroups(UUID eventId) {
-        List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
+    private MeetingPointRouteGroups getRouteGroups(UUID eventId) {
+        MeetingPointRouteGroups cachedRoutes = routeReader.readMeetingPointRoutes(eventId);
 
-        if (!meetingPointRouteGroupsCache.isEmpty()) {
-            return meetingPointRouteGroupsCache;
+        if (isCacheValid(cachedRoutes)) {
+            return cachedRoutes;
         }
 
         return calculateAndSaveRouteGroups(eventId);
     }
 
-    private List<MeetingPointRouteGroup> calculateAndSaveRouteGroups(UUID eventId) {
-        ReentrantLock reentrantLock = eventLockManager.getLock(eventId);
-
-        reentrantLock.lock();
+    private MeetingPointRouteGroups calculateAndSaveRouteGroups(UUID eventId) {
+        ReentrantLock lock = eventLockManager.getLock(eventId);
+        lock.lock();
         try {
-            List<MeetingPointRouteGroup> meetingPointRouteGroupsCache = routeReader.readRouteGroups(eventId);
-
-            if (!meetingPointRouteGroupsCache.isEmpty()) {
-                return meetingPointRouteGroupsCache;
+            MeetingPointRouteGroups cachedRoutes = routeReader.readMeetingPointRoutes(eventId);
+            if (isCacheValid(cachedRoutes)) {
+                return cachedRoutes;
             }
 
-            List<MeetingPointResult> meetingPointResults = meetingPointCalculator.calculate(eventId);
-            List<MeetingPointRouteGroup> meetingPointRouteGroups = routeProcessor.buildRouteGroups(meetingPointResults);
-            routeProcessor.saveRouteGroups(eventId, meetingPointRouteGroups);
+            CategorizedMeetingPointResult result = meetingPointCalculator.calculate(eventId);
+            MeetingPointRouteGroup coordinateRoute = routeProcessor.buildRouteGroup(result.byCoordinate());
+            MeetingPointRouteGroup popularRoute = routeProcessor.buildRouteGroup(result.byPopularity());
 
-            return meetingPointRouteGroups;
+            MeetingPointRouteGroups calculatedRoutes = MeetingPointRouteGroups.of(coordinateRoute, popularRoute);
+            routeProcessor.saveRouteGroups(eventId, calculatedRoutes);
+
+            return calculatedRoutes;
         } finally {
-            reentrantLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -122,5 +124,15 @@ public class EventService {
     public void deletePlace(UUID eventId) {
         Event event = eventReader.read(eventId);
         event.deletePlace();
+    }
+
+    private void prioritizeRouteGroup(MeetingPointRouteGroup group, Long userId, UUID guestId) {
+        if (group != null) {
+            routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
+        }
+    }
+
+    private boolean isCacheValid(MeetingPointRouteGroups groups) {
+        return groups != null && groups.byCoordinate() != null && groups.byPopularity() != null;
     }
 }
