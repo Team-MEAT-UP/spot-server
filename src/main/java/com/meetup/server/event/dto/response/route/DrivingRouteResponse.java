@@ -24,13 +24,13 @@ public record DrivingRouteResponse(
                         )
                         .map(road -> {
                             double[] vertexes = road.vertexes();
-                            List<Coordinate> coordinateList = new ArrayList<>();
+                            List<Coordinate> coordinates = new ArrayList<>();
                             if (vertexes != null) {
                                 for (int i = 0; i < vertexes.length - 1; i += 2) {
-                                    coordinateList.add(Coordinate.of(vertexes[i], vertexes[i + 1]));
+                                    coordinates.add(Coordinate.of(vertexes[i], vertexes[i + 1]));
                                 }
                             }
-                            return new DrivingRouteResponse(road.name(), coordinateList);
+                            return new DrivingRouteResponse(road.name(), coordinates);
                         })
                         .toList()
                 )
