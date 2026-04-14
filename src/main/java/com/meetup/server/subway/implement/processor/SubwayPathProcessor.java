@@ -28,11 +28,11 @@ public class SubwayPathProcessor {
     private final SubwayConnectionRepository subwayConnectionRepository;
     private final TransferInfoRepository transferInfoRepository;
 
-    private Map<Integer, Subway> subwayMap;
+    private Map<Integer, Subway> subways;
 
     // 인덱스 변환용 맵 및 배열
-    private Map<Integer, Integer> subwayIdToIndex;
-    private int[] indexToSubwayId;
+    private Map<Integer, Integer> subwayIndices;
+    private int[] subwayIds;
 
     // 플로이드-워셜 결과 저장 배열
     private int[][] shortestTime; // [출발][도착] = 최소 소요 시간
@@ -44,19 +44,19 @@ public class SubwayPathProcessor {
      */
     @PostConstruct
     public void init() {
-        this.subwayMap = subwayRepository.findAll()
+        this.subways = subwayRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(Subway::getSubwayId, Function.identity()));
 
         // 1. 역 ID를 연속된 배열 인덱스(0 ~ N-1)로 변환
-        List<Integer> subwayIds = new ArrayList<>(subwayMap.keySet());
-        Collections.sort(subwayIds);
-        int totalStationCount = subwayIds.size();
-        subwayIdToIndex = new HashMap<>();
-        indexToSubwayId = new int[totalStationCount];
+        List<Integer> sortedIds = new ArrayList<>(subways.keySet());
+        Collections.sort(sortedIds);
+        int totalStationCount = sortedIds.size();
+        subwayIndices = new HashMap<>();
+        subwayIds = new int[totalStationCount];
         for (int i = 0; i < totalStationCount; i++) {
-            subwayIdToIndex.put(subwayIds.get(i), i);
-            indexToSubwayId[i] = subwayIds.get(i);
+            subwayIndices.put(sortedIds.get(i), i);
+            subwayIds[i] = sortedIds.get(i);
         }
 
         // 2. 2차원 거리 행렬과 다음 노드 행렬을 초기화 (가장 큰 값인 UNREACHABLE_TIME, 경로는 -1 로 설정)
@@ -73,8 +73,8 @@ public class SubwayPathProcessor {
 
         // 3. 역과 역 사이의 소요 시간을 저장
         for (SubwayConnection connection : subwayConnectionRepository.findAllWithSubways()) {
-            Integer fromIdx = subwayIdToIndex.get(connection.getFromSubway().getSubwayId());
-            Integer toIdx = subwayIdToIndex.get(connection.getToSubway().getSubwayId());
+            Integer fromIdx = subwayIndices.get(connection.getFromSubway().getSubwayId());
+            Integer toIdx = subwayIndices.get(connection.getToSubway().getSubwayId());
             if (fromIdx == null || toIdx == null) continue;
 
             int time = connection.getSectionTimeSec();
@@ -86,8 +86,8 @@ public class SubwayPathProcessor {
 
         // 4. 환승역 간의 도보 이동 지연 시간(DEFAULT_TRANSFER_DELAY)을 저장
         for (TransferInfo transferInfo : transferInfoRepository.findAllWithSubways()) {
-            Integer fromIdx = subwayIdToIndex.get(transferInfo.getFromSubway().getSubwayId());
-            Integer toIdx = subwayIdToIndex.get(transferInfo.getToSubway().getSubwayId());
+            Integer fromIdx = subwayIndices.get(transferInfo.getFromSubway().getSubwayId());
+            Integer toIdx = subwayIndices.get(transferInfo.getToSubway().getSubwayId());
             if (fromIdx == null || toIdx == null) continue;
 
             if (DEFAULT_TRANSFER_DELAY < shortestTime[fromIdx][toIdx]) {
@@ -128,8 +128,8 @@ public class SubwayPathProcessor {
      * @return 최단 경로 결과 객체 (경로가 끊긴 곳이라면 null을 반환)
      */
     public SubwayPathResult findShortestPath(int startSubwayId, int endSubwayId) {
-        Integer startIdx = subwayIdToIndex.get(startSubwayId);
-        Integer endIdx = subwayIdToIndex.get(endSubwayId);
+        Integer startIdx = subwayIndices.get(startSubwayId);
+        Integer endIdx = subwayIndices.get(endSubwayId);
 
         if (startIdx == null || endIdx == null || nextNode[startIdx][endIdx] == -1) {
             log.warn("[유효하지 않은 경로 데이터] 출발역ID={} → 도착역ID={}", startSubwayId, endSubwayId);
@@ -142,7 +142,7 @@ public class SubwayPathProcessor {
         int current = startIdx;
 
         while (current != endIdx) {
-            path.add(indexToSubwayId[current]);
+            path.add(subwayIds[current]);
             current = nextNode[current][endIdx];
 
             if (current == -1) {
@@ -150,12 +150,12 @@ public class SubwayPathProcessor {
                 return null;
             }
         }
-        path.add(indexToSubwayId[endIdx]);
+        path.add(subwayIds[endIdx]);
 
-        List<String> pathNames = path.stream()
-                .map(id -> subwayMap.get(id).getName())
+        List<String> stationNames = path.stream()
+                .map(id -> subways.get(id).getName())
                 .toList();
 
-        return new SubwayPathResult(totalTime, path, pathNames);
+        return new SubwayPathResult(totalTime, path, stationNames);
     }
 }

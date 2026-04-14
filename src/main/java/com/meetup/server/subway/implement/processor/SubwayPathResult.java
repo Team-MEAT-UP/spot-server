@@ -5,6 +5,6 @@ import java.util.List;
 public record SubwayPathResult(
         int totalTime,
         List<Integer> path,
-        List<String> pathNames
+        List<String> stationNames
 ) {
 }
