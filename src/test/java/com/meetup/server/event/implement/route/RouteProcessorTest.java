@@ -102,14 +102,14 @@ class RouteProcessorTest extends IntegrationTestContainer {
                 drivingStartPoints.stream().limit(drivingSize)
         ).toList();
 
-        MeetingPointResult meetingPointResult1 = MeetingPointResult.of(event, testStartPoints, subway);
-        MeetingPointResult meetingPointResult2 = MeetingPointResult.of(event, testStartPoints, subway);
-        MeetingPointResult meetingPointResult3 = MeetingPointResult.of(event, testStartPoints, subway);
-        List<MeetingPointResult> meetingPointResults = List.of(meetingPointResult1, meetingPointResult2, meetingPointResult3);
+        MeetingPointResult coordinateResult = MeetingPointResult.of(event, testStartPoints, subway);
+        MeetingPointResult popularResult = MeetingPointResult.of(event, testStartPoints, subway);
 
         long startTime = System.nanoTime();
-        routeProcessor.buildRouteGroups(meetingPointResults);
+        routeProcessor.buildRouteGroup(coordinateResult);
+        routeProcessor.buildRouteGroup(popularResult);
         long endTime = System.nanoTime();
-        System.out.printf("출발지 개수: %d → 소요 시간: %d ms%n", size, (endTime - startTime) / 1_000_000);
+        
+        System.out.printf("출발지 개수: %d → (좌표+인기 2건 순차적) 소요 시간: %d ms%n", size, (endTime - startTime) / 1_000_000);
     }
 }

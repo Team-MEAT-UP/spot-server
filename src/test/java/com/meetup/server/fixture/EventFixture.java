@@ -66,6 +66,12 @@ public class EventFixture {
     }
 
     public static MeetingPointRouteGroups getMeetingPointRouteGroups() {
+        MeetingPointRouteGroup coordinateGroup = getMeetingPointRouteGroup();
+        MeetingPointRouteGroup popularityGroup = getMeetingPointRouteGroup();
+        return new MeetingPointRouteGroups(coordinateGroup, popularityGroup);
+    }
+
+    public static MeetingPointRouteGroup getMeetingPointRouteGroup() {
         List<TransitRouteResponse> transitRoutes = List.of(RouteFixture.getTransitRoute());
         DrivingInfoResponse drivingInfo = RouteFixture.getDrivingInfo();
         List<DrivingRouteResponse> drivingRoutes = List.of(RouteFixture.getDrivingRoute());
@@ -82,27 +88,11 @@ public class EventFixture {
                         null, "동작구 상도동", 126.95781764313084, 37.4963172817574, null, drivingInfo, drivingRoutes, 0)
         );
 
-        List<MeetingPointRouteGroup> groups = List.of(
-                new MeetingPointRouteGroup(
-                        240, 0,
-                        new MeetingPoint("논현", 127.021385, 37.511108),
-                        routeResponses,
-                        new ParkingLotResponse("강남대로150길(구)", 127.0201132, 37.5156578, 517.33672526)
-                ),
-                new MeetingPointRouteGroup(
-                        80, 0,
-                        new MeetingPoint("신사", 127.020247, 37.516438),
-                        routeResponses,
-                        new ParkingLotResponse("강남대로150길(구)", 127.020586, 37.515837, 73.1268062)
-                ),
-                new MeetingPointRouteGroup(
-                        32, 0,
-                        new MeetingPoint("교대", 127.014631, 37.493957),
-                        routeResponses,
-                        new ParkingLotResponse("파미에(반포천) 주차장(시)", 127.007933, 37.504517, 1313.17667989)
-                )
+        return new MeetingPointRouteGroup(
+                240, 0,
+                new MeetingPoint("논현", 127.021385, 37.511108),
+                routeResponses,
+                new ParkingLotResponse("강남대로150길(구)", 127.0201132, 37.5156578, 517.33672526)
         );
-
-        return new MeetingPointRouteGroups(groups);
     }
 }
