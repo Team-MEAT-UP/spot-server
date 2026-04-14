@@ -1,6 +1,7 @@
 package com.meetup.server.event.dto.response.route;
 
 import com.meetup.server.event.domain.Event;
+import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
 import com.meetup.server.event.util.UsernameExtractor;
 import com.meetup.server.global.util.TimeUtil;
 import com.meetup.server.place.domain.Place;
@@ -19,10 +20,11 @@ public record MeetingPointRoutesResponse(
         String placeName,
         String placeImage,
         int peopleCount,
-        List<MeetingPointRouteGroup> meetingPointRouteGroups
+        MeetingPointRouteGroup coordinate,
+        MeetingPointRouteGroup popularity
 ) {
 
-    public static MeetingPointRoutesResponse of(Event event, List<StartPoint> startPoints, List<MeetingPointRouteGroup> meetingPointRouteGroups) {
+    public static MeetingPointRoutesResponse of(Event event, List<StartPoint> startPoints, MeetingPointRouteGroups meetingPointRouteGroups) {
         return new MeetingPointRoutesResponse(
                 event.getEventName(),
                 TimeUtil.formatAsDashDate(event.getEventDateTime()),
@@ -31,7 +33,8 @@ public record MeetingPointRoutesResponse(
                 extractPlaceName(event),
                 extractPlaceImage(event),
                 startPoints.size(),
-                meetingPointRouteGroups
+                meetingPointRouteGroups.byCoordinate(),
+                meetingPointRouteGroups.byPopularity()
         );
     }
 
