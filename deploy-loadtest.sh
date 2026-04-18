@@ -17,12 +17,10 @@ echo "🏗️ 2/5: Building Spring Boot JAR..."
 ./gradlew bootJar -x test -x openapi3 -x copyOasToSwagger
 
 # 3. 시스템 및 도커 공간 청소 (용량 확보)
-echo "🧹 3/5: Cleaning up system logs and Docker data..."
+echo "🧹 3/5: Cleaning up system logs and Docker data (Aggressive)..."
 sudo apt-get clean
-sudo journalctl --vacuum-time=1d
-docker container prune -f
-docker image prune -af
-docker builder prune -af
+sudo journalctl --vacuum-time=1h
+docker system prune -a --volumes -f
 df -h
 
 # 4. 도커 이미지 빌드
