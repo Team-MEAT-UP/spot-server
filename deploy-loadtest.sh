@@ -20,6 +20,8 @@ echo "🏗️ 2/5: Building Spring Boot JAR..."
 echo "🧹 3/5: Cleaning up system logs and Docker data (Aggressive)..."
 sudo apt-get clean
 sudo journalctl --vacuum-time=1h
+# 기존 컨테이너 로그 비우기 추가
+sudo sh -c 'truncate -s 0 /var/lib/docker/containers/*/*-json.log' || true
 docker system prune -a --volumes -f
 df -h
 
