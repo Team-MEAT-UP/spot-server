@@ -6,7 +6,6 @@ import com.meetup.server.subway.domain.TransferInfo;
 import com.meetup.server.subway.infrastructure.jpa.SubwayConnectionRepository;
 import com.meetup.server.subway.infrastructure.jpa.SubwayRepository;
 import com.meetup.server.subway.infrastructure.jpa.TransferInfoRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,142 +19,86 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SubwayPathProcessor {
 
-    // 환승에 소요되는 고정 시간 (초 단위, 3분)
-    private static final int DEFAULT_TRANSFER_DELAY = 180;
-    private static final int UNREACHABLE_TIME = Integer.MAX_VALUE / 2;
+    private static final int TRANSFER_TIME_SEC = 180;
 
     private final SubwayRepository subwayRepository;
     private final SubwayConnectionRepository subwayConnectionRepository;
     private final TransferInfoRepository transferInfoRepository;
 
-    private Map<Integer, Subway> subways;
+    public SubwayPathResult findShortestPath(int startSubwayId, int endSubwayId) {
 
-    // 인덱스 변환용 맵 및 배열
-    private Map<Integer, Integer> subwayIndices;
-    private int[] subwayIds;
+        Map<Integer, Subway> subwayMap = mapSubwaysById();
+        Map<Integer, List<SubwayConnection>> connectionsMap = groupConnectionsByFromId();
+        Map<Integer, List<TransferInfo>> transferMap = groupTransfersByFromId();
 
-    // 플로이드-워셜 결과 저장 배열
-    private int[][] shortestTime; // [출발][도착] = 최소 소요 시간
-    private int[][] nextNode; // [출발][도착] = 다음 역
+        PriorityQueue<SubwayPathNode> pathQueue = new PriorityQueue<>(
+                Comparator.comparingInt((SubwayPathNode node) -> node.subwayIds().size())
+                        .thenComparingInt(SubwayPathNode::totalTime)
+        );
+        pathQueue.offer(new SubwayPathNode(startSubwayId, 0, new ArrayList<>(List.of(startSubwayId))));
 
-    /**
-     * O(V^3): 스프링 서버 기동 시 모든 지하철 역 간의 '최단 경로(All-Pairs Shortest Path)'를 미리 계산
-     * 이후 출발 <-> 중간지점 조회 시 O(1) 반환
-     */
-    @PostConstruct
-    public void init() {
-        this.subways = subwayRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(Subway::getSubwayId, Function.identity()));
+        Map<String, Integer> visitedTimeMap = new HashMap<>();
 
-        // 1. 역 ID를 연속된 배열 인덱스(0 ~ N-1)로 변환
-        List<Integer> sortedIds = new ArrayList<>(subways.keySet());
-        Collections.sort(sortedIds);
-        int totalStationCount = sortedIds.size();
-        subwayIndices = new HashMap<>();
-        subwayIds = new int[totalStationCount];
-        for (int i = 0; i < totalStationCount; i++) {
-            subwayIndices.put(sortedIds.get(i), i);
-            subwayIds[i] = sortedIds.get(i);
-        }
+        while (!pathQueue.isEmpty()) {
+            SubwayPathNode currentNode = pathQueue.poll();
 
-        // 2. 2차원 거리 행렬과 다음 노드 행렬을 초기화 (가장 큰 값인 UNREACHABLE_TIME, 경로는 -1 로 설정)
-        shortestTime = new int[totalStationCount][totalStationCount];
-        nextNode = new int[totalStationCount][totalStationCount];
-        for (int[] row : shortestTime) Arrays.fill(row, UNREACHABLE_TIME);
-        for (int[] row : nextNode) Arrays.fill(row, -1);
+            String pathKey = currentNode.subwayId() + "-" + currentNode.subwayIds().size();
+            if (visitedTimeMap.containsKey(pathKey) && visitedTimeMap.get(pathKey) <= currentNode.totalTime()) {
+                continue;
+            }
+            visitedTimeMap.put(pathKey, currentNode.totalTime());
 
-        // 내 위치에서 내 위치로 가는 시간은 0초
-        for (int i = 0; i < totalStationCount; i++) {
-            shortestTime[i][i] = 0;
-            nextNode[i][i] = i;
-        }
+            if (currentNode.subwayId() == endSubwayId) {
+                List<String> stationNames = currentNode.subwayIds().stream()
+                        .map(id -> subwayMap.get(id).getName())
+                        .collect(Collectors.toList());
 
-        // 3. 역과 역 사이의 소요 시간을 저장
-        for (SubwayConnection connection : subwayConnectionRepository.findAllWithSubways()) {
-            Integer fromIdx = subwayIndices.get(connection.getFromSubway().getSubwayId());
-            Integer toIdx = subwayIndices.get(connection.getToSubway().getSubwayId());
-            if (fromIdx == null || toIdx == null) continue;
+                return new SubwayPathResult(currentNode.totalTime(), currentNode.subwayIds(), stationNames);
+            }
 
-            int time = connection.getSectionTimeSec();
-            if (time < shortestTime[fromIdx][toIdx]) {
-                shortestTime[fromIdx][toIdx] = time;
-                nextNode[fromIdx][toIdx] = toIdx;
+            List<SubwayConnection> connections = connectionsMap.getOrDefault(currentNode.subwayId(), List.of());
+            for (SubwayConnection connection : connections) {
+                pathQueue.offer(new SubwayPathNode(
+                        connection.getToSubway().getSubwayId(),
+                        currentNode.totalTime() + connection.getSectionTimeSec(),
+                        addSubwayToPath(currentNode.subwayIds(), connection.getToSubway().getSubwayId())
+                ));
+            }
+
+            List<TransferInfo> transfers = transferMap.getOrDefault(currentNode.subwayId(), List.of());
+            for (TransferInfo transfer : transfers) {
+                pathQueue.offer(new SubwayPathNode(
+                        transfer.getToSubway().getSubwayId(),
+                        currentNode.totalTime() + TRANSFER_TIME_SEC,
+                        addSubwayToPath(currentNode.subwayIds(), transfer.getToSubway().getSubwayId())
+                ));
             }
         }
 
-        // 4. 환승역 간의 도보 이동 지연 시간(DEFAULT_TRANSFER_DELAY)을 저장
-        for (TransferInfo transferInfo : transferInfoRepository.findAllWithSubways()) {
-            Integer fromIdx = subwayIndices.get(transferInfo.getFromSubway().getSubwayId());
-            Integer toIdx = subwayIndices.get(transferInfo.getToSubway().getSubwayId());
-            if (fromIdx == null || toIdx == null) continue;
-
-            if (DEFAULT_TRANSFER_DELAY < shortestTime[fromIdx][toIdx]) {
-                shortestTime[fromIdx][toIdx] = DEFAULT_TRANSFER_DELAY;
-                nextNode[fromIdx][toIdx] = toIdx;
-            }
-        }
-
-        // 5. Floyd-Warshall
-        // departIdx(출발역)에서 arriveIdx(도착역)로 직접 가는 것보다, viaIdx(경유역)를 거쳐가는 것이 더 빠를 경우 거리를 갱신
-        long startTime = System.currentTimeMillis();
-
-        for (int viaIdx = 0; viaIdx < totalStationCount; viaIdx++) {
-            for (int departIdx = 0; departIdx < totalStationCount; departIdx++) {
-                if (shortestTime[departIdx][viaIdx] == UNREACHABLE_TIME) continue;
-                for (int arriveIdx = 0; arriveIdx < totalStationCount; arriveIdx++) {
-                    if (shortestTime[viaIdx][arriveIdx] == UNREACHABLE_TIME) continue;
-
-                    int newTime = shortestTime[departIdx][viaIdx] + shortestTime[viaIdx][arriveIdx];
-                    if (newTime < shortestTime[departIdx][arriveIdx]) {
-                        shortestTime[departIdx][arriveIdx] = newTime;
-                        nextNode[departIdx][arriveIdx] = nextNode[departIdx][viaIdx];
-                    }
-                }
-            }
-        }
-
-        long elapsed = System.currentTimeMillis() - startTime;
-        log.info("Floyd-Warshall 길찾기 전처리 계산 완료 (총 역 수: {}, 소요시간: {}ms)", totalStationCount, elapsed);
+        return null;
     }
 
-    /**
-     * 출발역에서 도착역까지의 최단 경로(시간 및 거쳐간 노드 리스트)를 반환합니다.
-     * 메모리에 2차원 배열로 계산되어 있으므로, 탐색 비용 O(1)과 경로 복원 비용 O(K)만 소모됩니다.
-     *
-     * @param startSubwayId 출발역 DB PK
-     * @param endSubwayId   도착역 DB PK
-     * @return 최단 경로 결과 객체 (경로가 끊긴 곳이라면 null을 반환)
-     */
-    public SubwayPathResult findShortestPath(int startSubwayId, int endSubwayId) {
-        Integer startIdx = subwayIndices.get(startSubwayId);
-        Integer endIdx = subwayIndices.get(endSubwayId);
+    private List<Integer> addSubwayToPath(List<Integer> path, int subwayId) {
+        List<Integer> newPath = new ArrayList<>(path);
+        newPath.add(subwayId);
+        return newPath;
+    }
 
-        if (startIdx == null || endIdx == null || nextNode[startIdx][endIdx] == -1) {
-            log.warn("[유효하지 않은 경로 데이터] 출발역ID={} → 도착역ID={}", startSubwayId, endSubwayId);
-            return null;
-        }
+    private Map<Integer, Subway> mapSubwaysById() {
+        return subwayRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(Subway::getSubwayId, Function.identity()));
+    }
 
-        int totalTime = shortestTime[startIdx][endIdx];
+    private Map<Integer, List<SubwayConnection>> groupConnectionsByFromId() {
+        return subwayConnectionRepository.findAllWithSubways()
+                .stream()
+                .collect(Collectors.groupingBy(subwayConnection -> subwayConnection.getFromSubway().getSubwayId()));
+    }
 
-        List<Integer> path = new ArrayList<>();
-        int current = startIdx;
-
-        while (current != endIdx) {
-            path.add(subwayIds[current]);
-            current = nextNode[current][endIdx];
-
-            if (current == -1) {
-                log.warn("[경로 복원 실패] 출발역ID={} → 도착역ID={}", startSubwayId, endSubwayId);
-                return null;
-            }
-        }
-        path.add(subwayIds[endIdx]);
-
-        List<String> stationNames = path.stream()
-                .map(id -> subways.get(id).getName())
-                .toList();
-
-        return new SubwayPathResult(totalTime, path, stationNames);
+    private Map<Integer, List<TransferInfo>> groupTransfersByFromId() {
+        return transferInfoRepository.findAllWithSubways()
+                .stream()
+                .collect(Collectors.groupingBy(transferInfo -> transferInfo.getFromSubway().getSubwayId()));
     }
 }
