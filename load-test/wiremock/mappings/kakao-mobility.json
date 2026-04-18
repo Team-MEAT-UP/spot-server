@@ -1,0 +1,29 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/directions"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "trans_id": "ab83c12",
+      "routes": [
+        {
+          "result_code": 0,
+          "result_msg": "ok",
+          "summary": {
+            "origin": { "name": "Start", "x": 127.0276, "y": 37.4979 },
+            "destination": { "name": "End", "x": 127.1001, "y": 37.5132 },
+            "distance": 8000,
+            "duration": 900,
+            "fare": { "taxi": 12000, "toll": 0 }
+          },
+          "sections": []
+        }
+      ]
+    }
+  }
+}

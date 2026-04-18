@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: moisam
+      POSTGRES_USER: moisam
+      POSTGRES_PASSWORD: moisam
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moisam"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  wiremock:
+    image: wiremock/wiremock:latest
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./wiremock:/home/wiremock
+    command: --verbose
+
+  app:
+    image: moisam-server:loadtest
+    ports:
+      - "18080:8080"   # Pinpoint Web(8080)과의 충돌 방지를 위해 18080으로 변경
+    environment:
+      SPRING_PROFILES_ACTIVE: loadtest
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      wiremock:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # ── Pinpoint Agent 연동 ──
+    volumes:
+      - /home/smhan0405/pinpoint/pinpoint-agent-2.5.4:/pinpoint-agent
+    entrypoint:
+      - java
+      - -javaagent:/pinpoint-agent/pinpoint-bootstrap-2.5.4.jar
+      - -Dpinpoint.agentId=moisam-loadtest
+      - -Dpinpoint.applicationName=MOISAM-SERVER
+      - -Dpinpoint.collectorIp=host.docker.internal
+      - org.springframework.boot.loader.launch.JarLauncher

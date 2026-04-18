@@ -1,0 +1,58 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/api/searchPubTransPathT"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "result": {
+        "searchType": 0,
+        "outTrafficCheck": 0,
+        "busCount": 0,
+        "subwayCount": 1,
+        "subwayBusCount": 0,
+        "pointDistance": 1000.5,
+        "startRadius": 500,
+        "endRadius": 500,
+        "path": [
+          {
+            "pathType": 1,
+            "info": {
+              "trafficDistance": 5000.0,
+              "totalWalk": 400,
+              "totalTime": 30,
+              "payment": 1250,
+              "busTransitCount": 0,
+              "subwayTransitCount": 1,
+              "mapObj": "123:456",
+              "firstStartStation": "Seoul Station",
+              "lastEndStation": "Gangnam Station",
+              "totalStationCount": 10,
+              "totalDistance": 5400.0
+            },
+            "subPath": [
+              {
+                "trafficType": 1,
+                "distance": 5000.0,
+                "sectionTime": 25,
+                "stationCount": 10,
+                "lane": [
+                  {
+                    "name": "Line 2",
+                    "subwayCode": 2
+                  }
+                ],
+                "startName": "Seoul Station",
+                "endName": "Gangnam Station"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

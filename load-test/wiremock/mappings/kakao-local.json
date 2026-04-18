@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v2/local/search"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "meta": {
+        "total_count": 1,
+        "pageable_count": 1,
+        "is_end": true
+      },
+      "documents": [
+        {
+          "id": "1",
+          "place_name": "강남역",
+          "category_name": "교통,수송 > 지하철,전철 > 수도권2호선",
+          "category_group_code": "SW8",
+          "category_group_name": "지하철역",
+          "phone": "02-1234-5678",
+          "address_name": "서울 강남구 역삼동 858",
+          "road_address_name": "서울 강남구 강남대로 396",
+          "x": "127.027619",
+          "y": "37.497942",
+          "place_url": "http://place.map.kakao.com/21160611",
+          "distance": "0"
+        }
+      ]
+    }
+  }
+}
