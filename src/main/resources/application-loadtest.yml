@@ -8,6 +8,9 @@ server:
   forward-headers-strategy: native
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
