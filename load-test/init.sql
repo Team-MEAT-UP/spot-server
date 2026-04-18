@@ -1,5 +1,5 @@
 -- =====================================================
--- 부하 테스트용 시드 데이터 (init.sql) - 2~8인 스플릿 벤치마크용
+-- 부하 테스트용 시드 데이터 (init.sql) - 2~8인 스플릿 벤치마크용 (수정 버전)
 -- =====================================================
 
 -- ── 테스트 유저 (8명 확보) ──
@@ -28,19 +28,19 @@ VALUES
 ON CONFLICT (event_id) DO NOTHING;
 
 -- ── 출발지 데이터 (누적 배정) ──
--- 각 이벤트 ID의 마지막 숫자가 인원수와 일치하도록 구성
-INSERT INTO start_point (start_point_id, event_id, user_id, start_point_name, is_user, is_transit, road_longitude, road_latitude, point, created_at, modified_at)
+INSERT INTO start_point (start_point_id, event_id, user_id, start_point_name, is_user, is_transit, road_longitude, road_latitude, address, road_address, point, created_at, modified_at)
 VALUES
   -- 2인 케이스
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000002', 1, '강남', true, true, 127.0276, 37.4979, ST_SetSRID(ST_MakePoint(127.0276, 37.4979), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000002', 2, '홍대', true, true, 126.9221, 37.5572, ST_SetSRID(ST_MakePoint(126.9221, 37.5572), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000002', 1, '강남', true, true, 127.0276, 37.4979, '서울 강남구', '강남대로', ST_SetSRID(ST_MakePoint(127.0276, 37.4979), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000002', 2, '홍대', true, true, 126.9221, 37.5572, '서울 마포구', '양화로', ST_SetSRID(ST_MakePoint(126.9221, 37.5572), 4326), NOW(), NOW()),
   
   -- 8인 케이스 (최종 부하 타겟)
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 1, '강남', true, true, 127.0276, 37.4979, ST_SetSRID(ST_MakePoint(127.0276, 37.4979), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 2, '홍대', true, true, 126.9221, 37.5572, ST_SetSRID(ST_MakePoint(126.9221, 37.5572), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 3, '잠실', true, true, 127.1002, 37.5133, ST_SetSRID(ST_MakePoint(127.1002, 37.5133), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 4, '신촌', true, true, 126.9366, 37.5554, ST_SetSRID(ST_MakePoint(126.9366, 37.5554), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 5, '건대', true, true, 127.0694, 37.5403, ST_SetSRID(ST_MakePoint(127.0694, 37.5403), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 6, '사당', true, true, 126.9816, 37.4766, ST_SetSRID(ST_MakePoint(126.9816, 37.4766), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 7, '노량진', true, true, 126.9426, 37.5135, ST_SetSRID(ST_MakePoint(126.9426, 37.5135), 4326), NOW(), NOW()),
-  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 8, '왕십리', true, true, 127.0374, 37.5615, ST_SetSRID(ST_MakePoint(127.0374, 37.5615), 4326), NOW(), NOW());
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 1, '강남', true, true, 127.0276, 37.4979, '서울 강남구', '강남대로', ST_SetSRID(ST_MakePoint(127.0276, 37.4979), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 2, '홍대', true, true, 126.9221, 37.5572, '서울 마포구', '양화로', ST_SetSRID(ST_MakePoint(126.9221, 37.5572), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 3, '잠실', true, true, 127.1002, 37.5133, '서울 송파구', '올림픽로', ST_SetSRID(ST_MakePoint(127.1002, 37.5133), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 4, '신촌', true, true, 126.9366, 37.5554, '서울 서대문구', '신촌로', ST_SetSRID(ST_MakePoint(126.9366, 37.5554), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 5, '건대', true, true, 127.0694, 37.5403, '서울 광진구', '아차산로', ST_SetSRID(ST_MakePoint(127.0694, 37.5403), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 6, '사당', true, true, 126.9816, 37.4766, '서울 동작구', '남부순환로', ST_SetSRID(ST_MakePoint(126.9816, 37.4766), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 7, '노량진', true, true, 126.9426, 37.5135, '서울 동작구', '노량진로', ST_SetSRID(ST_MakePoint(126.9426, 37.5135), 4326), NOW(), NOW()),
+  (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000008', 8, '왕십리', true, true, 127.0374, 37.5615, '서울 성동구', '왕십리로', ST_SetSRID(ST_MakePoint(127.0374, 37.5615), 4326), NOW(), NOW())
+ON CONFLICT DO NOTHING;
