@@ -19,15 +19,15 @@ import { BASE_URL, DEFAULT_HEADERS, COMMON_THRESHOLDS, randomEventId, checkRespo
 
 // ── 커스텀 메트릭 ──
 const meetingPointDuration = new Trend('meeting_point_duration', true);
-const cacheHitCount        = new Counter('cache_hit_count');
-const cacheMissCount       = new Counter('cache_miss_count');
+const cacheHitCount = new Counter('cache_hit_count');
+const cacheMissCount = new Counter('cache_miss_count');
 
 export const options = {
   stages: [
-    { duration: '1m', target: 10  },  // Warm-up (JIT 컴파일 대기)
-    { duration: '3m', target: 50  },  // 일반 부하
-    { duration: '2m', target: 100 },  // 스파이크 부하
-    { duration: '1m', target: 0   },  // Cool-down
+    { duration: '1m', target: 50 },  // Warm-up (JIT 컴파일 대기)
+    { duration: '3m', target: 150 },  // 일반 부하
+    { duration: '2m', target: 300 },  // 스파이크 부하
+    { duration: '1m', target: 0 },  // Cool-down
   ],
   thresholds: {
     ...COMMON_THRESHOLDS,
@@ -37,10 +37,10 @@ export const options = {
 
 export default function () {
   const eventId = randomEventId();
-  const url     = `${BASE_URL}/events/${eventId}`;
+  const url = `${BASE_URL}/events/${eventId}`;
 
   const start = Date.now();
-  const res   = http.get(url, { headers: DEFAULT_HEADERS });
+  const res = http.get(url, { headers: DEFAULT_HEADERS });
   const elapsed = Date.now() - start;
 
   meetingPointDuration.add(elapsed);

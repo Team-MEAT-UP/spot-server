@@ -70,11 +70,14 @@ public class EventService {
     }
 
     private MeetingPointRouteGroups getRouteGroups(UUID eventId) {
+        // [부하 테스트를 위한 임시 조치] 캐시 우회
+        /*
         MeetingPointRouteGroups cachedRoutes = routeReader.readMeetingPointRoutes(eventId);
 
         if (isCacheValid(cachedRoutes)) {
             return cachedRoutes;
         }
+        */
 
         return calculateAndSaveRouteGroups(eventId);
     }
@@ -83,17 +86,20 @@ public class EventService {
         ReentrantLock lock = eventLockManager.getLock(eventId);
         lock.lock();
         try {
+            /*
             MeetingPointRouteGroups cachedRoutes = routeReader.readMeetingPointRoutes(eventId);
             if (isCacheValid(cachedRoutes)) {
                 return cachedRoutes;
             }
+            */
 
             CategorizedMeetingPointResult result = meetingPointCalculator.calculate(eventId);
             MeetingPointRouteGroup coordinateRoute = routeProcessor.buildRouteGroup(result.byCoordinate());
             MeetingPointRouteGroup popularRoute = routeProcessor.buildRouteGroup(result.byPopularity());
 
             MeetingPointRouteGroups calculatedRoutes = MeetingPointRouteGroups.of(coordinateRoute, popularRoute);
-            routeProcessor.saveRouteGroups(eventId, calculatedRoutes);
+            // [부하 테스트] 순수 연산 속도 측정을 위해 Redis 저장(Write) 생략
+            // routeProcessor.saveRouteGroups(eventId, calculatedRoutes);
 
             return calculatedRoutes;
         } finally {

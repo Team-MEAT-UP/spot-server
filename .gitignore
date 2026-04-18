@@ -41,3 +41,5 @@ src/main/generated
 
 # Load test configuration exceptions
 !src/main/resources/application-loadtest.yml
+
+load-test/results/
