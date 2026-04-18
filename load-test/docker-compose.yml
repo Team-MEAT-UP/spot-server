@@ -2,15 +2,15 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:15
+    image: postgis/postgis:15-3.4-alpine
     environment:
       POSTGRES_DB: moisam
       POSTGRES_USER: moisam
       POSTGRES_PASSWORD: moisam
     ports:
       - "5432:5432"
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    # volumes:
+    #   - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U moisam"]
       interval: 5s
