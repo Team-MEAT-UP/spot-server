@@ -1,0 +1,193 @@
+client-url: http://localhost:8080
+server-url: http://localhost:8080
+
+server:
+  servlet:
+    session:
+      timeout: 30m
+  forward-headers-strategy: native
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      enabled: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/moisam
+    username: moisam
+    password: moisam
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 기존 데이터 보존을 위해 validate로 변경
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+    open-in-view: false
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      time-to-live: 10
+      cache-name: "routeDetails"
+      key-prefix: "loadtest:"
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            client-name: Kakao
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+        provider:
+          kakao:
+            authorization_uri: https://kauth.kakao.com/oauth/authorize
+            token_uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user_name_attribute: id
+
+  batch:
+    job:
+      enabled: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: moisam.official@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  issuer: spot-server
+  access-token-expiration: 86400000   # 24시간 (부하 테스트 중 만료 방지)
+  refresh-token-expiration: 604800000
+
+cors:
+  allowed:
+    origins: http://localhost:8080, http://localhost:5173
+
+app:
+  oauth2:
+    successRedirectUri: http://localhost:8080
+    failureRedirectUri: http://localhost:8080
+
+# ── 외부 API: WireMock으로 대체 (GCP VM에서 docker run -p 9090:8080 wiremock/wiremock) ──
+kakao:
+  local:
+    secret-key: ${KAKAO_API_KEY}
+    base-url: http://wiremock:8080/v2/local/search  # WireMock 사용 시 변경
+
+  mobility:
+    secret-key: ${KAKAO_API_KEY}
+    url: http://wiremock:8080/v1/directions         # WireMock 사용 시 변경
+
+odsay:
+  secret-key: ${ODSAY_API_KEY}
+  base-url: http://wiremock:8080/v1/api             # WireMock 사용 시 변경
+
+google:
+  place:
+    secret-key: test-google-key
+    base-url: http://wiremock:8080/v1
+
+cookie:
+  access-token: Access-Token
+  refresh-token: Refresh-Token
+  set-cookie: Set-Cookie
+  access-token-max-age: 86400
+  refresh-token-max-age: 604800
+  http-Only: false
+  secure: false    # HTTP 환경이므로 false
+  same-site: Lax
+  domain:
+
+springdoc:
+  server-url: http://localhost:8080
+  swagger-ui:
+    display-request-duration: true
+
+batch:
+  secret-key: ${BATCH_SECRET_KEY}
+
+swagger:
+  id: ""
+  pw: ""
+
+clova:
+  studio-api-key: test-clova-key
+  request-id: test-request-id
+  base-url: http://wiremock:8080
+  base-path: /testapp/v3/chat-completions/HCX-005
+
+aws:
+  s3:
+    access-key: test-access-key
+    secret-key: test-secret-key
+    region: ap-northeast-2
+    bucket-name: moisam-server
+
+discord:
+  error-alert-url: ${DISCORD_WEBHOOK_URL}
+
+resilience4j:
+  retry:
+    retryAspectOrder: 2
+    instances:
+      routeApi:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 1.5
+        retryExceptions:
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+  circuitbreaker:
+    circuitBreakerAspectOrder: 1
+    instances:
+      routeApi:
+        registerHealthIndicator: true
+        slidingWindowSize: 20
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        recordExceptions:
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+
+seoul:
+  open-api:
+    key: ${SEOUL_OPEN_API_KEY}
+
+logging:
+  level:
+    root: WARN
+    com.meetup: INFO
