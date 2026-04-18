@@ -189,5 +189,8 @@ seoul:
 
 logging:
   level:
-    root: WARN
+    root: INFO
+    com.zaxxer.hikari: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.meetup: INFO
