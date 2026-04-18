@@ -1,0 +1,360 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 820" width="1300" height="820" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1a6fa8"/>
+    </marker>
+    <marker id="arr-dash" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="1300" height="820" fill="#ffffff"/>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- VPC outer box                                   -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="208" y="55" width="860" height="735" rx="6" fill="#f0faf0" stroke="#1d8348" stroke-width="2" stroke-dasharray="10,5"/>
+  <!-- VPC label tab -->
+  <rect x="208" y="55" width="82" height="22" rx="4" fill="#1d8348"/>
+  <text x="218" y="70" font-size="11" font-weight="bold" fill="#fff">🏠 VPC</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- Public Subnet                                   -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="228" y="82" width="820" height="325" rx="6" fill="#eaf4fb" stroke="#1a6fa8" stroke-width="1.5" stroke-dasharray="7,4"/>
+  <text x="240" y="99" font-size="11" fill="#1a6fa8" font-weight="bold">🔒 Public Subnet</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- Private Subnet                                  -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="228" y="425" width="820" height="348" rx="6" fill="#fef9e7" stroke="#b7950b" stroke-width="1.5" stroke-dasharray="7,4"/>
+  <text x="240" y="443" font-size="11" fill="#b7950b" font-weight="bold">🔒 Private Subnet</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- LEFT SIDE: External                             -->
+  <!-- ════════════════════════════════════════════════ -->
+
+  <!-- Vercel -->
+  <g transform="translate(28,100)">
+    <rect width="64" height="64" rx="10" fill="#000"/>
+    <polygon points="32,14 54,50 10,50" fill="#fff"/>
+    <text x="32" y="82" text-anchor="middle" font-size="11" fill="#333">Vercel</text>
+    <text x="32" y="95" text-anchor="middle" font-size="10" fill="#666">Frontend</text>
+  </g>
+
+  <!-- Users -->
+  <g transform="translate(28,240)">
+    <rect width="64" height="64" rx="10" fill="#4a90d9"/>
+    <circle cx="32" cy="22" r="12" fill="#fff"/>
+    <path d="M8,60 Q8,40 32,40 Q56,40 56,60" fill="#fff"/>
+    <text x="32" y="82" text-anchor="middle" font-size="11" fill="#333">Users</text>
+    <text x="32" y="95" text-anchor="middle" font-size="10" fill="#666">moisam.kr</text>
+  </g>
+
+  <!-- GitHub Actions -->
+  <g transform="translate(28,380)">
+    <rect width="64" height="64" rx="10" fill="#24292e"/>
+    <!-- Octocat simplified -->
+    <circle cx="32" cy="28" r="14" fill="#fff"/>
+    <circle cx="32" cy="28" r="8" fill="#24292e"/>
+    <circle cx="26" cy="24" r="3" fill="#fff"/>
+    <circle cx="38" cy="24" r="3" fill="#fff"/>
+    <path d="M20,38 Q32,52 44,38" fill="#fff" stroke="none"/>
+    <text x="32" y="82" text-anchor="middle" font-size="11" fill="#fff">GitHub</text>
+    <text x="32" y="95" text-anchor="middle" font-size="10" fill="#aaa">Actions / CI·CD</text>
+  </g>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ALB (inside Public Subnet)                      -->
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ALB module box -->
+  <rect x="245" y="110" width="150" height="275" rx="6" fill="none" stroke="#8c4fff" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="320" y="127" text-anchor="middle" font-size="10" fill="#8c4fff" font-weight="bold">Load Balancer</text>
+
+  <!-- ALB icon -->
+  <g transform="translate(284,140)">
+    <rect width="72" height="72" rx="10" fill="#8c4fff"/>
+    <!-- scales icon -->
+    <line x1="36" y1="10" x2="36" y2="62" stroke="#fff" stroke-width="3"/>
+    <line x1="10" y1="24" x2="62" y2="24" stroke="#fff" stroke-width="3"/>
+    <ellipse cx="18" cy="38" rx="10" ry="6" fill="none" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="54" cy="38" rx="10" ry="6" fill="none" stroke="#fff" stroke-width="2"/>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">ALB</text>
+  </g>
+
+  <!-- ACM icon -->
+  <g transform="translate(284,250)">
+    <rect width="72" height="72" rx="10" fill="#dd344c"/>
+    <!-- shield icon -->
+    <path d="M36,12 L58,22 L58,44 Q58,58 36,66 Q14,58 14,44 L14,22 Z" fill="none" stroke="#fff" stroke-width="2.5"/>
+    <text x="36" y="46" text-anchor="middle" font-size="20" fill="#fff">✓</text>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">ACM</text>
+    <text x="36" y="100" text-anchor="middle" font-size="10" fill="#666">SSL/TLS</text>
+  </g>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ECS Fargate Prod (inside Public Subnet)         -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="415" y="110" width="290" height="275" rx="6" fill="none" stroke="#ed7100" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="560" y="127" text-anchor="middle" font-size="10" fill="#ed7100" font-weight="bold">Prod Service</text>
+
+  <!-- ECS icon -->
+  <g transform="translate(490,140)">
+    <rect width="72" height="72" rx="10" fill="#ed7100"/>
+    <!-- container grid -->
+    <rect x="12" y="12" width="20" height="20" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="38" y="12" width="20" height="20" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="12" y="38" width="20" height="20" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="38" y="38" width="20" height="20" rx="2" fill="#fff" opacity="0.9"/>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">ECS</text>
+    <text x="36" y="100" text-anchor="middle" font-size="10" fill="#666">Fargate</text>
+  </g>
+
+  <!-- Spring Boot task box -->
+  <rect x="433" y="250" width="254" height="120" rx="6" fill="#fff7ee" stroke="#ed7100" stroke-width="1"/>
+  <text x="560" y="267" text-anchor="middle" font-size="10" fill="#ed7100" font-weight="bold">spring-boot task</text>
+  <line x1="433" y1="272" x2="687" y2="272" stroke="#ed7100" stroke-width="0.8"/>
+
+  <!-- Fargate icon small -->
+  <g transform="translate(446,282)">
+    <rect width="44" height="44" rx="6" fill="#ed7100"/>
+    <rect x="8" y="8" width="12" height="12" rx="1" fill="#fff" opacity="0.9"/>
+    <rect x="24" y="8" width="12" height="12" rx="1" fill="#fff" opacity="0.9"/>
+    <rect x="8" y="24" width="12" height="12" rx="1" fill="#fff" opacity="0.9"/>
+    <rect x="24" y="24" width="12" height="12" rx="1" fill="#fff" opacity="0.9"/>
+    <text x="22" y="58" text-anchor="middle" font-size="9" fill="#555">Fargate</text>
+  </g>
+
+  <text x="510" y="296" font-size="10" fill="#555">PROFILES=prod</text>
+  <text x="510" y="311" font-size="10" fill="#555">Java 21 Virtual Thread</text>
+  <text x="510" y="326" font-size="10" fill="#0288d1">Auto Scaling (max 5)</text>
+  <text x="510" y="341" font-size="10" fill="#555">ARM64 / Linux</text>
+  <text x="510" y="356" font-size="10" fill="#555">0.5 vCPU / 1 GB</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- EC2 Staging (inside Public Subnet)              -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="725" y="110" width="300" height="275" rx="6" fill="none" stroke="#1565c0" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="875" y="127" text-anchor="middle" font-size="10" fill="#1565c0" font-weight="bold">Staging Server</text>
+
+  <!-- EC2 icon -->
+  <g transform="translate(803,140)">
+    <rect width="72" height="72" rx="10" fill="#ed7100"/>
+    <!-- server icon -->
+    <rect x="12" y="16" width="48" height="12" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="12" y="32" width="48" height="12" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="12" y="48" width="48" height="10" rx="2" fill="#fff" opacity="0.5"/>
+    <circle cx="54" cy="22" r="3" fill="#ed7100"/>
+    <circle cx="54" cy="38" r="3" fill="#ed7100"/>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">EC2</text>
+    <text x="36" y="100" text-anchor="middle" font-size="10" fill="#666">t4g.micro</text>
+  </g>
+
+  <!-- Docker container box -->
+  <rect x="742" y="250" width="264" height="120" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="874" y="267" text-anchor="middle" font-size="10" fill="#1565c0" font-weight="bold">Docker Container</text>
+  <line x1="742" y1="272" x2="1006" y2="272" stroke="#1565c0" stroke-width="0.8"/>
+
+  <!-- Docker whale icon simple -->
+  <g transform="translate(756,282)">
+    <rect width="44" height="44" rx="6" fill="#0db7ed"/>
+    <path d="M8,28 Q22,18 36,28" fill="none" stroke="#fff" stroke-width="2.5"/>
+    <path d="M22,28 Q22,16 22,10" fill="none" stroke="#fff" stroke-width="2.5"/>
+    <rect x="10" y="20" width="8" height="6" rx="1" fill="#fff" opacity="0.8"/>
+    <rect x="22" y="20" width="8" height="6" rx="1" fill="#fff" opacity="0.8"/>
+    <text x="22" y="58" text-anchor="middle" font-size="9" fill="#555">Docker</text>
+  </g>
+
+  <text x="815" y="296" font-size="10" fill="#555">PROFILES=stg</text>
+  <text x="815" y="311" font-size="10" fill="#555">Port 8080</text>
+  <text x="815" y="326" font-size="10" fill="#555">Redis key-prefix: staging:</text>
+  <text x="815" y="341" font-size="10" fill="#555">SSH 직접 배포</text>
+  <text x="815" y="356" font-size="10" fill="#555">ARM64 / Linux</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ElastiCache (inside Private Subnet)             -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="245" y="455" width="380" height="298" rx="6" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="435" y="472" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="bold">Cache Layer</text>
+
+  <!-- ElastiCache icon -->
+  <g transform="translate(399,490)">
+    <rect width="72" height="72" rx="10" fill="#c0392b"/>
+    <!-- lightning bolt -->
+    <polygon points="36,10 20,40 33,40 28,62 52,32 38,32 44,10" fill="#fff"/>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">ElastiCache</text>
+    <text x="36" y="100" text-anchor="middle" font-size="10" fill="#666">Redis</text>
+  </g>
+
+  <text x="435" y="595" text-anchor="middle" font-size="10" fill="#555">Prod + Staging 공유</text>
+  <text x="435" y="612" text-anchor="middle" font-size="10" fill="#555">key prefix로 환경 구분</text>
+  <line x1="260" y1="625" x2="610" y2="625" stroke="#c0392b" stroke-width="0.8" stroke-dasharray="4,2"/>
+  <text x="350" y="645" font-size="10" fill="#c0392b">📦 CachedRouteRepository</text>
+  <text x="350" y="662" font-size="10" fill="#c0392b">⚡ RedisRateLimiter</text>
+  <text x="350" y="679" font-size="10" fill="#888">(ODsay / Kakao Mobility 일일 한도)</text>
+  <text x="350" y="696" font-size="10" fill="#888">공유 필수 → 컨테이너화 불가</text>
+  <text x="350" y="718" font-size="10" fill="#555">cache.t4g.micro</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- RDS (inside Private Subnet)                     -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="645" y="455" width="396" height="298" rx="6" fill="none" stroke="#1a5276" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="843" y="472" text-anchor="middle" font-size="10" fill="#1a5276" font-weight="bold">Database Layer</text>
+
+  <!-- RDS icon -->
+  <g transform="translate(807,490)">
+    <rect width="72" height="72" rx="10" fill="#1a5276"/>
+    <!-- cylinder (DB) -->
+    <ellipse cx="36" cy="22" rx="22" ry="8" fill="#fff" opacity="0.9"/>
+    <rect x="14" y="22" width="44" height="28" fill="#fff" opacity="0.7"/>
+    <ellipse cx="36" cy="50" rx="22" ry="8" fill="#fff" opacity="0.9"/>
+    <ellipse cx="36" cy="22" rx="22" ry="8" fill="#fff" opacity="0.9"/>
+    <text x="36" y="88" text-anchor="middle" font-size="11" fill="#333">RDS</text>
+    <text x="36" y="100" text-anchor="middle" font-size="10" fill="#666">PostgreSQL</text>
+  </g>
+
+  <text x="843" y="595" text-anchor="middle" font-size="10" fill="#555">PostGIS 확장</text>
+  <text x="843" y="612" text-anchor="middle" font-size="10" fill="#555">(공간 쿼리 지원)</text>
+  <line x1="660" y1="625" x2="1028" y2="625" stroke="#1a5276" stroke-width="0.8" stroke-dasharray="4,2"/>
+  <text x="843" y="645" text-anchor="middle" font-size="10" fill="#555">외부 접근 차단</text>
+  <text x="843" y="662" text-anchor="middle" font-size="10" fill="#555">VPC 내부에서만 접근</text>
+  <text x="843" y="695" text-anchor="middle" font-size="10" fill="#555">db.t4g.micro</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- RIGHT PANEL: AWS Services                       -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="1090" y="55" width="198" height="620" rx="8" fill="#fafafa" stroke="#ddd" stroke-width="1.5"/>
+  <text x="1189" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">AWS Services</text>
+  <line x1="1100" y1="84" x2="1278" y2="84" stroke="#ddd" stroke-width="1"/>
+
+  <!-- ECR -->
+  <g transform="translate(1134,100)">
+    <rect width="56" height="56" rx="8" fill="#ed7100"/>
+    <rect x="10" y="10" width="16" height="16" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="30" y="10" width="16" height="16" rx="2" fill="#fff" opacity="0.9"/>
+    <rect x="10" y="30" width="36" height="16" rx="2" fill="#fff" opacity="0.7"/>
+    <text x="28" y="72" text-anchor="middle" font-size="11" fill="#333">ECR</text>
+    <text x="28" y="84" text-anchor="middle" font-size="10" fill="#666">이미지 저장소</text>
+  </g>
+
+  <!-- S3 -->
+  <g transform="translate(1134,210)">
+    <rect width="56" height="56" rx="8" fill="#3f8624"/>
+    <!-- bucket shape -->
+    <path d="M14,20 L42,20 L38,50 L18,50 Z" fill="#fff" opacity="0.9"/>
+    <ellipse cx="28" cy="20" rx="14" ry="5" fill="#fff" opacity="0.9"/>
+    <text x="28" y="72" text-anchor="middle" font-size="11" fill="#333">S3</text>
+    <text x="28" y="84" text-anchor="middle" font-size="10" fill="#666">파일 스토리지</text>
+  </g>
+
+  <!-- SSM Parameter Store -->
+  <g transform="translate(1134,320)">
+    <rect width="56" height="56" rx="8" fill="#e7157b"/>
+    <!-- key icon -->
+    <circle cx="22" cy="26" r="10" fill="none" stroke="#fff" stroke-width="3"/>
+    <line x1="32" y1="26" x2="48" y2="26" stroke="#fff" stroke-width="3"/>
+    <line x1="44" y1="26" x2="44" y2="34" stroke="#fff" stroke-width="3"/>
+    <line x1="38" y1="26" x2="38" y2="32" stroke="#fff" stroke-width="3"/>
+    <text x="28" y="72" text-anchor="middle" font-size="11" fill="#333">SSM</text>
+    <text x="28" y="84" text-anchor="middle" font-size="10" fill="#666">Param Store</text>
+  </g>
+
+  <!-- CloudWatch -->
+  <g transform="translate(1134,430)">
+    <rect width="56" height="56" rx="8" fill="#e7157b"/>
+    <!-- eye/graph icon -->
+    <polyline points="10,42 20,22 28,34 36,18 46,36" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+    <text x="28" y="72" text-anchor="middle" font-size="11" fill="#333">CloudWatch</text>
+    <text x="28" y="84" text-anchor="middle" font-size="10" fill="#666">Logs</text>
+  </g>
+
+  <!-- Discord Webhook -->
+  <g transform="translate(1134,540)">
+    <rect width="56" height="56" rx="8" fill="#5865f2"/>
+    <!-- discord icon simplified -->
+    <path d="M42,16 Q28,10 14,16 L10,44 Q20,52 28,52 Q36,52 46,44 Z" fill="#fff" opacity="0.9"/>
+    <circle cx="20" cy="32" r="5" fill="#5865f2"/>
+    <circle cx="36" cy="32" r="5" fill="#5865f2"/>
+    <text x="28" y="72" text-anchor="middle" font-size="11" fill="#333">Discord</text>
+    <text x="28" y="84" text-anchor="middle" font-size="10" fill="#666">에러 알림</text>
+  </g>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ARROWS                                          -->
+  <!-- ════════════════════════════════════════════════ -->
+
+  <!-- Vercel → ALB -->
+  <line x1="92" y1="132" x2="244" y2="190" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Users → ALB -->
+  <line x1="92" y1="272" x2="244" y2="210" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- GitHub Actions → ALB (staging deploy) -->
+  <path d="M92 412 Q160 390 208 260" fill="none" stroke="#24292e" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-dash)"/>
+
+  <!-- GitHub Actions → ECR (image push) -->
+  <path d="M92 412 Q92 90 1088 138" fill="none" stroke="#24292e" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-dash)"/>
+  <text x="500" y="78" text-anchor="middle" font-size="10" fill="#888" font-style="italic">Docker push (CI/CD)</text>
+
+  <!-- ALB → ECS Fargate -->
+  <line x1="395" y1="192" x2="413" y2="192" stroke="#8c4fff" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ALB → EC2 Staging -->
+  <path d="M395 220 L723 220" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="555" y="215" text-anchor="middle" font-size="10" fill="#1565c0" font-style="italic">api-stg.moisam.kr</text>
+
+  <!-- ECS → ElastiCache -->
+  <path d="M490 385 L490 453" fill="none" stroke="#c0392b" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- EC2 → ElastiCache (dashed) -->
+  <path d="M760 385 Q680 420 615 453" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+
+  <!-- ECS → RDS -->
+  <path d="M630 385 Q700 415 760 453" fill="none" stroke="#1a5276" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- EC2 → RDS -->
+  <path d="M875 385 L875 453" fill="none" stroke="#1a5276" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- ECR → ECS (image pull) -->
+  <path d="M1088 128 Q750 100 690 138" fill="none" stroke="#ed7100" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+
+  <!-- ECS → S3 -->
+  <path d="M706 240 Q900 230 1088 238" fill="none" stroke="#3f8624" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+
+  <!-- ECS → CloudWatch -->
+  <path d="M706 260 Q920 340 1088 458" fill="none" stroke="#e7157b" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+
+  <!-- ECS → SSM -->
+  <path d="M706 250 Q940 280 1088 348" fill="none" stroke="#e7157b" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ALB routing label                              -->
+  <!-- ════════════════════════════════════════════════ -->
+  <text x="450" y="200" font-size="10" fill="#8c4fff" font-style="italic">api.moisam.kr</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- Title                                           -->
+  <!-- ════════════════════════════════════════════════ -->
+  <text x="650" y="32" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a2e">MOISAM AWS Architecture</text>
+  <text x="650" y="50" text-anchor="middle" font-size="12" fill="#666">ap-northeast-2 (Seoul)</text>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- Legend                                          -->
+  <!-- ════════════════════════════════════════════════ -->
+  <rect x="1090" y="695" width="198" height="110" rx="8" fill="#fafafa" stroke="#ddd" stroke-width="1"/>
+  <text x="1189" y="714" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">Legend</text>
+  <line x1="1100" y1="718" x2="1278" y2="718" stroke="#ddd" stroke-width="1"/>
+  <line x1="1105" y1="733" x2="1135" y2="733" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="1143" y="737" font-size="10" fill="#555">트래픽 흐름</text>
+  <line x1="1105" y1="752" x2="1135" y2="752" stroke="#888" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+  <text x="1143" y="756" font-size="10" fill="#555">CI/CD 연결</text>
+  <line x1="1105" y1="771" x2="1135" y2="771" stroke="#ed7100" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dash)"/>
+  <text x="1143" y="775" font-size="10" fill="#555">이미지 참조</text>
+  <rect x="1105" y="782" width="14" height="10" rx="2" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="1143" y="793" font-size="10" fill="#555">서비스 그룹</text>
+
+</svg>

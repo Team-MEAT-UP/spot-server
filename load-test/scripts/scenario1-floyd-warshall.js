@@ -37,10 +37,10 @@ export const options = {
 
 export default function () {
   const eventId = randomEventId();
-  const url     = `${BASE_URL}/api/events/${eventId}/meeting-points`;
+  const url     = `${BASE_URL}/events/${eventId}`;
 
   const start = Date.now();
-  const res   = http.post(url, null, { headers: DEFAULT_HEADERS });
+  const res   = http.get(url, { headers: DEFAULT_HEADERS });
   const elapsed = Date.now() - start;
 
   meetingPointDuration.add(elapsed);

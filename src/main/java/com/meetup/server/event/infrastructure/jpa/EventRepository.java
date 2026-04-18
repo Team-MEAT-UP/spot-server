@@ -33,25 +33,19 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query(value = """
             SELECT e.* FROM event e
-            LEFT JOIN (
-                SELECT sp.event_id, count(*) as sp_count
-                FROM start_point sp
-                GROUP BY sp.event_id
-            ) pc ON pc.event_id = e.event_id
             WHERE (cast(:startDateTime as timestamp) IS NULL OR e.created_at >= cast(:startDateTime as timestamp))
               AND (cast(:endDateTime as timestamp) IS NULL OR e.created_at <= cast(:endDateTime as timestamp))
-              AND (:participantCount IS NULL OR pc.sp_count = :participantCount)
+              AND (:participantCount IS NULL OR :participantCount = (
+                  SELECT count(*) FROM start_point sp WHERE sp.event_id = e.event_id
+              ))
             """,
             countQuery = """
             SELECT count(*) FROM event e
-            LEFT JOIN (
-                SELECT sp.event_id, count(*) as sp_count
-                FROM start_point sp
-                GROUP BY sp.event_id
-            ) pc ON pc.event_id = e.event_id
             WHERE (cast(:startDateTime as timestamp) IS NULL OR e.created_at >= cast(:startDateTime as timestamp))
               AND (cast(:endDateTime as timestamp) IS NULL OR e.created_at <= cast(:endDateTime as timestamp))
-              AND (:participantCount IS NULL OR pc.sp_count = :participantCount)
+              AND (:participantCount IS NULL OR :participantCount = (
+                  SELECT count(*) FROM start_point sp WHERE sp.event_id = e.event_id
+              ))
             """,
             nativeQuery = true)
     Page<Event> findFilteredEvents(

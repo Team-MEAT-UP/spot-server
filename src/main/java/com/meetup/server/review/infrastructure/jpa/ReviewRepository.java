@@ -5,6 +5,7 @@ import com.meetup.server.place.domain.Place;
 import com.meetup.server.review.domain.Review;
 import com.meetup.server.review.infrastructure.querydsl.ReviewCustomRepository;
 import com.meetup.server.user.domain.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCustomRepository {
 
+    @EntityGraph(attributePaths = {"user"})
     List<Review> findAllByPlace(Place place);
 
     boolean existsByEventAndPlaceAndUser(Event event, Place place, User user);

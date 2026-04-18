@@ -32,7 +32,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate  # 기존 데이터 보존을 위해 validate로 변경
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false

@@ -15,10 +15,7 @@ public interface SubwayRepository extends JpaRepository<Subway, Integer> {
     @Query(value = """
                 SELECT s.*
                 FROM subway s
-                WHERE ST_Distance(s.point, :startPoint) = (
-                    SELECT MIN(ST_Distance(s2.point, :startPoint))
-                    FROM subway s2
-                )
+                ORDER BY s.point <-> :startPoint
                 LIMIT 1
             """, nativeQuery = true)
     Subway findClosestSubway(@Param("startPoint") Point startPoint);
@@ -29,7 +26,4 @@ public interface SubwayRepository extends JpaRepository<Subway, Integer> {
                 WHERE CAST(st_dwithin(s.point, :centerPoint, :radius, true) AS boolean) = true
             """)
     List<Subway> findAllWithinRadius(@Param("centerPoint") Point centerPoint, @Param("radius") double radius);
-
-    @Query(value = "SELECT s.* FROM subway s WHERE subway_id IN (:subwayIds) ORDER BY array_position(:subwayIds, subway_id)", nativeQuery = true)
-    List<Subway> findAllBySubwayIdInOrderByIds(@Param("subwayIds") Integer[] subwayIds);
 }

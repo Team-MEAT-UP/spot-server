@@ -16,9 +16,14 @@ echo "🏗️ 2/5: Building Spring Boot JAR..."
 # 테스트와 문서 생성을 제외하여 빌드 속도를 높입니다.
 ./gradlew bootJar -x test -x openapi3 -x copyOasToSwagger
 
-# 3. 도커 공간 청소 (디스크 용량 부족 방지)
-echo "🧹 3/5: Cleaning up unused Docker data..."
-docker system prune -f
+# 3. 시스템 및 도커 공간 청소 (용량 확보)
+echo "🧹 3/5: Cleaning up system logs and Docker data..."
+sudo apt-get clean
+sudo journalctl --vacuum-time=1d
+docker container prune -f
+docker image prune -af
+docker builder prune -af
+df -h
 
 # 4. 도커 이미지 빌드
 echo "🐳 4/5: Building Docker Image..."
