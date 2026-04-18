@@ -38,3 +38,6 @@ out/
 .vscode/
 src/main/resources/*.yml
 src/main/generated
+
+# Load test configuration exceptions
+!src/main/resources/application-loadtest.yml
