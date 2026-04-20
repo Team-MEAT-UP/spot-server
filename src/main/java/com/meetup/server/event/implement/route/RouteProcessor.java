@@ -28,6 +28,9 @@ public class RouteProcessor {
     public MeetingPointRouteGroup buildRouteGroup(MeetingPointResult meetingPointResult) {
         try {
             return routeAssembler.assemble(meetingPointResult.startPoints(), meetingPointResult.subway()).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new EventException(EventErrorType.ROUTE_FETCH_FAILED);
         } catch (Exception e) {
             log.warn("[RouteProcessor] Failed building MeetingPointRouteGroup", e);
             throw new EventException(EventErrorType.ROUTE_FETCH_FAILED);

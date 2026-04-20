@@ -67,8 +67,30 @@ public class EventFixture {
 
     public static MeetingPointRouteGroups getMeetingPointRouteGroups() {
         MeetingPointRouteGroup coordinateGroup = getMeetingPointRouteGroup();
-        MeetingPointRouteGroup popularityGroup = getMeetingPointRouteGroup();
+        MeetingPointRouteGroup popularityGroup = getPopularityMeetingPointRouteGroup();
         return new MeetingPointRouteGroups(coordinateGroup, popularityGroup);
+    }
+
+    public static MeetingPointRouteGroup getPopularityMeetingPointRouteGroup() {
+        List<TransitRouteResponse> transitRoutes = List.of(RouteFixture.getTransitRoute());
+        DrivingInfoResponse drivingInfo = RouteFixture.getDrivingInfo();
+        List<DrivingRouteResponse> drivingRoutes = List.of(RouteFixture.getDrivingRoute());
+
+        List<RouteResponse> routeResponses = List.of(
+                new RouteResponse(true, false, UUID.fromString("0198c64a-5a06-7095-a692-3c5e1a2c294f"),
+                        null, UUID.fromString("0198c64a-5a06-7095-a693-c3f8ebde622c"), "김아무개",
+                        null, "강남구 삼성동", 127.043999, 37.510297, transitRoutes, null, null, 15),
+                new RouteResponse(false, false, UUID.fromString("0198c64b-086a-796d-a4d3-105c89ee529e"),
+                        null, UUID.fromString("0198c64b-086a-796d-a4d4-8d44881d2ad7"), "안연아바보",
+                        null, "강남구 삼성동", 127.043999, 37.510297, null, drivingInfo, drivingRoutes, 0)
+        );
+
+        return new MeetingPointRouteGroup(
+                300, 0,
+                new MeetingPoint("홍대입구", 126.923915, 37.557140),
+                routeResponses,
+                new ParkingLotResponse("홍대주차장", 126.922000, 37.556000, 300.0)
+        );
     }
 
     public static MeetingPointRouteGroup getMeetingPointRouteGroup() {

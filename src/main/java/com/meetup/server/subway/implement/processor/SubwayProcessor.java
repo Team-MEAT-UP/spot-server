@@ -44,9 +44,14 @@ public class SubwayProcessor {
     }
 
     private Optional<Integer> findOptimalSubwayId(Map<Integer, List<Integer>> destinationSubwayTimes) {
+        Comparator<Map.Entry<Integer, List<Integer>>> comparator =
+                Comparator.<Map.Entry<Integer, List<Integer>>>comparingInt(entry -> entry.getValue().size())
+                        .reversed()
+                        .thenComparingDouble(entry -> calculateFairnessScore(entry.getValue()));
+
         Optional<Integer> bestSubwayId = destinationSubwayTimes.entrySet().stream()
                 .filter(entry -> entry.getValue().size() >= MINIMUM_PEOPLE_REQUIRED)
-                .min(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
+                .min(comparator)
                 .map(Map.Entry::getKey);
 
         if (bestSubwayId.isPresent()) {
@@ -54,7 +59,7 @@ public class SubwayProcessor {
         }
 
         return destinationSubwayTimes.entrySet().stream()
-                .min(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
+                .min(comparator)
                 .map(Map.Entry::getKey);
     }
 

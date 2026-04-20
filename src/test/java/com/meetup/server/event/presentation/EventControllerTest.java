@@ -287,6 +287,8 @@ class EventControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data.coordinate.parkingLot.longitude").value(127.0201132))
                 .andExpect(jsonPath("$.data.coordinate.parkingLot.latitude").value(37.5156578))
                 .andExpect(jsonPath("$.data.coordinate.parkingLot.distance").value(517.33672526))
+                .andExpect(jsonPath("$.data.popularity.subwayId").value(300))
+                .andExpect(jsonPath("$.data.popularity.meetingPoint.endStationName").value("홍대입구"))
                 .andDo(
                         MockMvcRestDocumentationWrapper.document("event/get-meeting-point-routes",
                                 preprocessRequest(prettyPrint()),
@@ -336,7 +338,7 @@ class EventControllerTest extends ControllerTestSupport {
                                                         fieldWithPath("data.coordinate.routeResponse[].startLatitude").type(JsonFieldType.NUMBER).description("출발지 위도"),
                                                         fieldWithPath("data.coordinate.routeResponse[].totalTime").type(JsonFieldType.NUMBER).description("총 소요 시간 (분)"),
                                                         fieldWithPath("data.coordinate.routeResponse[].transitRoute").type(JsonFieldType.ARRAY).description("대중교통 경로 상세 정보 (isTransit=true일 때만 제공)").optional(),
-                                                        fieldWithPath("data.coordinate.routeResponse[].transitRoute[].trafficType").type(JsonFieldType.STRING).description("교통 수단 ('SUBWAY', 'BUS', 'WALKING)"),
+                                                        fieldWithPath("data.coordinate.routeResponse[].transitRoute[].trafficType").type(JsonFieldType.STRING).description("교통 수단 ('SUBWAY', 'BUS', 'WALKING')"),
                                                         fieldWithPath("data.coordinate.routeResponse[].transitRoute[].startExitNo").type(JsonFieldType.STRING).description("출발 정거장의 출구 번호").optional(),
                                                         fieldWithPath("data.coordinate.routeResponse[].transitRoute[].endExitNo").type(JsonFieldType.STRING).description("도착 정거장의 출구 번호").optional(),
                                                         fieldWithPath("data.coordinate.routeResponse[].transitRoute[].distance").type(JsonFieldType.NUMBER).description("이동 거리 (m)"),
@@ -387,7 +389,7 @@ class EventControllerTest extends ControllerTestSupport {
                                                         fieldWithPath("data.popularity.routeResponse[].startLatitude").type(JsonFieldType.NUMBER).description("출발지 위도"),
                                                         fieldWithPath("data.popularity.routeResponse[].totalTime").type(JsonFieldType.NUMBER).description("총 소요 시간 (분)"),
                                                         fieldWithPath("data.popularity.routeResponse[].transitRoute").type(JsonFieldType.ARRAY).description("대중교통 경로 상세 정보 (isTransit=true일 때만 제공)").optional(),
-                                                        fieldWithPath("data.popularity.routeResponse[].transitRoute[].trafficType").type(JsonFieldType.STRING).description("교통 수단 ('SUBWAY', 'BUS', 'WALKING)"),
+                                                        fieldWithPath("data.popularity.routeResponse[].transitRoute[].trafficType").type(JsonFieldType.STRING).description("교통 수단 ('SUBWAY', 'BUS', 'WALKING')"),
                                                         fieldWithPath("data.popularity.routeResponse[].transitRoute[].startExitNo").type(JsonFieldType.STRING).description("출발 정거장의 출구 번호").optional(),
                                                         fieldWithPath("data.popularity.routeResponse[].transitRoute[].endExitNo").type(JsonFieldType.STRING).description("도착 정거장의 출구 번호").optional(),
                                                         fieldWithPath("data.popularity.routeResponse[].transitRoute[].distance").type(JsonFieldType.NUMBER).description("이동 거리 (m)"),

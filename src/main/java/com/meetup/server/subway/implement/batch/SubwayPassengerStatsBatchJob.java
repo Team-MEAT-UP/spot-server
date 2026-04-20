@@ -67,7 +67,7 @@ public class SubwayPassengerStatsBatchJob {
     }
 
     /**
-     * 보관 기간(7일) 이전 데이터 삭제
+     * 보관 기간(14일) 이전 데이터 삭제
      */
     private void cleanupOldData() {
         LocalDate cutoffDate = LocalDate.now().minusDays(DATA_RETENTION_DAYS);

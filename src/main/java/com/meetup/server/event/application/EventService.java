@@ -9,6 +9,7 @@ import com.meetup.server.event.dto.response.EventStartPointResponse;
 import com.meetup.server.event.dto.response.route.CategorizedMeetingPointResult;
 import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
 import com.meetup.server.event.dto.response.route.MeetingPointRoutesResponse;
+import com.meetup.server.event.dto.response.route.RouteResponse;
 import com.meetup.server.event.implement.EventLockManager;
 import com.meetup.server.event.implement.EventProcessor;
 import com.meetup.server.event.implement.EventReader;
@@ -28,10 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -63,10 +64,12 @@ public class EventService {
         Event event = eventReader.read(eventId);
         List<StartPoint> startPoints = startPointReader.readAllWithUserByEvent(event);
 
-        Stream.of(meetingPointRoutes.byCoordinate(), meetingPointRoutes.byPopularity())
-                .forEach(group -> prioritizeRouteGroup(group, userId, guestId));
+        MeetingPointRouteGroups personalizedRoutes = MeetingPointRouteGroups.of(
+                copyAndPrioritize(meetingPointRoutes.byCoordinate(), userId, guestId),
+                copyAndPrioritize(meetingPointRoutes.byPopularity(), userId, guestId)
+        );
 
-        return MeetingPointRoutesResponse.of(event, startPoints, meetingPointRoutes);
+        return MeetingPointRoutesResponse.of(event, startPoints, personalizedRoutes);
     }
 
     private MeetingPointRouteGroups getRouteGroups(UUID eventId) {
@@ -126,10 +129,20 @@ public class EventService {
         event.deletePlace();
     }
 
-    private void prioritizeRouteGroup(MeetingPointRouteGroup group, Long userId, UUID guestId) {
-        if (group != null) {
-            routeProcessor.prioritizeMyRoute(userId, guestId, group.routeResponse());
+    private MeetingPointRouteGroup copyAndPrioritize(MeetingPointRouteGroup group, Long userId, UUID guestId) {
+        if (group == null) {
+            return null;
         }
+
+        List<RouteResponse> copiedRoutes = new ArrayList<>(group.routeResponse());
+        routeProcessor.prioritizeMyRoute(userId, guestId, copiedRoutes);
+        return MeetingPointRouteGroup.builder()
+                .subwayId(group.subwayId())
+                .averageTime(group.averageTime())
+                .meetingPoint(group.meetingPoint())
+                .routeResponse(copiedRoutes)
+                .parkingLot(group.parkingLot())
+                .build();
     }
 
     private boolean isCacheValid(MeetingPointRouteGroups groups) {

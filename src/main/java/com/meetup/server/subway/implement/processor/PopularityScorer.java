@@ -77,7 +77,7 @@ public class PopularityScorer {
                     double avgPassenger = averagePassengers.getOrDefault(stationName, 0.0);
                     double distance = distances.getOrDefault(subway.getSubwayId(), maxDistance);
 
-                    double normalizedPassenger = (avgPassenger - minPassenger) / passengerRange;
+                    double normalizedPassenger = Math.max(0, (avgPassenger - minPassenger) / passengerRange);
                     double normalizedDistance = (distance - minDistance) / distanceRange;
 
                     double score = POPULARITY_WEIGHT * normalizedPassenger + PROXIMITY_WEIGHT * (1 - normalizedDistance);

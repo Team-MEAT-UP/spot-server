@@ -17,11 +17,14 @@ public class SubwayNameMapper {
             return "";
         }
 
-        String withoutParentheses = PARENTHESES_PATTERN.matcher(name).replaceAll("");
-        return STATION_SUFFIX_PATTERN.matcher(withoutParentheses).replaceAll("").trim();
+        String withoutParentheses = PARENTHESES_PATTERN.matcher(name).replaceAll("").trim();
+        return STATION_SUFFIX_PATTERN.matcher(withoutParentheses).replaceAll("");
     }
 
     public static String toApiStationName(Subway subway) {
+        if (subway == null) {
+            return "";
+        }
         return normalizeStationName(subway.getName());
     }
 }

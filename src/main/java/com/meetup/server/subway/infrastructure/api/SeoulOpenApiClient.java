@@ -1,5 +1,7 @@
 package com.meetup.server.subway.infrastructure.api;
 
+import com.meetup.server.subway.exception.SubwayErrorType;
+import com.meetup.server.subway.exception.SubwayException;
 import com.meetup.server.subway.infrastructure.api.dto.SeoulSubwayApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -53,15 +55,20 @@ public class SeoulOpenApiClient {
                         .body(SeoulSubwayApiResponse.class);
 
                 if (response == null || response.cardSubwayStatsNew() == null) {
-                    log.warn("[서울 Open API] 응답이 null입니다. useYmd={}, startIndex={}", useYmd, startIndex);
-                    break;
+                    log.error("[서울 Open API] 응답이 null입니다. useYmd={}, startIndex={}", useYmd, startIndex);
+                    throw new SubwayException(SubwayErrorType.SEOUL_API_FETCH_FAILED);
                 }
 
                 SeoulSubwayApiResponse.CardSubwayStatsNew data = response.cardSubwayStatsNew();
 
+                if (data.result() == null) {
+                    log.error("[서울 Open API] result가 null입니다. useYmd={}, startIndex={}", useYmd, startIndex);
+                    throw new SubwayException(SubwayErrorType.SEOUL_API_FETCH_FAILED);
+                }
+
                 if (!"INFO-000".equals(data.result().code())) {
-                    log.warn("[서울 Open API] 에러 응답: code={}, message={}", data.result().code(), data.result().message());
-                    break;
+                    log.error("[서울 Open API] 에러 응답: code={}, message={}", data.result().code(), data.result().message());
+                    throw new SubwayException(SubwayErrorType.SEOUL_API_FETCH_FAILED);
                 }
 
                 if (data.row() == null || data.row().isEmpty()) {
@@ -75,9 +82,11 @@ public class SeoulOpenApiClient {
                 }
 
                 startIndex += PAGE_SIZE;
+            } catch (SubwayException e) {
+                throw e;
             } catch (Exception e) {
                 log.error("[서울 Open API] 호출 실패: useYmd={}, startIndex={}", useYmd, startIndex, e);
-                break;
+                throw new SubwayException(SubwayErrorType.SEOUL_API_FETCH_FAILED);
             }
         }
 
