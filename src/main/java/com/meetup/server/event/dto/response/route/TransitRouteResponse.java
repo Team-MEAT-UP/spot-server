@@ -30,7 +30,7 @@ public record TransitRouteResponse(
         return Optional.ofNullable(response)
                 .map(OdsayTransitRouteSearchResponse::data)
                 .map(data -> Optional.ofNullable(data.path()).orElse(List.of()))
-                .filter(pathList -> !pathList.isEmpty())
+                .filter(paths -> !paths.isEmpty())
                 .map(List::getFirst)
                 .map(firstPath -> Optional.ofNullable(firstPath.subPath()).orElse(List.of()).stream()
                         .map(subPath -> {
@@ -66,11 +66,11 @@ public record TransitRouteResponse(
                 ).orElse(null);
     }
 
-    private static List<Stations> convertToDomainStations(List<OdsayTransitRouteSearchResponse.TransitData.Station> odsayStations) {
-        if (odsayStations == null || odsayStations.isEmpty()) {
+    private static List<Stations> convertToDomainStations(List<OdsayTransitRouteSearchResponse.TransitData.Station> stations) {
+        if (stations == null || stations.isEmpty()) {
             return List.of();
         }
-        return odsayStations.stream()
+        return stations.stream()
                 .map(station -> new Stations(
                         station.index(),
                         station.stationName(),

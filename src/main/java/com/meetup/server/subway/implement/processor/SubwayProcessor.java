@@ -17,61 +17,50 @@ import java.util.stream.Collectors;
 public class SubwayProcessor {
 
     private static final int MINIMUM_PEOPLE_REQUIRED = 2;
-    private static final int MAX_SUBWAY_COUNT = 3;
     private static final double FAIRNESS_WEIGHT = 0.6;
     private static final double EFFICIENCY_WEIGHT = 0.4;
 
     private final SubwayReader subwayReader;
     private final SubwayPathProcessor subwayPathProcessor;
 
-    public List<Subway> findTopFairSubways(Map<StartPoint, List<SubwayPathResult>> startPointToSubwayPaths) {
-        Map<Integer, List<Integer>> destinationSubwayTimeMap = new HashMap<>();
+    public Optional<Subway> findTopFairSubway(Map<StartPoint, List<SubwayPathResult>> subwayPaths) {
+        Map<Integer, List<Integer>> destinationSubwayTimes = new HashMap<>();
 
-        startPointToSubwayPaths.forEach((startPoint, subwayPaths) ->
-                subwayPaths.forEach(subwayPath -> {
+        subwayPaths.forEach((startPoint, paths) ->
+                paths.forEach(subwayPath -> {
                     int destinationId = subwayPath.path().getLast();
-                    destinationSubwayTimeMap
+                    destinationSubwayTimes
                             .computeIfAbsent(destinationId, k -> new ArrayList<>())
                             .add(subwayPath.totalTime());
                 })
         );
 
-        List<Subway> allSubways = subwayReader.readAllOrderByIds(new ArrayList<>(destinationSubwayTimeMap.keySet()));
-        Map<Integer, String> subwayNames = allSubways.stream()
-                .collect(Collectors.toMap(Subway::getSubwayId, Subway::getName));
+        if (destinationSubwayTimes.isEmpty()) {
+            return Optional.empty();
+        }
 
-        Set<String> selectedNames = new HashSet<>();
-        List<Integer> result = destinationSubwayTimeMap.entrySet().stream()
+        return findOptimalSubwayId(destinationSubwayTimes)
+                .map(subwayReader::read);
+    }
+
+    private Optional<Integer> findOptimalSubwayId(Map<Integer, List<Integer>> destinationSubwayTimes) {
+        Comparator<Map.Entry<Integer, List<Integer>>> comparator =
+                Comparator.<Map.Entry<Integer, List<Integer>>>comparingInt(entry -> entry.getValue().size())
+                        .reversed()
+                        .thenComparingDouble(entry -> calculateFairnessScore(entry.getValue()));
+
+        Optional<Integer> bestSubwayId = destinationSubwayTimes.entrySet().stream()
                 .filter(entry -> entry.getValue().size() >= MINIMUM_PEOPLE_REQUIRED)
-                .sorted(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
-                .filter(entry -> selectedNames.add(subwayNames.get(entry.getKey())))
-                .limit(MAX_SUBWAY_COUNT)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .min(comparator)
+                .map(Map.Entry::getKey);
 
-        if (result.size() < MAX_SUBWAY_COUNT && !destinationSubwayTimeMap.isEmpty()) {
-            int needCount = MAX_SUBWAY_COUNT - result.size();
-            log.debug("[후보역 추가] 부족한 {}개 역 추가", needCount);
-
-            List<Integer> additionalCandidates = destinationSubwayTimeMap.entrySet().stream()
-                    .filter(entry -> entry.getValue().size() < MINIMUM_PEOPLE_REQUIRED)
-                    .sorted(Comparator.comparingDouble(entry -> calculateFairnessScore(entry.getValue())))
-                    .filter(entry -> selectedNames.add(subwayNames.get(entry.getKey())))
-                    .limit(needCount)
-                    .map(Map.Entry::getKey)
-                    .toList();
-
-            result.addAll(additionalCandidates);
+        if (bestSubwayId.isPresent()) {
+            return bestSubwayId;
         }
 
-        if (result.isEmpty()) {
-            log.warn("[후보역 없음] 지하철로 도달 가능한 중간지점을 찾을 수 없습니다. | 전체 후보역ID={}",
-                    destinationSubwayTimeMap.keySet());
-            return Collections.emptyList();
-        } else {
-            log.debug("[중간지점 확정] 최종 후보역 목록 생성 완료 | 후보군: {}", result);
-            return subwayReader.readAllOrderByIds(result);
-        }
+        return destinationSubwayTimes.entrySet().stream()
+                .min(comparator)
+                .map(Map.Entry::getKey);
     }
 
     /**
@@ -106,7 +95,7 @@ public class SubwayProcessor {
 
     public Map<StartPoint, List<SubwayPathResult>> mapStartPointsToDestinationSubways(
             List<StartPoint> startPoints,
-            Map<StartPoint, Subway> startPointsToClosestSubway,
+            Map<StartPoint, Subway> closestSubways,
             List<Subway> destinationSubways
     ) {
         return startPoints.stream()
@@ -115,7 +104,7 @@ public class SubwayProcessor {
                         startPoint -> destinationSubways.stream()
                                 .map(destinationSubway ->
                                         subwayPathProcessor.findShortestPath(
-                                                startPointsToClosestSubway.get(startPoint).getSubwayId(),
+                                                closestSubways.get(startPoint).getSubwayId(),
                                                 destinationSubway.getSubwayId())
                                 )
                                 .filter(Objects::nonNull)

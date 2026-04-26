@@ -26,8 +26,10 @@ public record MeetingPointRouteGroup(
     }
 
     private static int calculateAverageTime(List<RouteResponse> routeResponse) {
-        return routeResponse.stream()
+        return (int) routeResponse.stream()
                 .mapToInt(RouteResponse::getTotalTime)
-                .sum() / routeResponse.size();
+                .filter(time -> time > 0)
+                .average()
+                .orElse(0);
     }
 }
