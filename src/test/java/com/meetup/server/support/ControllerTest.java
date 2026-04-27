@@ -1,7 +1,6 @@
 package com.meetup.server.support;
 
 import com.meetup.server.auth.presentation.filter.JwtAuthenticationFilter;
-import com.meetup.server.auth.presentation.filter.ResponseContextFilter;
 import com.meetup.server.global.presentation.ApiControllerAdvice;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -27,7 +26,6 @@ import java.lang.annotation.Target;
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                         JwtAuthenticationFilter.class,
-                        ResponseContextFilter.class,
                         ApiControllerAdvice.class
                 })
         }
