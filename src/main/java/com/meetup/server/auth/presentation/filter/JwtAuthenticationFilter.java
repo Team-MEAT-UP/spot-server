@@ -3,6 +3,7 @@ package com.meetup.server.auth.presentation.filter;
 import com.meetup.server.auth.application.AuthService;
 import com.meetup.server.auth.dto.response.ReissueTokenResponse;
 import com.meetup.server.auth.exception.AuthErrorType;
+import com.meetup.server.auth.exception.AuthException;
 import com.meetup.server.auth.support.AuthenticationUtil;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
@@ -34,7 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/admins");
+        return path.startsWith("/admins")
+                || ("POST".equals(request.getMethod()) && "/auth/logout".equals(path));
     }
 
     @Override
@@ -59,10 +61,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = cookieUtil.getRefreshTokenFromCookie(request);
         if (refreshToken != null) {
             try {
-                ReissueTokenResponse reissueTokenResponse = authService.reIssueToken(response, refreshToken);
+                ReissueTokenResponse reissueTokenResponse = authService.reIssueToken(refreshToken);
                 cookieUtil.setAccessTokenCookie(response, reissueTokenResponse.accessToken());
+                cookieUtil.setRefreshTokenCookie(response, reissueTokenResponse.refreshToken());
                 authenticationUtil.setAuthenticationFromRequest(request, reissueTokenResponse.accessToken());
-            } catch (UserException e) {
+            } catch (AuthException | UserException e) {
                 LoggingUtil.logError("[ReissueFailed]", AuthErrorType.INVALID_REFRESH_TOKEN, e);
                 cookieUtil.deleteAccessTokenCookie(response);
                 cookieUtil.deleteRefreshTokenCookie(response);

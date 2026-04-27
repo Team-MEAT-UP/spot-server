@@ -8,6 +8,7 @@ import com.meetup.server.fixture.UserFixture;
 import com.meetup.server.global.support.response.ResultType;
 import com.meetup.server.support.ControllerTest;
 import com.meetup.server.support.ControllerTestSupport;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ class AuthControllerTest extends ControllerTestSupport {
     @Test
     void logout() throws Exception {
         // when
-        Mockito.doNothing().when(authService).logout(any(HttpServletResponse.class));
+        Mockito.doNothing().when(authService).logout(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // then
         mockMvc.perform(
