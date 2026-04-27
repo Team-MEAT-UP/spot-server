@@ -4,7 +4,6 @@ import com.meetup.server.auth.dto.CustomOAuth2User;
 import com.meetup.server.auth.dto.response.JwtUserDetails;
 import com.meetup.server.auth.exception.AuthErrorType;
 import com.meetup.server.auth.exception.AuthException;
-import com.meetup.server.user.application.UserService;
 import com.meetup.server.user.domain.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -15,13 +14,15 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-    private final UserService userService;
+
     private final JwtProperties jwtProperties;
+
     private Key key;
 
     @PostConstruct
@@ -30,14 +31,14 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(Object user) {
-        return createToken(user, jwtProperties.accessTokenExpiration());
+        return createToken(user, jwtProperties.accessTokenExpiration(), null);
     }
 
     public String createRefreshToken(Object user) {
-        return createToken(user, jwtProperties.refreshTokenExpiration());
+        return createToken(user, jwtProperties.refreshTokenExpiration(), UUID.randomUUID().toString());
     }
 
-    private String createToken(Object user, long expiration) {
+    private String createToken(Object user, long expiration, String tokenId) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + expiration);
 
@@ -48,15 +49,19 @@ public class JwtTokenProvider {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .signWith(key, SignatureAlgorithm.HS512);
 
-            if (user instanceof CustomOAuth2User oAuth2User) {
-                builder.setSubject(oAuth2User.getUserId().toString());
-            } else if (user instanceof User normalUser) {
-                builder.setSubject(normalUser.getUserId().toString());
-            } else {
-                throw new IllegalArgumentException("Unsupported user type: " + user.getClass().getName());
-            }
+        if (tokenId != null) {
+            builder.setId(tokenId);
+        }
 
-            return builder.compact();
+        if (user instanceof CustomOAuth2User oAuth2User) {
+            builder.setSubject(oAuth2User.getUserId().toString());
+        } else if (user instanceof User normalUser) {
+            builder.setSubject(normalUser.getUserId().toString());
+        } else {
+            throw new AuthException(AuthErrorType.FAILED_TOKEN_CREATION);
+        }
+
+        return builder.compact();
     }
 
     public boolean validateToken(String token) {
@@ -68,7 +73,7 @@ public class JwtTokenProvider {
 
             log.info("login user: {}", claims.getBody().getSubject());
             return claims.getBody().getExpiration().after(new Date());
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             log.error("Token validation error: ", e);
             return false;
         }
