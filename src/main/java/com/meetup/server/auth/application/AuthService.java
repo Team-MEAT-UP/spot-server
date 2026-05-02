@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -67,7 +68,11 @@ public class AuthService {
         }
 
         Long userId = jwtTokenProvider.extractUserIdFromToken(refreshToken);
-        refreshTokenRedisRepository.delete(userId);
+        try {
+            refreshTokenRedisRepository.delete(userId);
+        } catch (DataAccessException e) {
+            log.warn("Failed to delete refresh token from Redis. userId={}", userId, e);
+        }
     }
 
     private String resolveToken(String token) {
