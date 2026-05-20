@@ -6,6 +6,7 @@ import com.meetup.server.global.support.error.discord.DiscordAlarmSender;
 import com.meetup.server.global.util.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
@@ -23,32 +24,36 @@ public class RedisRateLimiter implements RateLimiter {
     private final RedisScript<Long> redisRateLimitScript;
     private final DiscordAlarmSender discordAlarmSender;
 
+    @Value("${spring.data.redis.key-prefix:}")
+    private String keyPrefix;
+
     private static final String DISCORD_ALERT_SENT_KEY_PREFIX = "rate_limit_alert:";
     private static final String ODSAY_TRANSIT = "odsay-transit";
     private static final String KAKAO_MOBILITY = "kakao-mobility";
 
     @Override
     public void tryApiCall(LimitRequestPerDay limitRequestPerDay) {
-        String key = limitRequestPerDay.key();
+        String originalKey = limitRequestPerDay.key();
+        String redisKey = (keyPrefix != null ? keyPrefix : "") + originalKey;
         int limitCount = limitRequestPerDay.count();
 
         Long result = redisRateLimitTemplate.execute(
                 redisRateLimitScript,
-                Collections.singletonList(key),
+                Collections.singletonList(redisKey),
                 String.valueOf(getTTL().toSeconds()),
                 String.valueOf(limitCount)
         );
 
         if (result == -1) {
-            sendRateLimitExceedAlert(key);
+            sendRateLimitExceedAlert(originalKey);
             return;
         }
 
         if (result >= limitCount - 50) {
-            String alertSentKey = DISCORD_ALERT_SENT_KEY_PREFIX + key;
+            String alertSentKey = (keyPrefix != null ? keyPrefix : "") + DISCORD_ALERT_SENT_KEY_PREFIX + originalKey;
             Boolean isAlertSent = redisRateLimitTemplate.opsForValue().setIfAbsent(alertSentKey, "1", getTTL());
             if (Boolean.TRUE.equals(isAlertSent)) {
-                sendRateLimitWarningAlert(key);
+                sendRateLimitWarningAlert(originalKey);
             }
         }
     }

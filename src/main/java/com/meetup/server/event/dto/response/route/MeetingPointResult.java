@@ -6,6 +6,7 @@ import com.meetup.server.subway.domain.Subway;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Builder
 public record MeetingPointResult(
@@ -19,6 +20,13 @@ public record MeetingPointResult(
                 .startPoints(startPoints)
                 .subway(subway)
                 .build();
+    }
+
+    public boolean isSameSubway(Subway other) {
+        if (other == null || this.subway == null) {
+            return false;
+        }
+        return Objects.equals(this.subway.getSubwayId(), other.getSubwayId());
     }
 }
 

@@ -1,6 +1,7 @@
 package com.meetup.server.auth.support.handler;
 
 import com.meetup.server.auth.dto.CustomOAuth2User;
+import com.meetup.server.auth.infrastructure.RefreshTokenRedisRepository;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
 import com.meetup.server.global.util.ProfileUtil;
@@ -26,6 +27,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenProvider tokenProvider;
     private final CookieUtil cookieUtil;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final LogUserLoginWriter logUserLoginWriter;
     private final ProfileUtil profileUtil;
 
@@ -46,6 +48,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String accessToken = tokenProvider.createAccessToken(oAuth2User);
         String refreshToken = tokenProvider.createRefreshToken(oAuth2User);
 
+        refreshTokenRedisRepository.save(oAuth2User.getUserId(), refreshToken);
         cookieUtil.setAccessTokenCookie(response, accessToken);
         cookieUtil.setRefreshTokenCookie(response, refreshToken);
 

@@ -4,6 +4,7 @@ import com.meetup.server.global.clients.clova.ClovaProperties;
 import com.meetup.server.global.clients.google.place.GooglePlaceProperties;
 import com.meetup.server.global.clients.kakao.local.KakaoLocalProperties;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityProperties;
+import com.meetup.server.subway.infrastructure.api.SeoulSubwayProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +21,14 @@ public class RestClientConfig {
     private static final int ODSAY_READ_TIMEOUT = 2000;
     private static final int KAKAO_MOBILITY_CONNECT_TIMEOUT = 1500;
     private static final int KAKAO_MOBILITY_READ_TIMEOUT = 2000;
+    private static final int SEOUL_SUBWAY_CONNECT_TIMEOUT = 5000;
+    private static final int SEOUL_SUBWAY_READ_TIMEOUT = 5000;
 
     private final KakaoLocalProperties kakaoLocalProperties;
     private final KakaoMobilityProperties kakaoMobilityProperties;
     private final GooglePlaceProperties googlePlaceProperties;
     private final ClovaProperties clovaProperties;
+    private final SeoulSubwayProperties seoulSubwayProperties;
 
     @Bean
     public RestClient kakaoLocalRestClient() {
@@ -77,6 +81,18 @@ public class RestClientConfig {
                 .defaultHeader("Authorization", "Bearer " + clovaProperties.studioApiKey())
                 .defaultHeader("X-NCP-CLOVASTUDIO-REQUEST-ID", clovaProperties.requestId())
                 .baseUrl(clovaProperties.baseUrl())
+                .build();
+    }
+
+    @Bean
+    public RestClient seoulSubwayRestClient() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(SEOUL_SUBWAY_CONNECT_TIMEOUT);
+        requestFactory.setReadTimeout(SEOUL_SUBWAY_READ_TIMEOUT);
+
+        return RestClient.builder()
+                .requestFactory(requestFactory)
+                .baseUrl(seoulSubwayProperties.url())
                 .build();
     }
 }

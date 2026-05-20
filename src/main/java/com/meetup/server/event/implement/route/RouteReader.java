@@ -2,14 +2,11 @@ package com.meetup.server.event.implement.route;
 
 import com.meetup.server.event.domain.Event;
 import com.meetup.server.event.domain.value.MeetingPointRouteGroups;
-import com.meetup.server.event.dto.response.route.MeetingPointRouteGroup;
 import com.meetup.server.event.implement.EventReader;
 import com.meetup.server.event.infrastructure.redis.CachedRouteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,10 +17,9 @@ public class RouteReader {
     private final EventReader eventReader;
     private final CachedRouteRepository cachedRouteRepository;
 
-    public List<MeetingPointRouteGroup> readRouteGroups(UUID eventId) {
+    public MeetingPointRouteGroups readMeetingPointRoutes(UUID eventId) {
         return readByEventId(eventId)
-                .map(MeetingPointRouteGroups::meetingPointRouteGroups)
-                .orElse(Collections.emptyList());
+                .orElse(MeetingPointRouteGroups.of(null, null));
     }
 
     public Optional<MeetingPointRouteGroups> readByEventId(UUID eventId) {
@@ -38,9 +34,12 @@ public class RouteReader {
             return Optional.empty();
         }
 
-        MeetingPointRouteGroups meetingPointRouteGroups = MeetingPointRouteGroups.from(event.getRoutes().meetingPointRouteGroups());
-        cachedRouteRepository.save(eventId, meetingPointRouteGroups);
+        MeetingPointRouteGroups routes = MeetingPointRouteGroups.of(
+                event.getRoutes().byCoordinate(),
+                event.getRoutes().byPopularity()
+        );
+        cachedRouteRepository.save(eventId, routes);
 
-        return Optional.of(meetingPointRouteGroups);
+        return Optional.of(routes);
     }
 }

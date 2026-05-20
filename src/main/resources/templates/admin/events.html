@@ -494,7 +494,7 @@
                     <td th:text="${event.eventId}" style="font-family: monospace; font-size: 12px; color: #6c757d;">ID
                     </td>
                     <td>
-                        <a th:href="@{|${clientUrl}/mapview/${event.eventId}|}" class="event-link"
+                        <a th:href="@{|${clientUrl}/mapView/${event.eventId}|}" class="event-link"
                            th:text="${event.eventName}">모임명</a>
                         <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
                             <span th:text="${#temporals.format(event.createdDateTime, 'yyyy-MM-dd HH:mm')}">생성일</span>

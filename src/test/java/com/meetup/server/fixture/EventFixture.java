@@ -66,6 +66,34 @@ public class EventFixture {
     }
 
     public static MeetingPointRouteGroups getMeetingPointRouteGroups() {
+        MeetingPointRouteGroup coordinateGroup = getMeetingPointRouteGroup();
+        MeetingPointRouteGroup popularityGroup = getPopularityMeetingPointRouteGroup();
+        return new MeetingPointRouteGroups(coordinateGroup, popularityGroup);
+    }
+
+    public static MeetingPointRouteGroup getPopularityMeetingPointRouteGroup() {
+        List<TransitRouteResponse> transitRoutes = List.of(RouteFixture.getTransitRoute());
+        DrivingInfoResponse drivingInfo = RouteFixture.getDrivingInfo();
+        List<DrivingRouteResponse> drivingRoutes = List.of(RouteFixture.getDrivingRoute());
+
+        List<RouteResponse> routeResponses = List.of(
+                new RouteResponse(true, false, UUID.fromString("0198c64a-5a06-7095-a692-3c5e1a2c294f"),
+                        null, UUID.fromString("0198c64a-5a06-7095-a693-c3f8ebde622c"), "김아무개",
+                        null, "강남구 삼성동", 127.043999, 37.510297, transitRoutes, null, null, 15),
+                new RouteResponse(false, false, UUID.fromString("0198c64b-086a-796d-a4d3-105c89ee529e"),
+                        null, UUID.fromString("0198c64b-086a-796d-a4d4-8d44881d2ad7"), "안연아바보",
+                        null, "강남구 삼성동", 127.043999, 37.510297, null, drivingInfo, drivingRoutes, 0)
+        );
+
+        return new MeetingPointRouteGroup(
+                300, 0,
+                new MeetingPoint("홍대입구", 126.923915, 37.557140),
+                routeResponses,
+                new ParkingLotResponse("홍대주차장", 126.922000, 37.556000, 300.0)
+        );
+    }
+
+    public static MeetingPointRouteGroup getMeetingPointRouteGroup() {
         List<TransitRouteResponse> transitRoutes = List.of(RouteFixture.getTransitRoute());
         DrivingInfoResponse drivingInfo = RouteFixture.getDrivingInfo();
         List<DrivingRouteResponse> drivingRoutes = List.of(RouteFixture.getDrivingRoute());
@@ -82,27 +110,11 @@ public class EventFixture {
                         null, "동작구 상도동", 126.95781764313084, 37.4963172817574, null, drivingInfo, drivingRoutes, 0)
         );
 
-        List<MeetingPointRouteGroup> groups = List.of(
-                new MeetingPointRouteGroup(
-                        240, 0,
-                        new MeetingPoint("논현", 127.021385, 37.511108),
-                        routeResponses,
-                        new ParkingLotResponse("강남대로150길(구)", 127.0201132, 37.5156578, 517.33672526)
-                ),
-                new MeetingPointRouteGroup(
-                        80, 0,
-                        new MeetingPoint("신사", 127.020247, 37.516438),
-                        routeResponses,
-                        new ParkingLotResponse("강남대로150길(구)", 127.020586, 37.515837, 73.1268062)
-                ),
-                new MeetingPointRouteGroup(
-                        32, 0,
-                        new MeetingPoint("교대", 127.014631, 37.493957),
-                        routeResponses,
-                        new ParkingLotResponse("파미에(반포천) 주차장(시)", 127.007933, 37.504517, 1313.17667989)
-                )
+        return new MeetingPointRouteGroup(
+                240, 0,
+                new MeetingPoint("논현", 127.021385, 37.511108),
+                routeResponses,
+                new ParkingLotResponse("강남대로150길(구)", 127.0201132, 37.5156578, 517.33672526)
         );
-
-        return new MeetingPointRouteGroups(groups);
     }
 }

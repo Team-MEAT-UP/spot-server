@@ -7,6 +7,7 @@ import com.meetup.server.auth.support.handler.OAuth2LoginSuccessHandler;
 import com.meetup.server.auth.support.resolver.CustomAuthorizationRequestResolver;
 import com.meetup.server.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +35,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final ResponseContextFilter responseContextFilter;
     private final SwaggerAuthFilter swaggerAuthFilter;
 
     private final String[] BLACK_LIST = {
@@ -82,6 +82,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/auth/logout").permitAll()
                         .requestMatchers(BLACK_LIST).authenticated()
                         .anyRequest().permitAll()
                 )
@@ -100,8 +101,7 @@ public class SecurityConfig {
                                 .failureHandler(oAuth2LoginFailureHandler)
                 )
                 .addFilterBefore(swaggerAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(responseContextFilter, JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
