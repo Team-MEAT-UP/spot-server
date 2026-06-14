@@ -26,7 +26,8 @@ public class TossAuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @GetMapping("/login/redirect")
+    //테스트용도
+    @PostMapping("/login/redirect")
     public void loginRedirect(
             @RequestParam String authorizationCode,
             @RequestParam String referrer,
