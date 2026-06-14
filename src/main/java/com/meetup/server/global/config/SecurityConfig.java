@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -61,7 +62,8 @@ public class SecurityConfig {
                         .failureUrl("/admins/login?error=true")
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admins/login", "/admins/register").permitAll()
+//                        .requestMatchers("/admins/login", "/admins/register").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/toss/login", "/admins/login", "/admins/register").permitAll()    //change for test
                         .requestMatchers("/admins/**").hasAuthority(Role.ADMIN.getAuthority())
                 )
                 .logout(logout -> logout

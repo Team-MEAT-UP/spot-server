@@ -4,12 +4,24 @@ import com.meetup.server.global.clients.clova.ClovaProperties;
 import com.meetup.server.global.clients.google.place.GooglePlaceProperties;
 import com.meetup.server.global.clients.kakao.local.KakaoLocalProperties;
 import com.meetup.server.global.clients.kakao.mobility.KakaoMobilityProperties;
+import com.meetup.server.global.clients.toss.TossApiProperties;
+import com.meetup.server.global.clients.toss.TossMtlsProperties;
 import com.meetup.server.subway.infrastructure.api.SeoulSubwayProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.ByteArrayInputStream;
+import java.net.http.HttpClient;
+import java.security.KeyStore;
+import java.time.Duration;
+import java.util.Base64;
+
 
 @Configuration
 @RequiredArgsConstructor
@@ -29,6 +41,9 @@ public class RestClientConfig {
     private final GooglePlaceProperties googlePlaceProperties;
     private final ClovaProperties clovaProperties;
     private final SeoulSubwayProperties seoulSubwayProperties;
+    private final TossApiProperties tossApiProperties;
+    private final TossMtlsProperties tossMtlsProperties;
+
 
     @Bean
     public RestClient kakaoLocalRestClient() {
@@ -93,6 +108,57 @@ public class RestClientConfig {
         return RestClient.builder()
                 .requestFactory(requestFactory)
                 .baseUrl(seoulSubwayProperties.url())
+                .build();
+    }
+
+    @Bean
+    public RestClient tossRestClient() throws Exception {
+        if (tossMtlsProperties.keyStoreBase64() == null || tossMtlsProperties.keyStoreBase64().isBlank()) {
+            throw new IllegalStateException("TOSS_MTLS_KEY_STORE_BASE64 is missing");
+        }
+
+        if (tossMtlsProperties.keyStorePassword() == null || tossMtlsProperties.keyStorePassword().isBlank()) {
+            throw new IllegalStateException("TOSS_MTLS_KEY_STORE_PASSWORD is missing");
+        }
+
+        String keyStoreBase64 = tossMtlsProperties.keyStoreBase64()
+                .replaceAll("\\s", "");
+
+        byte[] keyStoreBytes = Base64.getDecoder().decode(keyStoreBase64);
+
+        KeyStore keyStore = KeyStore.getInstance(tossMtlsProperties.keyStoreType());
+
+        char[] password = tossMtlsProperties.keyStorePassword().toCharArray();
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(keyStoreBytes)) {
+            keyStore.load(inputStream, password);
+        }
+
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
+                KeyManagerFactory.getDefaultAlgorithm()
+        );
+        keyManagerFactory.init(keyStore, password);
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(
+                keyManagerFactory.getKeyManagers(),
+                null,
+                null
+        );
+
+        HttpClient httpClient = HttpClient.newBuilder()
+                .sslContext(sslContext)
+                .connectTimeout(Duration.ofSeconds(10)) //need to adjust time
+                .build();
+
+        JdkClientHttpRequestFactory requestFactory =
+                new JdkClientHttpRequestFactory(httpClient);
+
+        requestFactory.setReadTimeout(Duration.ofSeconds(20));  //need to adjust time
+
+        return RestClient.builder()
+                .requestFactory(requestFactory)
+                .baseUrl(tossApiProperties.baseUrl())
                 .build();
     }
 }
