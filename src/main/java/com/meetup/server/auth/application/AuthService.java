@@ -3,13 +3,16 @@ package com.meetup.server.auth.application;
 import com.meetup.server.auth.dto.response.ReissueTokenResponse;
 import com.meetup.server.auth.exception.AuthErrorType;
 import com.meetup.server.auth.exception.AuthException;
+import com.meetup.server.auth.infrastructure.RefreshTokenRedisRepository;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.implement.UserReader;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -20,8 +23,10 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
     private final UserReader userReader;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
-    public void logout(HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        deleteRefreshTokenIfValid(request);
         cookieUtil.deleteAccessTokenCookie(response);
         cookieUtil.deleteRefreshTokenCookie(response);
     }
@@ -31,8 +36,7 @@ public class AuthService {
         return jwtTokenProvider.createAccessToken(user);
     }
 
-    public ReissueTokenResponse reIssueToken(HttpServletResponse response, String refreshToken) {
-
+    public ReissueTokenResponse reIssueToken(String refreshToken) {
         refreshToken = resolveToken(refreshToken);
 
         if (!jwtTokenProvider.validateToken(refreshToken)) {
@@ -45,10 +49,30 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
 
-        cookieUtil.setRefreshTokenCookie(response, newRefreshToken);
-        cookieUtil.setAccessTokenCookie(response, accessToken);
+        if (!refreshTokenRedisRepository.rotate(userId, refreshToken, newRefreshToken)) {
+            throw new AuthException(AuthErrorType.INVALID_REFRESH_TOKEN);
+        }
 
         return ReissueTokenResponse.from(accessToken, newRefreshToken);
+    }
+
+    private void deleteRefreshTokenIfValid(HttpServletRequest request) {
+        String refreshToken = cookieUtil.getRefreshTokenFromCookie(request);
+        if (refreshToken == null) {
+            return;
+        }
+
+        refreshToken = resolveToken(refreshToken);
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            return;
+        }
+
+        Long userId = jwtTokenProvider.extractUserIdFromToken(refreshToken);
+        try {
+            refreshTokenRedisRepository.delete(userId);
+        } catch (DataAccessException e) {
+            log.warn("Failed to delete refresh token from Redis. userId={}", userId, e);
+        }
     }
 
     private String resolveToken(String token) {

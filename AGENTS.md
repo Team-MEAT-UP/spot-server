@@ -1,0 +1,131 @@
+# Repository Guidelines
+
+## Project Structure & Module Organization
+- Java 21 Spring Boot 3.4.4 backend.
+- Main application code: `src/main/java/com/meetup/server`.
+- Domain packages include `admin`, `auth`, `batch`, `event`, `parkinglot`, `place`, `review`, `startpoint`, `subway`, and `user`.
+- Shared packages include `global`, `log`, and other common infrastructure.
+- Keep the existing layer split inside each domain:
+  - `presentation`
+  - `application`
+  - `implement`
+  - `domain`
+  - `dto`
+  - `exception`
+  - infrastructure packages such as `infrastructure/jpa` or `infrastructure/querydsl`
+- Configuration templates: `config/*.yml`.
+- Build-time copied configuration target: `src/main/resources`.
+- Static data and templates:
+  - `src/main/resources/csv`
+  - `src/main/resources/templates`
+  - `src/main/resources/scripts`
+- Tests: `src/test/java/com/meetup/server`.
+- Shared test support: `src/test/java/com/meetup/server/support`.
+
+## Tech Stack
+- Runtime and build:
+  - Java 21
+  - Gradle
+  - Spring Boot 3.4.4
+  - Spring Cloud 2024.0.1
+- Spring application stack:
+  - Spring MVC
+  - Spring Validation
+  - Spring Security
+  - OAuth2 Client
+  - Spring Batch
+  - Spring Actuator
+  - Spring AOP
+  - OpenFeign
+  - Resilience4j
+  - Mail
+  - Thymeleaf
+- Persistence and infrastructure:
+  - Spring Data JPA
+  - PostgreSQL
+  - Hibernate Spatial
+  - Redis
+  - QueryDSL JPA
+  - QueryDSL SQL Spatial
+  - UUID Creator
+  - AWS Java SDK S3
+  - Micrometer Prometheus
+  - Logstash Logback Encoder
+- Authentication:
+  - JJWT
+- API documentation:
+  - Spring REST Docs
+  - `restdocs-api-spec`
+  - Springdoc OpenAPI / Swagger UI
+- Testing:
+  - JUnit 5
+  - Spring Boot Test
+  - Spring Batch Test
+  - MockMvc REST Docs
+  - H2
+  - Testcontainers PostgreSQL
+
+## Build, Test, and Development Commands
+- `./gradlew bootRun --args='--spring.profiles.active=local'`: run the server locally with the local profile.
+- `./gradlew test`: run the JUnit 5 test suite, including Testcontainers-backed tests.
+- `./gradlew build`: compile, test, package, and generate OpenAPI output.
+- `./gradlew openapi3`: generate the OpenAPI spec used by Swagger UI.
+- Use `clear-cache.sh` only when local build or runtime cache state must be cleared.
+
+## Coding Style & Naming Conventions
+- Follow the existing package-by-domain structure.
+- Keep classes in their current layer.
+- Use 4-space indentation.
+- Use `PascalCase` for classes.
+- Use `camelCase` for methods and fields.
+- Use singular class names for domain objects, such as `Place`, `User`, and `StartPoint`.
+- Prefer existing descriptive suffixes:
+  - `Controller`
+  - `Service`
+  - `Reader`
+  - `Writer`
+  - `Processor`
+  - `Repository`
+- Before committing:
+  - Remove unused imports.
+  - Keep imports organized.
+  - Align changed lines, wrapping, and indentation with surrounding code.
+  - Avoid unrelated formatting churn.
+- No formatter configuration is committed here.
+- Do not use data structure names as variable names when a domain meaning is available.
+- Avoid names like `list`, `map`, `set`, `array`, `queue`, `userList`, or `placeMap`.
+- Prefer names that describe the content or lookup key, such as `users`, `placesById`, `eventResponses`, or `startPoints`.
+
+## Testing Guidelines
+- Name test classes with the `*Test` suffix.
+- Place tests in the matching package path under `src/test/java`.
+- Reuse fixtures from `src/test/java/com/meetup/server/fixture`.
+- Reuse shared annotations and support code from `src/test/java/com/meetup/server/support`, such as `@ControllerTest`.
+- Add or update tests when changing:
+  - public API behavior
+  - controller behavior
+  - service behavior
+  - repository queries
+  - external clients
+  - integration logic
+- Before opening a PR, add or update Controller test code for changed API/controller behavior.
+- Run `./gradlew test` before opening a PR when feasible.
+
+## Commit & Pull Request Guidelines
+- Use this commit subject format:
+  - `<TYPE>: (<ISSUE-NUMBER>) <work summary>`
+- Examples:
+  - `FEAT: (MOISAM-266) add event creation API`
+  - `FIX: (MOISAM-267) prevent duplicate review submission`
+  - `TEST: (MOISAM-268) add place search service tests`
+- Use uppercase commit types such as `FEAT`, `FIX`, `TEST`, `REFACTOR`, `CHORE`, and `DOCS`.
+- Keep the work summary concise and action-oriented.
+- PRs should include:
+  - short summary
+  - linked issue or ticket
+  - test results
+  - API or admin UI screenshots when behavior changes
+- Call out config changes explicitly, especially changes involving:
+  - profile YAMLs
+  - external clients
+  - deployment files under `deploy/`
