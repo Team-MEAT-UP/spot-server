@@ -2,6 +2,7 @@ package com.meetup.server.auth.presentation;
 
 import com.meetup.server.auth.application.AuthService;
 import com.meetup.server.global.support.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<?> logout(HttpServletResponse response) {
-        authService.logout(response);
+    public ApiResponse<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request, response);
         return ApiResponse.success();
     }
 }

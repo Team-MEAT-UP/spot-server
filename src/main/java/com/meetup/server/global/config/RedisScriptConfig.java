@@ -14,4 +14,10 @@ public class RedisScriptConfig {
         Resource redisRateLimitScript = new ClassPathResource("scripts/rate_limit_script.lua");
         return RedisScript.of(redisRateLimitScript, Long.class);
     }
+
+    @Bean
+    public RedisScript<Long> refreshTokenRotateScript() {
+        Resource refreshTokenRotateScript = new ClassPathResource("scripts/refresh_token_rotate_script.lua");
+        return RedisScript.of(refreshTokenRotateScript, Long.class);
+    }
 }
