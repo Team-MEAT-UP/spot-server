@@ -8,6 +8,8 @@ import com.meetup.server.global.clients.toss.TossApiProperties;
 import com.meetup.server.global.clients.toss.TossMtlsProperties;
 import com.meetup.server.subway.infrastructure.api.SeoulSubwayProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
@@ -21,7 +23,6 @@ import java.net.http.HttpClient;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.Optional;
 
 
 @Configuration
@@ -43,7 +44,7 @@ public class RestClientConfig {
     private final ClovaProperties clovaProperties;
     private final SeoulSubwayProperties seoulSubwayProperties;
     private final TossApiProperties tossApiProperties;
-    private final Optional<TossMtlsProperties> tossMtlsProperties;
+    private final TossMtlsProperties tossMtlsProperties;
 
 
     @Bean
@@ -112,7 +113,11 @@ public class RestClientConfig {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "tossRestClient")
+    @ConditionalOnProperty(
+            prefix = "toss.mtls",
+            name = "key-store-base64"
+    )
     public RestClient tossRestClient() throws Exception {
         if (tossMtlsProperties.keyStoreBase64() == null || tossMtlsProperties.keyStoreBase64().isBlank()) {
             throw new IllegalStateException("TOSS_MTLS_KEY_STORE_BASE64 is missing");
@@ -149,16 +154,24 @@ public class RestClientConfig {
 
         HttpClient httpClient = HttpClient.newBuilder()
                 .sslContext(sslContext)
-                .connectTimeout(Duration.ofSeconds(10)) //need to adjust time
+                .connectTimeout(Duration.ofSeconds(10))
                 .build();
 
         JdkClientHttpRequestFactory requestFactory =
                 new JdkClientHttpRequestFactory(httpClient);
 
-        requestFactory.setReadTimeout(Duration.ofSeconds(20));  //need to adjust time
+        requestFactory.setReadTimeout(Duration.ofSeconds(20));
 
         return RestClient.builder()
                 .requestFactory(requestFactory)
+                .baseUrl(tossApiProperties.baseUrl())
+                .build();
+    }
+
+    @Bean(name = "tossRestClient")
+    @ConditionalOnMissingBean(name = "tossRestClient")
+    public RestClient fallbackTossRestClient() {
+        return RestClient.builder()
                 .baseUrl(tossApiProperties.baseUrl())
                 .build();
     }

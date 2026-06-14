@@ -34,4 +34,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Test with Gradle
+        env:
+          TOSS_MTLS_KEY_STORE: ${{ secrets.TOSS_MTLS_KEY_STORE }}
+          TOSS_MTLS_KEY_STORE_PASSWORD: ${{ secrets.TOSS_MTLS_KEY_STORE_PASSWORD }}
         run: ./gradlew test
