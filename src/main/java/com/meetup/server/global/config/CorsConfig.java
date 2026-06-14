@@ -20,7 +20,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-//        config.setAllowedOrigins(allowedOrigins);
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedOriginPatterns(allowedOrigins);
         config.setAllowedMethods(List.of(
                 HttpMethod.POST.name(),
