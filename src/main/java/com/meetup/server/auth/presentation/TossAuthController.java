@@ -6,10 +6,9 @@ import com.meetup.server.auth.dto.response.TossLoginResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +22,23 @@ public class TossAuthController {
             @RequestBody TossLoginRequest request,
             HttpServletResponse response
     ) {
-        return ResponseEntity.ok(tossAuthService.login(request, response));
+        TossLoginResponse loginResponse = tossAuthService.login(request, response);
+        return ResponseEntity.ok(loginResponse);
+    }
+
+    @GetMapping("/login/redirect")
+    public void loginRedirect(
+            @RequestParam String authorizationCode,
+            @RequestParam String referrer,
+            HttpServletResponse response
+    ) throws IOException {
+        TossLoginRequest request = new TossLoginRequest(
+                authorizationCode,
+                referrer
+        );
+
+        tossAuthService.login(request, response);
+
+        response.sendRedirect("https://staging.moisam.kr");
     }
 }
