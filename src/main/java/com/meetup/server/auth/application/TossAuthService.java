@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -60,11 +59,42 @@ public class TossAuthService {
             );
         }
 
+        if (tokenResponse.success() == null) {
+            throw new IllegalStateException("Toss generate-token success body is null");
+        }
+
         String tossAccessToken = tokenResponse.success().accessToken();
+
+        if (tossAccessToken == null || tossAccessToken.isBlank()) {
+            throw new IllegalStateException("Toss accessToken is null or blank");
+        }
 
         TossLoginMeResponse meResponse = tossAuthClient.loginMe(tossAccessToken);
 
-        String socialId = TOSS_SOCIAL_ID_PREFIX + meResponse.userKey();
+        if (meResponse == null) {
+            throw new IllegalStateException("Toss login-me response is null");
+        }
+
+        if (!"SUCCESS".equalsIgnoreCase(meResponse.resultType())) {
+            throw new IllegalStateException(
+                    "Toss login-me failed: " +
+                            (meResponse.error() != null
+                                    ? meResponse.error().errorCode() + " / " + meResponse.error().reason()
+                                    : "unknown error")
+            );
+        }
+
+        if (meResponse.success() == null) {
+            throw new IllegalStateException("Toss login-me success body is null");
+        }
+
+        Long userKey = meResponse.success().userKey();
+
+        if (userKey == null) {
+            throw new IllegalStateException("Toss userKey is null");
+        }
+
+        String socialId = TOSS_SOCIAL_ID_PREFIX + userKey;
 
         User user = getOrCreateUser(socialId);
 
