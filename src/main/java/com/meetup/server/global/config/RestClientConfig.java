@@ -21,6 +21,7 @@ import java.net.http.HttpClient;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Optional;
 
 
 @Configuration
@@ -42,7 +43,7 @@ public class RestClientConfig {
     private final ClovaProperties clovaProperties;
     private final SeoulSubwayProperties seoulSubwayProperties;
     private final TossApiProperties tossApiProperties;
-    private final TossMtlsProperties tossMtlsProperties;
+    private final Optional<TossMtlsProperties> tossMtlsProperties;
 
 
     @Bean
