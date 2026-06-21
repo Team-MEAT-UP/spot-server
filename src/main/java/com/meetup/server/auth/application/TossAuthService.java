@@ -109,7 +109,7 @@ public class TossAuthService {
 
     private String normalizeReferrer(String referrer) {
         if (referrer.equalsIgnoreCase("sandbox")) {
-            return "sandbox";
+            return "SANDBOX";
         }
 
         if (referrer.equalsIgnoreCase("default")) {

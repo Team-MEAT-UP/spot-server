@@ -27,14 +27,17 @@ public class TossAuthController {
     }
 
     //테스트용도
-    @PostMapping(
-            value = "/login/redirect",
-            consumes = "application/x-www-form-urlencoded"
-    )
-    public void loginRedirect(
-            @ModelAttribute TossLoginRequest request,
+    @GetMapping("/login/redirect")
+    public void loginRedirectByGet(
+            @RequestParam String authorizationCode,
+            @RequestParam String referrer,
             HttpServletResponse response
     ) throws IOException {
+        TossLoginRequest request = new TossLoginRequest(
+                authorizationCode,
+                referrer
+        );
+
         tossAuthService.login(request, response);
         response.sendRedirect("https://staging.moisam.kr");
     }
