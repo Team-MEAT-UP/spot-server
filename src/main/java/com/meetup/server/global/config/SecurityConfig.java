@@ -1,16 +1,19 @@
 package com.meetup.server.global.config;
 
 import com.meetup.server.auth.application.CustomOAuth2UserService;
-import com.meetup.server.auth.presentation.filter.*;
+import com.meetup.server.auth.presentation.filter.JwtAccessDeniedHandler;
+import com.meetup.server.auth.presentation.filter.JwtAuthenticationEntryPoint;
+import com.meetup.server.auth.presentation.filter.JwtAuthenticationFilter;
+import com.meetup.server.auth.presentation.filter.SwaggerAuthFilter;
 import com.meetup.server.auth.support.handler.OAuth2LoginFailureHandler;
 import com.meetup.server.auth.support.handler.OAuth2LoginSuccessHandler;
 import com.meetup.server.auth.support.resolver.CustomAuthorizationRequestResolver;
 import com.meetup.server.user.domain.type.Role;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpMethod;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -82,6 +85,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/logout").permitAll()
                         .requestMatchers(BLACK_LIST).authenticated()
                         .anyRequest().permitAll()

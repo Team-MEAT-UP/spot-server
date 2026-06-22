@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.set-image.outputs.image }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +34,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
+        env:
+          TOSS_MTLS_KEY_STORE: ${{ secrets.TOSS_MTLS_KEY_STORE }}
+          TOSS_MTLS_KEY_STORE_PASSWORD: ${{ secrets.TOSS_MTLS_KEY_STORE_PASSWORD }}
         run: ./gradlew clean build
 
       - name: Configure AWS credentials
@@ -71,6 +75,7 @@ jobs:
     name: Deploy to EC2
     needs: build
     runs-on: ubuntu-latest
+
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.5
@@ -78,26 +83,35 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ env.AWS_REGION }}
+          TOSS_MTLS_KEY_STORE: ${{ secrets.TOSS_MTLS_KEY_STORE }}
+          TOSS_MTLS_KEY_STORE_PASSWORD: ${{ secrets.TOSS_MTLS_KEY_STORE_PASSWORD }}
+
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION,TOSS_MTLS_KEY_STORE,TOSS_MTLS_KEY_STORE_PASSWORD
           script: |
             # 1. ECR 로그인
             ECR_URL=$(echo ${{ needs.build.outputs.image }} | cut -d/ -f1)
             aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin $ECR_URL
-            
-            # 2. 기존 컨테이너 중지
+
+            # 2. 기존 컨테이너 중지 및 제거
             sudo docker stop moisam-server-stg || true
-            sudo docker rm moisam-server-stg || true # 이전 배포의 잔여물 제거를 위해 하위 호환성 유지
-            
+            sudo docker rm moisam-server-stg || true
+
             # 3. 새로운 컨테이너 실행
             sudo docker run -d --name moisam-server-stg \
               --restart unless-stopped \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=stg \
+              -e TOSS_MTLS_KEY_STORE="$TOSS_MTLS_KEY_STORE" \
+              -e TOSS_MTLS_KEY_STORE_PASSWORD="$TOSS_MTLS_KEY_STORE_PASSWORD" \
               ${{ needs.build.outputs.image }}
-            
-            # 4. 사용하지 않는 구버전 이미지 정리
-            sudo docker image prune -a -f
+
+            # 4. 컨테이너 상태 및 로그 확인
+            sudo docker ps -a
+            sudo docker logs moisam-server-stg --tail=100
+
+            # 5. 사용하지 않는 dangling 이미지만 정리
+            sudo docker image prune -f

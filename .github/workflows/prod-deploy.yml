@@ -31,6 +31,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
+        env:
+          TOSS_MTLS_KEY_STORE: ${{ secrets.TOSS_MTLS_KEY_STORE }}
+          TOSS_MTLS_KEY_STORE_PASSWORD: ${{ secrets.TOSS_MTLS_KEY_STORE_PASSWORD }}
         run: ./gradlew clean build
 
       - name: Configure AWS credentials
@@ -89,6 +92,14 @@ jobs:
           
           tmp=$(mktemp)
           jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' task-definition.json > "$tmp" && mv "$tmp" task-definition.json
+
+      - name: Inject Toss Environment Variables
+        run: |
+          tmp=$(mktemp)
+          jq '.containerDefinitions[0].environment += [
+            {"name": "TOSS_MTLS_KEY_STORE", "value": "${{ secrets.TOSS_MTLS_KEY_STORE }}"},
+            {"name": "TOSS_MTLS_KEY_STORE_PASSWORD", "value": "${{ secrets.TOSS_MTLS_KEY_STORE_PASSWORD }}"}
+          ]' task-definition.json > "$tmp" && mv "$tmp" task-definition.json
 
       - name: Render Task Definition
         id: task-def
