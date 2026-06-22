@@ -26,10 +26,10 @@ public class User extends BaseEntity {
     @Column(name = "profile_image")
     private String profileImage;
 
-    @Column(name = "social_id", length = 20, nullable = false, unique = true)
+    @Column(name = "social_id", length = 100, nullable = false, unique = true)
     private String socialId;
 
-    @Column(name = "email", length = 50, nullable = false, unique = true)
+    @Column(name = "email", length = 100, nullable = true, unique = true)
     private String email;
 
     @Column(name = "personal_info_agreement", nullable = false)
@@ -80,6 +80,7 @@ public class User extends BaseEntity {
         this.nickname = user.nickname;
         this.profileImage = user.profileImage;
         this.email = user.email;
+        this.socialId = user.socialId;
         this.role = Role.USER;
         this.deletedAt = null;
     }

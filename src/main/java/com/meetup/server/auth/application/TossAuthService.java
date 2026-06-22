@@ -9,6 +9,9 @@ import com.meetup.server.global.clients.toss.TossAuthClient;
 import com.meetup.server.global.clients.toss.TossGenerateTokenRequest;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
 import com.meetup.server.user.domain.User;
+import com.meetup.server.user.domain.type.AccountStatus;
+import com.meetup.server.user.domain.type.LoginProvider;
+import com.meetup.server.user.domain.type.NextAction;
 import com.meetup.server.user.domain.type.Role;
 import com.meetup.server.user.infrastructure.jpa.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class TossAuthService {
+
     private static final String TOSS_SOCIAL_ID_PREFIX = "toss:";
+    private static final String TOSS_DEFAULT_NICKNAME = "토스사용자";
 
     private final TossAuthClient tossAuthClient;
     private final UserRepository userRepository;
@@ -31,13 +36,7 @@ public class TossAuthService {
             TossLoginRequest request,
             HttpServletResponse response
     ) {
-        if (request.authorizationCode() == null || request.authorizationCode().isBlank()) {
-            throw new IllegalArgumentException("authorizationCode is required");
-        }
-
-        if (request.referrer() == null || request.referrer().isBlank()) {
-            throw new IllegalArgumentException("referrer is required");
-        }
+        validateRequest(request);
 
         TossGenerateTokenResponse tokenResponse = tossAuthClient.generateToken(
                 new TossGenerateTokenRequest(
@@ -46,6 +45,60 @@ public class TossAuthService {
                 )
         );
 
+        validateGenerateTokenResponse(tokenResponse);
+
+        String tossAccessToken = tokenResponse.success().accessToken();
+
+        if (tossAccessToken == null || tossAccessToken.isBlank()) {
+            throw new IllegalStateException("Toss accessToken is null or blank");
+        }
+
+        TossLoginMeResponse meResponse = tossAuthClient.loginMe(tossAccessToken);
+
+        validateLoginMeResponse(meResponse);
+
+        Long userKey = meResponse.success().userKey();
+
+        if (userKey == null) {
+            throw new IllegalStateException("Toss userKey is null");
+        }
+
+        LoginUserResult loginResult = getOrCreateUser(userKey);
+        User user = loginResult.user();
+
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
+
+        cookieUtil.setAccessTokenCookie(response, accessToken);
+        cookieUtil.setRefreshTokenCookie(response, refreshToken);
+
+        boolean emailRequired = user.getEmail() == null || user.getEmail().isBlank();
+        boolean onboardingRequired = isOnboardingRequired(loginResult.accountStatus());
+        NextAction nextAction = resolveNextAction(loginResult.accountStatus());
+
+        return new TossLoginResponse(
+                accessToken,
+                refreshToken,
+                user.getUserId(),
+                LoginProvider.TOSS,
+                loginResult.accountStatus(),
+                emailRequired,
+                onboardingRequired,
+                nextAction
+        );
+    }
+
+    private void validateRequest(TossLoginRequest request) {
+        if (request.authorizationCode() == null || request.authorizationCode().isBlank()) {
+            throw new IllegalArgumentException("authorizationCode is required");
+        }
+
+        if (request.referrer() == null || request.referrer().isBlank()) {
+            throw new IllegalArgumentException("referrer is required");
+        }
+    }
+
+    private void validateGenerateTokenResponse(TossGenerateTokenResponse tokenResponse) {
         if (tokenResponse == null) {
             throw new IllegalStateException("Toss generate-token response is null");
         }
@@ -62,15 +115,9 @@ public class TossAuthService {
         if (tokenResponse.success() == null) {
             throw new IllegalStateException("Toss generate-token success body is null");
         }
+    }
 
-        String tossAccessToken = tokenResponse.success().accessToken();
-
-        if (tossAccessToken == null || tossAccessToken.isBlank()) {
-            throw new IllegalStateException("Toss accessToken is null or blank");
-        }
-
-        TossLoginMeResponse meResponse = tossAuthClient.loginMe(tossAccessToken);
-
+    private void validateLoginMeResponse(TossLoginMeResponse meResponse) {
         if (meResponse == null) {
             throw new IllegalStateException("Toss login-me response is null");
         }
@@ -87,24 +134,6 @@ public class TossAuthService {
         if (meResponse.success() == null) {
             throw new IllegalStateException("Toss login-me success body is null");
         }
-
-        Long userKey = meResponse.success().userKey();
-
-        if (userKey == null) {
-            throw new IllegalStateException("Toss userKey is null");
-        }
-
-        String socialId = TOSS_SOCIAL_ID_PREFIX + userKey;
-
-        User user = getOrCreateUser(socialId);
-
-        String accessToken = jwtTokenProvider.createAccessToken(user);
-        String refreshToken = jwtTokenProvider.createRefreshToken(user);
-
-        cookieUtil.setAccessTokenCookie(response, accessToken);
-        cookieUtil.setRefreshTokenCookie(response, refreshToken);
-
-        return new TossLoginResponse(accessToken, refreshToken);
     }
 
     private String normalizeReferrer(String referrer) {
@@ -119,23 +148,61 @@ public class TossAuthService {
         throw new IllegalArgumentException("invalid referrer: " + referrer);
     }
 
-    private User getOrCreateUser(String socialId) {
-        User userForJoin = User.builder()
-                .socialId(socialId)
-                .email(null)
-                .nickname("토스사용자")
-                .profileImage(null)
-                .role(Role.USER)
-                .build();
+    private LoginUserResult getOrCreateUser(Long userKey) {
+        String socialId = createTossSocialId(userKey);
+        User userForJoin = createTossUser(socialId);
 
         return userRepository.findBySocialId(socialId)
                 .map(user -> {
                     if (user.isDeleted()) {
                         user.rejoin(userForJoin);
-                        return userRepository.save(user);
+                        User savedUser = userRepository.save(user);
+
+                        return new LoginUserResult(savedUser, AccountStatus.REJOINED_USER);
                     }
-                    return user;
+
+                    return new LoginUserResult(user, AccountStatus.EXISTING_USER);
                 })
-                .orElseGet(() -> userRepository.save(userForJoin));
+                .orElseGet(() -> {
+                    User savedUser = userRepository.save(userForJoin);
+
+                    return new LoginUserResult(savedUser, AccountStatus.NEW_USER);
+                });
+    }
+
+    private User createTossUser(String socialId) {
+        return User.builder()
+                .socialId(socialId)
+                .email(null)
+                .nickname(TOSS_DEFAULT_NICKNAME)
+                .profileImage(null)
+                .role(Role.USER)
+                .personalInfoAgreement(false)
+                .marketingAgreement(false)
+                .build();
+    }
+
+    private String createTossSocialId(Long userKey) {
+        return TOSS_SOCIAL_ID_PREFIX + userKey;
+    }
+
+    private boolean isOnboardingRequired(AccountStatus accountStatus) {
+        return accountStatus == AccountStatus.NEW_USER
+                || accountStatus == AccountStatus.REJOINED_USER;
+    }
+
+    private NextAction resolveNextAction(AccountStatus accountStatus) {
+        if (accountStatus == AccountStatus.NEW_USER
+                || accountStatus == AccountStatus.REJOINED_USER) {
+            return NextAction.COMPLETE_PROFILE;
+        }
+
+        return NextAction.GO_HOME;
+    }
+
+    private record LoginUserResult(
+            User user,
+            AccountStatus accountStatus
+    ) {
     }
 }
