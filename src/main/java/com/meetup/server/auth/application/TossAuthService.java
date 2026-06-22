@@ -7,6 +7,7 @@ import com.meetup.server.auth.dto.response.TossLoginResponse;
 import com.meetup.server.auth.support.CookieUtil;
 import com.meetup.server.global.clients.toss.TossAuthClient;
 import com.meetup.server.global.clients.toss.TossGenerateTokenRequest;
+import com.meetup.server.global.clients.toss.TossPersonalInfoDecryptor;
 import com.meetup.server.global.support.jwt.JwtTokenProvider;
 import com.meetup.server.user.domain.User;
 import com.meetup.server.user.domain.type.AccountStatus;
@@ -31,6 +32,7 @@ public class TossAuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
+    private final TossPersonalInfoDecryptor tossPersonalInfoDecryptor;
 
     public TossLoginResponse login(
             TossLoginRequest request,
@@ -63,7 +65,7 @@ public class TossAuthService {
             throw new IllegalStateException("Toss userKey is null");
         }
 
-        LoginUserResult loginResult = getOrCreateUser(userKey);
+        LoginUserResult loginResult = getOrCreateUser(userKey, meResponse);
         User user = loginResult.user();
 
         String accessToken = jwtTokenProvider.createAccessToken(user);
@@ -148,9 +150,12 @@ public class TossAuthService {
         throw new IllegalArgumentException("invalid referrer: " + referrer);
     }
 
-    private LoginUserResult getOrCreateUser(Long userKey) {
+    private LoginUserResult getOrCreateUser(
+            Long userKey,
+            TossLoginMeResponse meResponse
+    ) {
         String socialId = createTossSocialId(userKey);
-        User userForJoin = createTossUser(socialId);
+        User userForJoin = createTossUser(socialId, meResponse);
 
         return userRepository.findBySocialId(socialId)
                 .map(user -> {
@@ -170,16 +175,31 @@ public class TossAuthService {
                 });
     }
 
-    private User createTossUser(String socialId) {
+    private User createTossUser(
+            String socialId,
+            TossLoginMeResponse meResponse
+    ) {
         return User.builder()
                 .socialId(socialId)
                 .email(null)
-                .nickname(TOSS_DEFAULT_NICKNAME)
+                .nickname(resolveTossNickname(meResponse))
                 .profileImage(null)
                 .role(Role.USER)
                 .personalInfoAgreement(false)
                 .marketingAgreement(false)
                 .build();
+    }
+
+    private String resolveTossNickname(TossLoginMeResponse meResponse) {
+        String encryptedName = meResponse.success().name();
+
+        String decryptedName = tossPersonalInfoDecryptor.decryptOrNull(encryptedName);
+
+        if (decryptedName == null || decryptedName.isBlank()) {
+            return TOSS_DEFAULT_NICKNAME;
+        }
+
+        return decryptedName;
     }
 
     private String createTossSocialId(Long userKey) {
